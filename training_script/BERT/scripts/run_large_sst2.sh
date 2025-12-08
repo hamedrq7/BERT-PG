@@ -5,7 +5,7 @@ lr=2e-5
 num_gpus=1
 batch_size=32
 
-python -m torch.distributed.launch --nproc_per_node=${num_gpus} \
+torchrun --nproc_per_node=${num_gpus} \
   run_glue.py \
   --model_name_or_path bert-large-cased \
   --task_name $TASK_NAME \
