@@ -476,8 +476,10 @@ def main():
     # print('eval_dataset', len(eval_dataset))
     import torch.nn as nn
     from transformers.trainer import unwrap_model, is_peft_available, MODEL_FOR_CAUSAL_LM_MAPPING_NAMES
-    from peft import PeftModel
-    
+    if is_peft_available():
+        from peft import PeftModel
+
+
     class CustomTrainer(Trainer):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)   # <-- REQUIRED
