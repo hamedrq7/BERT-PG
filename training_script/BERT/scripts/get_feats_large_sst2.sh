@@ -1,5 +1,5 @@
 TASK_NAME=sst2
-EXP_INDEX=test
+EXP_INDEX=testing
 num_epochs=5
 warmup=40
 lr=0e-1
@@ -8,9 +8,9 @@ batch_size=32
 
 python -m torch.distributed.launch --nproc_per_node=${num_gpus} \
   run_glue.py \
-  --model_name_or_path '/content/adversarial-glue/training_script/BERT/models/sst2/train0' \
-  --config_name '/content/adversarial-glue/training_script/BERT/models/sst2/train0' \
-  --tokenizer_name '/content/adversarial-glue/training_script/BERT/models/sst2/train0' \
+  --model_name_or_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/sst2/checkpoint-8000' \
+  --config_name '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/sst2/checkpoint-8000' \
+  --tokenizer_name '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/sst2/checkpoint-8000' \
   --task_name $TASK_NAME \
   --do_train \
   --do_eval \
