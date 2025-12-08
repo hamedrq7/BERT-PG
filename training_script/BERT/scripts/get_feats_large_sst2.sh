@@ -1,6 +1,6 @@
 TASK_NAME=sst2
 EXP_INDEX=testing
-num_epochs=5
+num_epochs=2002
 warmup=40
 lr=0e-1
 num_gpus=1
