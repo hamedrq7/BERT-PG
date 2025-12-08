@@ -498,7 +498,7 @@ def main():
                 labels = None
             outputs = model(**inputs)
 
-            features_befor_clf = model.dropout(model.bert.pooler(outputs.hidden_states[-1])) 
+            features_befor_clf = model.module.dropout(model.module.bert.pooler(outputs.hidden_states[-1])) 
             self.hamed_pooled_features.append(features_befor_clf.cpu().detach().numpy().squeeze())
             self.hamed_pooled_labels.append(inputs['labels'].cpu().detach().numpy().squeeze())
 
