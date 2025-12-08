@@ -1,2 +1,10 @@
-transformers[torch]
-evaluate
+pip install "transformers<4.37"
+
+pip uninstall multiprocess dill -y
+pip install "multiprocess<0.70.17" "dill<0.3.9"
+
+pip install "datasets<2.19"
+pip install "evaluate<0.4.1"
+
+
+pip install "accelerate==0.24.1"

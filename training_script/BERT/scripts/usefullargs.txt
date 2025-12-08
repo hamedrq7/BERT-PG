@@ -1,0 +1,92 @@
+TASK_NAME=sst2
+num_epochs=4
+warmup=40
+lr=2e-5
+num_gpus=1
+batch_size=32
+
+torchrun --nproc_per_node=${num_gpus} \
+  run_glue.py \
+  --model_name_or_path MODEL_NAME_OR_PATH, --model-name-or-path MODEL_NAME_OR_PATH
+                        Path to pretrained model or model identifier from
+                        huggingface.co/models (default: None)
+  --config_name CONFIG_NAME, --config-name CONFIG_NAME
+                        Pretrained config name or path if not the same as
+                        model_name (default: None)
+  --tokenizer_name TOKENIZER_NAME, --tokenizer-name TOKENIZER_NAME
+                        Pretrained tokenizer name or path if not the same as
+                        model_name (default: None)
+   # --cache_dir CACHE_DIR, --cache-dir CACHE_DIR
+                        Where do you want to store the pretrained models
+                        downloaded from huggingface.co (default: None)
+    --output_dir  OUTPUT_DIR, --output-dir OUTPUT_DIR
+                        The output directory where the model predictions and
+                        checkpoints will be written. Defaults to
+                        'trainer_output' if not provided. (default: None)
+  --overwrite_output_dir [OVERWRITE_OUTPUT_DIR], --overwrite-output-dir [OVERWRITE_OUTPUT_DIR]
+                        Overwrite the content of the output directory. Use
+                        this to continue training if output_dir points to a
+                        checkpoint directory. (default: False)
+  --task_name $TASK_NAME \
+  --do_train \
+  --do_eval \
+  --max_seq_length 128 \
+  --num_train_epochs ${num_epochs} \
+  --warmup_steps ${warmup} \
+  --learning_rate ${lr} \
+  --per_device_train_batch_size ${batch_size} \
+  --output_dir ./models/$TASK_NAME/ \
+  --overwrite_output_dir \
+  --logging_steps 10 \
+  --logging_dir ./models/$TASK_NAME/ \
+  --save_total_limit 1
+
+  --train_file TRAIN_FILE, --train-file TRAIN_FILE
+                        A csv or a json file containing the training data.
+                        (default: None)
+  --validation_file VALIDATION_FILE, --validation-file VALIDATION_FILE
+                        A csv or a json file containing the validation data.
+                        (default: None)
+  --test_file TEST_FILE, --test-file TEST_FILE
+                        A csv or a json file containing the test data.
+                        (default: None)
+    --logging_dir LOGGING_DIR, --logging-dir LOGGING_DIR
+                        Tensorboard log dir. (default: None)
+
+     --no_cuda [NO_CUDA], --no-cuda [NO_CUDA]
+                        This argument is deprecated. It will be removed in
+                        version 5.0 of 🤗 Transformers. (default: False)
+  --use_cpu [USE_CPU], --use-cpu [USE_CPU]
+                        Whether or not to use cpu. If left to False, we will
+                        use the available torch device/backend
+                        (cuda/mps/xpu/hpu etc.) (default: False)
+
+
+      --dataloader_num_workers DATALOADER_NUM_WORKERS, --dataloader-num-workers DATALOADER_NUM_WORKERS
+                        Number of subprocesses to use for data loading
+                        (PyTorch only). 0 means that the data will be loaded
+                        in the main process. (default: 0)
+  --dataloader_prefetch_factor DATALOADER_PREFETCH_FACTOR, --dataloader-prefetch-factor DATALOADER_PREFETCH_FACTOR
+                        Number of batches loaded in advance by each worker. 2
+                        means there will be a total of 2 * num_workers batches
+                        prefetched across all workers. (default: None)
+
+      --load_best_model_at_end [LOAD_BEST_MODEL_AT_END], --load-best-model-at-end [LOAD_BEST_MODEL_AT_END]
+                        Whether or not to load the best model found during
+                        training at the end of training. When this option is
+                        enabled, the best checkpoint will always be saved. See
+                        `save_total_limit` for more. (default: False)
+          --metric_for_best_model METRIC_FOR_BEST_MODEL, --metric-for-best-model METRIC_FOR_BEST_MODEL
+                        The metric to use to compare two different models.
+                        (default: None)
+      --greater_is_better GREATER_IS_BETTER, --greater-is-better GREATER_IS_BETTER
+                        Whether the `metric_for_best_model` should be
+                        maximized or not. (default: None)
+
+      --resume_from_checkpoint RESUME_FROM_CHECKPOINT, --resume-from-checkpoint RESUME_FROM_CHECKPOINT
+                        The path to a folder with a valid checkpoint for your
+                        model. (default: None)
+      --eval_on_start [EVAL_ON_START], --eval-on-start [EVAL_ON_START]
+                        Whether to run through the entire `evaluation` step at
+                        the very beginning of training as a sanity check.
+                        (default: False)
