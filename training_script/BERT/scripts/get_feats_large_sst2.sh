@@ -1,6 +1,6 @@
 TASK_NAME=sst2
 EXP_INDEX=testing
-num_epochs=10000
+num_epochs=5
 warmup=40
 lr=0e-1
 num_gpus=1
@@ -24,5 +24,3 @@ torchrun --nproc_per_node=${num_gpus} \
   --logging_steps 10 \
   --logging_dir ./models/$TASK_NAME/$EXP_INDEX \
   --save_total_limit 1 \
-  --max_train_samples 100 \
-  --max_val_samples 100
