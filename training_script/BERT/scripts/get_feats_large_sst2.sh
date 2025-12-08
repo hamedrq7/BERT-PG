@@ -24,5 +24,5 @@ torchrun --nproc_per_node=${num_gpus} \
   --logging_steps 10 \
   --logging_dir ./models/$TASK_NAME/$EXP_INDEX \
   --save_total_limit 1 \
-  --max_train_samples 100 \
-  --max_val_samples 100 \
+  # --max_train_samples 100 \
+  # --max_val_samples 100 \
