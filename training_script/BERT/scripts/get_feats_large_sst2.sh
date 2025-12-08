@@ -6,7 +6,7 @@ lr=0e-1
 num_gpus=1
 batch_size=32
 
-python -m torch.distributed.launch --nproc_per_node=${num_gpus} \
+torchrun --nproc_per_node=${num_gpus} \
   run_glue.py \
   --model_name_or_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/sst2/checkpoint-8000' \
   --config_name '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/sst2/checkpoint-8000' \
