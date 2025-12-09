@@ -561,7 +561,6 @@ def main():
     # update the progress_bar if load from checkpoint
     progress_bar.update(completed_steps)
 
-    import torch 
     _vocab_size = tokenizer.vocab_size    
     _batch_size = 4
     _seq_len = 32
