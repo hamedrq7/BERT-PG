@@ -396,13 +396,14 @@ def main():
             num_labels = 1
     else:
         # Trying to have good defaults here, don't hesitate to tweak to your needs.
-        is_regression = raw_datasets["train"].features["label"].dtype in ["float32", "float64"]
+        phase = 'train' if not args.eval_only else 'validation'
+        is_regression = raw_datasets[phase].features["label"].dtype in ["float32", "float64"]
         if is_regression:
             num_labels = 1
         else:
             # A useful fast method:
             # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.unique
-            label_list = raw_datasets["train"].unique("label")
+            label_list = raw_datasets[phase].unique("label")
             label_list.sort()  # Let's sort it for determinism
             num_labels = len(label_list)
 
