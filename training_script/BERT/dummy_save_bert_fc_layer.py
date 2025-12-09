@@ -17,7 +17,7 @@ print(type(weights['classifier.weight']))
 
 
 import torch.nn as nn 
-class BertCLF(nn.module): 
+class BertCLF(nn.Module): 
     def __init__(self, dim_in, num_classes): 
         self.dropout = nn.Dropout(0.1)
         self.classifier = nn.Linear(dim_in, num_classes)
