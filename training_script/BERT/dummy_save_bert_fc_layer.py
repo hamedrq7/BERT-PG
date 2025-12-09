@@ -27,7 +27,7 @@ class BertCLF(nn.Module):
         return self.classifier(self.dropout(x))
 
 dummy_model = BertCLF(dims[1], dims[0])
-missing_keys, unexpected_keys = dummy_model.load_state_dict(weights)
+missing_keys, unexpected_keys = dummy_model.load_state_dict(weights, strict=False)
 print('missing_keys', missing_keys, 'len unexpected_keys', len(unexpected_keys))
 
 torch.save(dummy_model.state_dict(), "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/bert_clf.pth")
