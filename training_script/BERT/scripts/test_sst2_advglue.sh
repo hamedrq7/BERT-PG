@@ -12,4 +12,4 @@ torchrun --nproc_per_node=${num_gpus} \
   --seed 42 \
   --with_tracking \
   --output_dir ./models/no_trainer/$TASK_NAME/adv_glue/ \
-  --only_eval
+  --eval_adv_glue
