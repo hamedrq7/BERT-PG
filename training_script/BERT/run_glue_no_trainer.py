@@ -599,7 +599,7 @@ def main():
     else:
         metric = evaluate.load("accuracy")
 
-    if not args.only_eval: 
+    if not args.eval_adv_glue: 
         # Train!
         total_batch_size = args.per_device_train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
 
