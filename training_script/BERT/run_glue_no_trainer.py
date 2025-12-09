@@ -53,7 +53,7 @@ from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
     DataCollatorWithPadding,
-    PreTrainedConfig,
+    PretrainedConfig,
     SchedulerType,
     default_data_collator,
     get_scheduler,
