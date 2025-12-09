@@ -187,12 +187,14 @@ def parse_args():
         default=None,
         help="Whether the various states should be saved at the end of every n steps, or 'epoch' for each epoch.",
     )
+    ###########################################################################################
     parser.add_argument(
         "--resume_from_checkpoint",
         type=str,
         default=None,
         help="If the training should continue from a checkpoint folder.",
     )
+    ###########################################################################################
     parser.add_argument(
         "--with_tracking",
         action="store_true",
@@ -234,7 +236,8 @@ def parse_args():
 
 def main():
     args = parse_args()
-
+    print(args)
+    
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     # If we're using tracking, we also need to initialize it here and it will by default pick up all supported trackers
     # in the environment
