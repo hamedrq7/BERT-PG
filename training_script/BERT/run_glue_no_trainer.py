@@ -396,7 +396,7 @@ def main():
             num_labels = 1
     else:
         # Trying to have good defaults here, don't hesitate to tweak to your needs.
-        phase = 'train' if not args.eval_only else 'validation'
+        phase = 'train' if not args.only_eval else 'validation'
         is_regression = raw_datasets[phase].features["label"].dtype in ["float32", "float64"]
         if is_regression:
             num_labels = 1
