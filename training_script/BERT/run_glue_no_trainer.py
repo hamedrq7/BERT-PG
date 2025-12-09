@@ -348,7 +348,7 @@ def main():
         finetuning_task=args.task_name,
         trust_remote_code=args.trust_remote_code,
         output_hidden_states = True, 
-        output_attentions = True, 
+        # output_attentions = True, 
         return_dict = True,
     )
     tokenizer = AutoTokenizer.from_pretrained(

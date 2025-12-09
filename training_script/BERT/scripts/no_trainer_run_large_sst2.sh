@@ -2,7 +2,7 @@ TASK_NAME=sst2
 num_epochs=4
 warmup=40
 lr=2e-5
-num_gpus=2
+num_gpus=1
 batch_size=32
 
 torchrun --nproc_per_node=${num_gpus} \
