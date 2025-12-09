@@ -278,7 +278,7 @@ def parse_args():
         help="Whether or not to enable to load a pretrained model whose head dimensions are different.",
     )
     parser.add_argument(
-        "--only_eval",
+        "--eval_adv_glue",
         action="store_true",
         help="no training, only eval",
     )
@@ -319,7 +319,7 @@ def main():
         level=logging.INFO,
     )
     os.makedirs(args.output_dir, exist_ok=True)
-    log_path = os.path.join(args.output_dir, "training.log" if not args.only_eval else "evaluating.log")
+    log_path = os.path.join(args.output_dir, "training.log" if not args.eval_adv_glue else "evaluating.log")
     file_handler = logging.FileHandler(log_path)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(logging.Formatter(
@@ -371,7 +371,7 @@ def main():
 
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
-    if args.task_name is not None:
+    if args.task_name is not None and not args.eval_adv_glue:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset("nyu-mll/glue", args.task_name)
     else:
@@ -383,11 +383,15 @@ def main():
             data_files["validation"] = args.validation_file
         extension = (args.train_file if args.train_file is not None else args.validation_file).split(".")[-1]
         raw_datasets = load_dataset(extension, data_files=data_files)
+        print(type(raw_datasets))
+        exit()
+    
     # See more about loading any type of standard or custom dataset at
     # https://huggingface.co/docs/datasets/loading_datasets.
 
+
     # Labels
-    if args.task_name is not None:
+    if args.task_name is not None and not args.eval_adv_glue:
         is_regression = args.task_name == "stsb"
         if not is_regression:
             label_list = raw_datasets["train"].features["label"].names
@@ -396,7 +400,7 @@ def main():
             num_labels = 1
     else:
         # Trying to have good defaults here, don't hesitate to tweak to your needs.
-        phase = 'train' if not args.only_eval else 'validation'
+        phase = 'train' if not args.eval_adv_glue else 'validation'
         is_regression = raw_datasets[phase].features["label"].dtype in ["float32", "float64"]
         if is_regression:
             num_labels = 1
