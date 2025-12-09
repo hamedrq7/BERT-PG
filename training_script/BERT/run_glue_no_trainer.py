@@ -596,9 +596,9 @@ def main():
     print('attentions[0]', len(_outputs.attentions[0].shape))
     # last_hidden_state = outputs.hidden_states[-1]
     # pooler_output = model.bert.pooler(last_hidden_state)
-    _pooler_output = model.bert.pooler(_outputs.hidden_states[-1])
-    _features = model.dropout(_pooler_output)
-    _handy_logits = _features @ model.classifier.weight.T + model.classifier.bias 
+    _pooler_output = model.module.bert.pooler(_outputs.hidden_states[-1])
+    _features = model.module.dropout(_pooler_output)
+    _handy_logits = _features @ model.module.classifier.weight.T + model.module.classifier.bias 
     print(_handy_logits)
     print(_outputs.logits)
 
@@ -621,7 +621,7 @@ def main():
             outputs = model(**batch)
 
             # Save feats
-            features_befor_clf = model.dropout(model.bert.pooler(outputs.hidden_states[-1])) 
+            features_befor_clf = model.module.dropout(model.module.bert.pooler(outputs.hidden_states[-1])) 
             train_pooled_features.append(features_befor_clf.cpu().detach().numpy().squeeze())
             train_pooled_labels.append(batch['labels'].cpu().detach().numpy().squeeze())
 
@@ -656,7 +656,7 @@ def main():
             with torch.no_grad():
                 outputs = model(**batch)
 
-                features_befor_clf = model.dropout(model.bert.pooler(outputs.hidden_states[-1])) 
+                features_befor_clf = model.module.dropout(model.module.bert.pooler(outputs.hidden_states[-1])) 
                 val_pooled_features.append(features_befor_clf.cpu().detach().numpy().squeeze())
                 val_pooled_labels.append(batch['labels'].cpu().detach().numpy().squeeze())
 
