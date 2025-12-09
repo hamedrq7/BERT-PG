@@ -15,7 +15,7 @@ torchrun --nproc_per_node=${num_gpus} \
   --num_warmup_steps ${warmup} \
   --learning_rate ${lr} \
   --per_device_train_batch_size ${batch_size} \
-  --output_dir ./models/no_trainer-base-bert/$TASK_NAME/ \
+  --output_dir ./models/no_trainer/$TASK_NAME/ \
   --checkpointing_steps 'epoch' \
   --seed 42 \
   --with_tracking
@@ -37,7 +37,7 @@ torchrun --nproc_per_node=${num_gpus} \
   --num_warmup_steps ${warmup} \
   --learning_rate ${lr} \
   --per_device_train_batch_size ${batch_size} \
-  --output_dir ./models/no_trainer-base-bert/$TASK_NAME/ \
+  --output_dir ./models/no_trainer/$TASK_NAME/ \
   --checkpointing_steps 'epoch' \
   --seed 42 \
   --with_tracking
