@@ -10,13 +10,16 @@ For bert-base-cased:
 
 weights = load_file("/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/model.safetensors")
 print(weights.keys())
+
+dims = weights['classifier.weight']
+print(dims)
+
 print(type(weights['classifier.weight']))
-print(type(weights['dropout']))
 
 
 # import torch.nn as nn 
 # class BertCLF(nn.module): 
-#     def __init__(self, ): 
+#     def __init__(self, dim_in, num_classes): 
 #         self.dropout = nn.Dropout(0.1)
 #         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
