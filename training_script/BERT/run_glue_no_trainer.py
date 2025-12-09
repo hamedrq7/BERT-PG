@@ -384,6 +384,7 @@ def main():
         extension = (args.train_file if args.train_file is not None else args.validation_file).split(".")[-1]
         raw_datasets = load_dataset(extension, data_files=data_files)
         print(type(raw_datasets))
+        print(raw_datasets.keys())
         exit()
     
     # See more about loading any type of standard or custom dataset at
