@@ -385,6 +385,8 @@ def main():
         raw_datasets = load_dataset(extension, data_files=data_files)
         print(type(raw_datasets))
         print(raw_datasets.keys())
+        print(type(raw_datasets['validation']))
+        print(raw_datasets['validation'].keys())
         exit()
     
     # See more about loading any type of standard or custom dataset at
