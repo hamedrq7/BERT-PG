@@ -571,38 +571,6 @@ def main():
 
     # update the progress_bar if load from checkpoint
     progress_bar.update(completed_steps)
-
-    _vocab_size = tokenizer.vocab_size    
-    _batch_size = 4
-    _seq_len = 32
-    _random_input_ids = torch.randint(
-        low=0, 
-        high=_vocab_size, 
-        size=(_batch_size, _seq_len)
-    )
-    _random_attention_mask = torch.ones(
-        size=(_batch_size, _seq_len),
-        dtype=torch.long
-    )
-    _outputs = model(
-        input_ids=_random_input_ids.cuda(),
-        attention_mask=_random_attention_mask.cuda()
-    )
-    print(_outputs.keys())
-    print('logits', _outputs.logits.shape)
-    print('hidden_states', len(_outputs.hidden_states))
-    print('hidden_states[0]', (_outputs.hidden_states[0].shape))
-    # print('attentions', len(_outputs.attentions))
-    # print('attentions[0]', len(_outputs.attentions[0].shape))
-    # last_hidden_state = outputs.hidden_states[-1]
-    # pooler_output = model.bert.pooler(last_hidden_state)
-    _pooler_output = model.module.bert.pooler(_outputs.hidden_states[-1])
-    _features = model.module.dropout(_pooler_output)
-    _handy_logits = _features @ model.module.classifier.weight.T + model.module.classifier.bias 
-    print(_handy_logits)
-    print(_outputs.logits)
-
-
     
     for epoch in range(starting_epoch, args.num_train_epochs):
         train_pooled_features = []
@@ -650,6 +618,7 @@ def main():
             if completed_steps >= args.max_train_steps:
                 break
             
+            del outputs
             break  ## 
 
         model.eval()
@@ -675,7 +644,7 @@ def main():
                 predictions=predictions,
                 references=references,
             )
-
+            del outputs
             break  ## 
 
         import numpy as np 
