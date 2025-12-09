@@ -592,7 +592,7 @@ def main():
     print('logits', _outputs.logits.shape)
     print('hidden_states', len(_outputs.hidden_states))
     print('hidden_states[0]', (_outputs.hidden_states[0].shape))
-    print('attentions', len(_outputs.attentions))
+    # print('attentions', len(_outputs.attentions))
     print('attentions[0]', len(_outputs.attentions[0].shape))
     # last_hidden_state = outputs.hidden_states[-1]
     # pooler_output = model.bert.pooler(last_hidden_state)
