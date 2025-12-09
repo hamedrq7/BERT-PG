@@ -602,13 +602,15 @@ def main():
     print(_handy_logits)
     print(_outputs.logits)
 
-    train_pooled_features = []
-    train_pooled_labels = []
 
-    val_pooled_features = []
-    val_pooled_labels = []
     
     for epoch in range(starting_epoch, args.num_train_epochs):
+        train_pooled_features = []
+        train_pooled_labels = []
+
+        val_pooled_features = []
+        val_pooled_labels = []
+
         model.train()
         if args.with_tracking:
             total_loss = 0
