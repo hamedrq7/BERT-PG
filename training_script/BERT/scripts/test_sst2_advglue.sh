@@ -4,7 +4,9 @@ batch_size=32
 
 torchrun --nproc_per_node=${num_gpus} \
   run_glue_no_trainer.py \
+  --task_name $TASK_NAME \
   --validation_file '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/dev.json' \
+  --train_file '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/dev.json' \
   --model_name_or_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2' \
   --max_length 128 \
   --pad_to_max_length \

@@ -371,6 +371,7 @@ def main():
 
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
+    temp_phase = 'train' if not args.eval_adv_glue else 'validation'
     if args.task_name is not None and not args.eval_adv_glue:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset("nyu-mll/glue", args.task_name)
@@ -382,35 +383,31 @@ def main():
         if args.validation_file is not None:
             data_files["validation"] = args.validation_file
         extension = (args.train_file if args.train_file is not None else args.validation_file).split(".")[-1]
-        raw_datasets = load_dataset(extension, data_files=data_files)
+        raw_datasets = load_dataset(extension, data_files=data_files, field=args.task_name)
         print(type(raw_datasets))
         print(raw_datasets.keys())
         print(type(raw_datasets['validation']))
-        print(raw_datasets['validation'].keys())
-        exit()
     
     # See more about loading any type of standard or custom dataset at
     # https://huggingface.co/docs/datasets/loading_datasets.
-
 
     # Labels
     if args.task_name is not None and not args.eval_adv_glue:
         is_regression = args.task_name == "stsb"
         if not is_regression:
-            label_list = raw_datasets["train"].features["label"].names
+            label_list = raw_datasets[temp_phase].features["label"].names
             num_labels = len(label_list)
         else:
             num_labels = 1
     else:
         # Trying to have good defaults here, don't hesitate to tweak to your needs.
-        phase = 'train' if not args.eval_adv_glue else 'validation'
-        is_regression = raw_datasets[phase].features["label"].dtype in ["float32", "float64"]
+        is_regression = raw_datasets[temp_phase].features["label"].dtype in ["float32", "float64"]
         if is_regression:
             num_labels = 1
         else:
             # A useful fast method:
             # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.unique
-            label_list = raw_datasets[phase].unique("label")
+            label_list = raw_datasets[temp_phase].unique("label")
             label_list.sort()  # Let's sort it for determinism
             num_labels = len(label_list)
 
@@ -446,7 +443,7 @@ def main():
         sentence1_key, sentence2_key = task_to_keys[args.task_name]
     else:
         # Again, we try to have some nice defaults but don't hesitate to tweak to your use case.
-        non_label_column_names = [name for name in raw_datasets["train"].column_names if name != "label"]
+        non_label_column_names = [name for name in raw_datasets[temp_phase].column_names if name != "label"]
         if "sentence1" in non_label_column_names and "sentence2" in non_label_column_names:
             sentence1_key, sentence2_key = "sentence1", "sentence2"
         else:
