@@ -619,7 +619,6 @@ def main():
                 break
             
             del outputs
-            break  ## 
 
         model.eval()
         samples_seen = 0
@@ -645,7 +644,6 @@ def main():
                 references=references,
             )
             del outputs
-            break  ## 
 
         import numpy as np 
         train_pooled_labels = np.concatenate(train_pooled_labels)
