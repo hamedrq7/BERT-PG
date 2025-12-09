@@ -251,6 +251,7 @@ def main():
         datefmt="%m/%d/%Y %H:%M:%S",
         level=logging.INFO,
     )
+    os.makedirs(args.output_dir, exist_ok=True)
     log_path = os.path.join(args.output_dir, "training.log")
     file_handler = logging.FileHandler(log_path)
     file_handler.setLevel(logging.INFO)
