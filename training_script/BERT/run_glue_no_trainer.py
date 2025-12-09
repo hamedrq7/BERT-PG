@@ -560,6 +560,43 @@ def main():
     # update the progress_bar if load from checkpoint
     progress_bar.update(completed_steps)
 
+    import torch 
+    _vocab_size = tokenizer.vocab_size    
+    _batch_size = 4
+    _seq_len = 32
+    _random_input_ids = torch.randint(
+        low=0, 
+        high=_vocab_size, 
+        size=(_batch_size, _seq_len)
+    )
+    _random_attention_mask = torch.ones(
+        size=(_batch_size, _seq_len),
+        dtype=torch.long
+    )
+    _outputs = model(
+        input_ids=_random_input_ids.cuda(),
+        attention_mask=_random_attention_mask.cuda()
+    )
+    print(_outputs.keys())
+    print('logits', _outputs.logits.shape)
+    print('hidden_states', len(_outputs.hidden_states))
+    print('hidden_states[0]', (_outputs.hidden_states[0].shape))
+    print('attentions', len(_outputs.attentions))
+    print('attentions[0]', len(_outputs.attentions[0].shape))
+    # last_hidden_state = outputs.hidden_states[-1]
+    # pooler_output = model.bert.pooler(last_hidden_state)
+    _pooler_output = model.bert.pooler(_outputs.hidden_states[-1])
+    _features = model.dropout(_pooler_output)
+    _handy_logits = _features @ model.classifier.weight.T + model.classifier.bias 
+    print(_handy_logits)
+    print(_outputs.logits)
+
+    train_pooled_features = []
+    train_pooled_labels = []
+
+    val_pooled_features = []
+    val_pooled_labels = []
+    
     for epoch in range(starting_epoch, args.num_train_epochs):
         model.train()
         if args.with_tracking:
@@ -571,6 +608,12 @@ def main():
             active_dataloader = train_dataloader
         for step, batch in enumerate(active_dataloader):
             outputs = model(**batch)
+
+            # Save feats
+            features_befor_clf = model.dropout(model.bert.pooler(outputs.hidden_states[-1])) 
+            train_pooled_features.append(features_befor_clf.cpu().detach().numpy().squeeze())
+            train_pooled_labels.append(batch['labels'].cpu().detach().numpy().squeeze())
+
             loss = outputs.loss
             # We keep track of the loss at each epoch
             if args.with_tracking:
@@ -593,12 +636,19 @@ def main():
 
             if completed_steps >= args.max_train_steps:
                 break
+            
+            break  ## 
 
         model.eval()
         samples_seen = 0
         for step, batch in enumerate(eval_dataloader):
             with torch.no_grad():
                 outputs = model(**batch)
+
+                features_befor_clf = model.dropout(model.bert.pooler(outputs.hidden_states[-1])) 
+                val_pooled_features.append(features_befor_clf.cpu().detach().numpy().squeeze())
+                val_pooled_labels.append(batch['labels'].cpu().detach().numpy().squeeze())
+
             predictions = outputs.logits.argmax(dim=-1) if not is_regression else outputs.logits.squeeze()
             predictions, references = accelerator.gather((predictions, batch["labels"]))
             # If we are in a multiprocess environment, the last batch has duplicates
@@ -613,6 +663,16 @@ def main():
                 references=references,
             )
 
+            break  ## 
+
+        import numpy as np 
+        train_pooled_labels = np.concatenate(train_pooled_labels)
+        train_pooled_features = np.concatenate(train_pooled_features, axis=0)
+        val_pooled_labels = np.concatenate(val_pooled_labels)
+        val_pooled_features = np.concatenate(val_pooled_features, axis=0)
+        print('saving features and labels at ', epoch, ' size ', train_pooled_features.shape, train_pooled_labels.shape, val_pooled_features.shape, val_pooled_labels.shape)            
+        np.savez(f'{args.output_dir}/{epoch}_feats.npz', train_feats = train_pooled_features, train_labels = train_pooled_labels, val_feats = val_pooled_features, val_labels = val_pooled_labels)
+        
         eval_metric = metric.compute()
         logger.info(f"epoch {epoch}: {eval_metric}")
 
