@@ -244,8 +244,10 @@ def main():
     if args.task_name is not None and not args.eval_adv_glue:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset("nyu-mll/glue", args.task_name)
+        print('Loading GLUE dataset')
     else:
         # Loading the dataset from local csv or json file.
+        print('Loading local dataset')
         data_files = {}
         if args.validation_file is not None:
             data_files["validation"] = args.validation_file
