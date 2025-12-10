@@ -14,5 +14,5 @@ torchrun --nproc_per_node=${num_gpus} \
   --per_device_eval_batch_size ${batch_size} \
   --seed 42 \
   --with_tracking \
-  --output_dir ./models/no_trainer/$TASK_NAME/adv_glue/ \
+  --output_dir ./models/no_trainer/$TASK_NAME/adv_glue_sodef/ \
   --eval_adv_glue
