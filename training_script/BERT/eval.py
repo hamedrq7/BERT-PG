@@ -173,7 +173,7 @@ def main():
     assert not (args.eval_adv_glue and args.eval_clean_glue), 'Either eval clean or adv'
 
     # For evals, create a subdir in models folder
-    args.output_dir = args.model_name_or_path + args.sub_output_dir 
+    args.output_dir = os.path.join(args.model_name_or_path, "eval",  args.sub_output_dir) 
 
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     # If we're using tracking, we also need to initialize it here and it will by default pick up all supported trackers
