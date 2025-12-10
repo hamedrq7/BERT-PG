@@ -256,6 +256,7 @@ def main():
         print(type(raw_datasets))
         print(raw_datasets.keys())
         print(type(raw_datasets['validation']))
+        print(raw_datasets['validation'].keys())
     
     # See more about loading any type of standard or custom dataset at
     # https://huggingface.co/docs/datasets/loading_datasets.
