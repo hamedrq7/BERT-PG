@@ -8,7 +8,6 @@ from pathlib import Path
 
 import datasets
 import evaluate
-import torch
 from accelerate import Accelerator
 from accelerate.logging import get_logger
 from accelerate.utils import set_seed
@@ -315,7 +314,6 @@ def main():
 
     if args.sodef_model is not None: 
         from sodef_utils import Phase3Model, MLP_OUT_BALL, MLP_OUT_ORTH_X_X, ODEBlock, ODEfunc_mlp
-        import torch 
         feature_dim = 768
         bridge_dim = 64
         sodef = Phase3Model(
