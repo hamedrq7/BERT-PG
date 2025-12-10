@@ -163,14 +163,18 @@ def parse_args():
     if args.push_to_hub:
         assert args.output_dir is not None, "Need an `output_dir` to create a repo when `--push_to_hub` is passed."
 
+    
+    if args.eval_adv_glue:
+        assert not args.validation_file is None, 'If you wanna eval adv glue, pass the json file'
+    
+    assert not (args.eval_adv_glue and args.eval_clean_glue), 'Either eval clean or adv'
+
     return args
 
 
 def main():
     args = parse_args()
     print(args)
-    assert args.eval_adv_glue and (not args.validation_file is None), 'If you wanna eval adv glue, pass the json file'
-    assert not (args.eval_adv_glue and args.eval_clean_glue), 'Either eval clean or adv'
 
     # For evals, create a subdir in models folder
     args.output_dir = os.path.join(args.model_name_or_path, "eval",  args.sub_output_dir) 
