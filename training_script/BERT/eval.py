@@ -252,7 +252,7 @@ def main():
         if args.validation_file is not None:
             data_files["validation"] = args.validation_file
         extension = (args.validation_file).split(".")[-1]
-        raw_datasets = load_dataset(extension, data_files=data_files, field=args.task_name)
+        raw_datasets = load_dataset(extension, data_files=data_files, field=str(args.task_name))
         print(extension, args.task_name, data_files)
         print(type(raw_datasets))
         print(raw_datasets.keys())
