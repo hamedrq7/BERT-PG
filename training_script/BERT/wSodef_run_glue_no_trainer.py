@@ -309,6 +309,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 import geotorch
+from torchdiffeq import odeint_adjoint as odeint
 
 class newLinear(nn.Module):
     def __init__(self, in_features, out_features, bias=True):
