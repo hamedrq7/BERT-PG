@@ -154,6 +154,9 @@ def parse_args():
         choices=list(task_to_keys.keys()),
     )
     parser.add_argument(
+        "--sodef_model", type=str, default=None, help="path to sodef model"
+    )
+    parser.add_argument(
         "--train_file", type=str, default=None, help="A csv or a json file containing the training data."
     )
     parser.add_argument(
