@@ -243,8 +243,8 @@ def main():
     temp_phase = 'validation'
     if args.task_name is not None and not args.eval_adv_glue:
         # Downloading and loading a dataset from the hub.
-        raw_datasets = load_dataset("nyu-mll/glue", args.task_name)
         print('Loading GLUE dataset')
+        raw_datasets = load_dataset("nyu-mll/glue", args.task_name)
     else:
         # Loading the dataset from local csv or json file.
         print('Loading local dataset')
@@ -253,7 +253,10 @@ def main():
             data_files["validation"] = args.validation_file
         extension = (args.validation_file).split(".")[-1]
         raw_datasets = load_dataset(extension, data_files=data_files, field=args.task_name)
-        
+        print(type(raw_datasets))
+        print(raw_datasets.keys())
+        print(type(raw_datasets['validation']))
+    
     # See more about loading any type of standard or custom dataset at
     # https://huggingface.co/docs/datasets/loading_datasets.
 
