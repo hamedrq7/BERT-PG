@@ -8,7 +8,7 @@ torchrun --nproc_per_node=${num_gpus} \
   --validation_file '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/dev.json' \
   --train_file '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/dev.json' \
   --model_name_or_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2' \
-  --sodef_model '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/SODEF_stuff/SODEF-PG/testingBertSodef/duos/' \
+  --sodef_model '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/SODEF_stuff/SODEF-PG/testingBertSodef/duos/phase3_best_acc_ckpt.pth' \
   --max_length 128 \
   --pad_to_max_length \
   --per_device_eval_batch_size ${batch_size} \
