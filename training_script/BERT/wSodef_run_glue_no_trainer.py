@@ -285,6 +285,11 @@ def parse_args():
         action="store_true",
         help="no training, only eval",
     )
+    parser.add_argument(
+        "--eval_clean_glue",
+        action="store_true",
+        help="no training, only eval",
+    )
     
     args = parser.parse_args()
 
@@ -761,7 +766,7 @@ def main():
     else:
         metric = evaluate.load("accuracy")
 
-    if not args.eval_adv_glue: 
+    if (not args.eval_adv_glue) and (not args.eval_clean_glue): 
         # Train!
         total_batch_size = args.per_device_train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
 
