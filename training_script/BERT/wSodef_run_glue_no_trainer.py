@@ -399,7 +399,16 @@ class ODEfunc_mlp(nn.Module):
         out = -1*self.fc1(t, x)
         out = self.act1(out)
         return out
-    
+
+class MLP_OUT_BALL(nn.Module):
+    def __init__(self, dim1, dim2):
+        super(MLP_OUT_BALL, self,).__init__()
+        self.fc0 = nn.Linear(dim1, dim2, bias=False)
+    def forward(self, input_):
+        h1 = self.fc0(input_)
+        return h1  
+        
+
 class Phase3Model(nn.Module): 
     def __init__(self, bridge_768_64, ode_block, fc): 
         super(Phase3Model, self).__init__()
@@ -576,7 +585,7 @@ def main():
     sodef = Phase3Model(
         bridge_768_64=MLP_OUT_ORTH_X_X(feature_dim, bridge_dim), 
         ode_block=ODEBlock(odefunc=ODEfunc_mlp(0)), 
-        fc=nn.Linear(feature_dim, num_labels)
+        fc=MLP_OUT_BALL(feature_dim, num_labels)
         )
     saved_temp = torch.load(args.sodef_model)
     statedic_temp = saved_temp['phase3_model']
