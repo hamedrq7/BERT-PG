@@ -16,12 +16,12 @@ FIXED_ARGS="--feature_set_dir $FEATURE_DIR \
 
 # ----------- EXPERIMENT VALUE LISTS -----------
 reg1_list=(10. )
-reg2_list=(0.0 0.001) # 0.01 0.1 0.0001 
+reg2_list=(10. 1.0) # 0.01 0.1 0.0001 
 reg3_list=(0.1 1.0) #  0.01
 
 # Two binary toggles:
 decay_options=("on") #  "off"
-optimizer_options=("off") # "on"
+optimizer_options=("on") # "on"
 
 # ----------- LOOP OVER ALL COMBINATIONS -----------
 for r1 in "${reg1_list[@]}"; do
