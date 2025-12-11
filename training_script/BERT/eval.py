@@ -325,7 +325,7 @@ def main():
             )
         saved_temp = torch.load(args.sodef_model)
         statedic_temp = saved_temp['model'] # ['phase3_model']
-        sodef.load_state_dict(statedic_temp)
+        sodef.load_state_dict(statedic_temp, strict = False)
         print('Sodef module: ')
         print(sodef)
 
