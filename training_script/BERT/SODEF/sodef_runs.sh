@@ -10,9 +10,9 @@ PHASE1_MODEL="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/train
 FIXED_ARGS="--feature_set_dir $FEATURE_DIR \
             --phase1_model_path $PHASE1_MODEL \
             --seed 100 \
-            --phase2_batch_size 32 \
-            --phase2_numm 32 \
-            --phase2_epoch 30"
+            --phase2_batch_size 64 \
+            --phase2_numm 64 \
+            --phase2_epoch 20"
 
 # ----------- EXPERIMENT VALUE LISTS -----------
 reg1_list=(10. 5. 1. 0.1)
