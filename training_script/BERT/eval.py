@@ -304,6 +304,7 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     config.pad_token_id = tokenizer.pad_token_id
+    from transformers.models.bert import BertForSequenceClassification
     model = AutoModelForSequenceClassification.from_pretrained(
         args.model_name_or_path,
         from_tf=bool(".ckpt" in args.model_name_or_path),
@@ -313,12 +314,12 @@ def main():
     )
 
     if args.sodef_model is not None: 
-        from sodef_utils import Phase3Model, MLP_OUT_BALL, MLP_OUT_ORTH_X_X, ODEBlock, ODEfunc_mlp
+        from SODEF.model_utils import Phase3Model, MLP_OUT_BALL, MLP_OUT_ORTH_X_X, ODEBlock, ODEfunc_mlp
         feature_dim = 768
         bridge_dim = 64
         sodef = Phase3Model(
             bridge_768_64=MLP_OUT_ORTH_X_X(feature_dim, bridge_dim), 
-            ode_block=ODEBlock(odefunc=ODEfunc_mlp(0)), 
+            ode_block=ODEBlock(odefunc=ODEfunc_mlp(bridge_dim)), 
             fc=MLP_OUT_BALL(bridge_dim, num_labels)
             )
         saved_temp = torch.load(args.sodef_model)
@@ -440,7 +441,7 @@ def main():
     if args.with_tracking:
         experiment_config = vars(args)
         # TensorBoard cannot log Enums, need the raw value
-        accelerator.init_trackers("glue_no_trainer", experiment_config)
+        accelerator.init_trackers(f"{args.sub_output_dir}", experiment_config)
 
     # Get the metric function
     if args.task_name is not None:
