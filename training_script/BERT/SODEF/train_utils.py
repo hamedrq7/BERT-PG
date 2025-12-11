@@ -110,7 +110,7 @@ def train_phase1(args, device):
     optimizer = torch.optim.Adam(phase1_model.parameters(), lr=args.phase1_lr, eps=args.phase1_optim_eps, amsgrad=args.phase1_amsgrad)
 
     save_path = os.path.join(args.output_dir, args.phase1_save_path)
-    os.makedirs(save_path)
+    os.makedirs(save_path, exist_ok=True)
 
     best_acc = 0  # best test accuracy
 
@@ -197,7 +197,7 @@ def train_phase2(phase1_model, args, device, ):
     assert args.phase2_optim == 'ADAM', 'Only Adam for now'
 
     save_path = os.path.join(args.output_dir, args.phase2_save_path)
-    os.makedirs(save_path)
+    os.makedirs(save_path, exist_ok=True)
 
     trainloader, testloader = get_feature_dataloader(args, args.phase2_batch_size)
     
@@ -312,7 +312,7 @@ def train_phase3(phase2_model, args, device):
     assert args.phase3_optim == 'ADAM', 'Only Adam for now'
     
     save_path = os.path.join(args.output_dir, args.phase3_save_path)
-    os.makedirs(save_path)
+    os.makedirs(save_path, exist_ok=True)
 
     trainloader, testloader = get_feature_dataloader(args, args.phase3_batch_size)
 
