@@ -320,9 +320,8 @@ def main():
         t = 5.
         sodef = Phase3Model(
             bridge_768_64=MLP_OUT_ORTH_X_X(feature_dim, bridge_dim), 
-            ode_block=ODEBlock(odefunc=ODEfunc_mlp(bridge_dim)), 
+            ode_block=ODEBlock(odefunc=ODEfunc_mlp(bridge_dim), t = t), 
             fc=MLP_OUT_LINEAR(bridge_dim, num_labels),
-            t = t
             )
         saved_temp = torch.load(args.sodef_model)
         statedic_temp = saved_temp['model'] # ['phase3_model']
