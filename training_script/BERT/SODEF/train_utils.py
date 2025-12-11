@@ -238,7 +238,7 @@ def train_phase2(phase1_model, args, device, ):
         regu1 = regu1.mean()
         regu2 = regu2.mean()
         # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
-        # print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_offdiag))
+        # print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
         regu3 = f_regularizer(None, x, odefunc=odefunc, time_df=args.phase2_time_df, device=device, exponent_f=args.phase2_exponent_f)
         regu3 = regu3.mean()
         # print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
@@ -252,7 +252,7 @@ def train_phase2(phase1_model, args, device, ):
         if itr % 20 == 0: 
             print('itr', itr)
             print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
-            print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_offdiag))
+            print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
             print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
             print("loss"+str(loss.item()))
 
