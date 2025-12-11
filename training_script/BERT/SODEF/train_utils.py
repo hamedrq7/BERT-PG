@@ -222,7 +222,7 @@ def train_phase2(phase1_model, args, device, ):
     optimizer = torch.optim.Adam(phase2_model.parameters(), lr=args.phase2_lr, eps=args.phase2_eps, amsgrad=args.phase2_amsgrad)
     
 
-    for itr in trange(args.phase2_epochs * batches_per_epoch):
+    for itr in trange(args.phase2_epoch * batches_per_epoch):
         phase2_model.train()
         optimizer.zero_grad()
         x, y = train_data_gen.__next__()
