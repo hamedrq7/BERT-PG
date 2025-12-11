@@ -96,6 +96,7 @@ def get_args():
     # OPTIM PARAMS
     parser.add_argument("--phase2_optim", type=str, default="ADAM")
     parser.add_argument("--phase2_lr", type=float, default=1e-2)
+    parser.add_argument("--decay_lr", action="store_true", help="Decay lr for phase 2 at 3/4 of training")
     parser.add_argument("--phase2_eps", type=float, default=1e-3)
     parser.add_argument("--no_phase2_amsgrad", action="store_false", dest="phase2_amsgrad",
         help="Disable phase2_amsgrad (default: enabled)")

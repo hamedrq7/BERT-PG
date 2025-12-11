@@ -1,62 +1,71 @@
-# # LOADING MODELS AND DATA
-# parser.add_argument("--output_dir", type=str, required=True)
-# parser.add_argument("--feature_set_dir", type=str, default=None) #  --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz'
-# parser.add_argument("--exp_name", type=str, required=True)
+# The thing that ran phase1
+# python run_sodef.py --output_dir '../phase1testing' --exp_name 'phase1_default_params' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_epoch 10 --phase1_lr 1e-2 --phase1_optim_eps 1e-3 --phase2_epoch 0 --phase2_batch_size 128 --phase3_epochs 0 --seed 100
 
+#!/bin/bash
 
-# # ---------------------------
-# # PHASE 2
-# # ---------------------------
+# ----------- CONSTANT ARGUMENTS -----------
+FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz"
+PHASE1_MODEL="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase1testing/phase1"
 
-# # TRAINING METHOD
-# parser.add_argument("--no_phase2_use_fc_from_phase1", action="store_false", dest="phase2_use_fc_from_phase1",
-#     help="Disable phase2_use_fc_from_phase1 (default: enabled)")
+FIXED_ARGS="--feature_set_dir $FEATURE_DIR \
+            --phase1_model_path $PHASE1_MODEL \
+            --seed 100 \
+            --phase2_batch_size 32 \
+            --phase2_numm 32 \
+            --phase2_epoch 30"
 
-# parser.add_argument("--phase2_batch_size", type=int, default=32)
-# parser.add_argument("--phase2_epoch", type=int, default=20)
+# ----------- EXPERIMENT VALUE LISTS -----------
+reg1_list=(10. 5. 1. 0.1)
+reg2_list=(0.0 0.1 0.01 0.001 0.0001)
+reg3_list=(0.1 1.0 0.01)
 
-# # HYPERPARAMS
-# parser.add_argument("--phase2_weight_diag", type=float, default=10) # reg1
-# parser.add_argument("--phase2_weight_off_diag", type=float, default=0.) # reg2
-# parser.add_argument("--phase2_weight_f", type=float, default=0.1) # reg3
-# parser.add_argument("--phase2_weight_norm", type=float, default=0.)
-# parser.add_argument("--phase2_weight_lossc", type=float, default=0.)
-# parser.add_argument("--phase2_exponent", type=float, default=1.0)
-# parser.add_argument("--phase2_exponent_off", type=float, default=0.1)
-# parser.add_argument("--phase2_exponent_f", type=float, default=50)
-# parser.add_argument("--phase2_time_df", type=float, default=1.)
-# parser.add_argument("--phase2_trans", type=float, default=1.0)
-# parser.add_argument("--phase2_trans_off_diag", type=float, default=1.0)
-# parser.add_argument("--phase2_numm", type=int, default=16)
-# parser.add_argument("--phase2_integration_time", type=float, default=5.)
+# Two binary toggles:
+decay_options=("on" "off")
+optimizer_options=("on" "off")
 
-# # OPTIM PARAMS
-# parser.add_argument("--phase2_optim", type=str, default="ADAM")
-# parser.add_argument("--phase2_lr", type=float, default=1e-2)
-# parser.add_argument("--phase2_eps", type=float, default=1e-3)
-# parser.add_argument("--no_phase2_amsgrad", action="store_false", dest="phase2_amsgrad",
-#     help="Disable phase2_amsgrad (default: enabled)")
+# ----------- LOOP OVER ALL COMBINATIONS -----------
+for r1 in "${reg1_list[@]}"; do
+    for r2 in "${reg2_list[@]}"; do
+        for r3 in "${reg3_list[@]}"; do
+            for decay in "${decay_options[@]}"; do
+                for optim in "${optimizer_options[@]}"; do
 
-# # ---------------------------
-# # PHASE 3
-# # ---------------------------
-# parser.add_argument("--no_phase3_use_fc_from_phase2", action="store_false", dest="phase3_use_fc_from_phase2",
-#     help="Disable phase3_use_fc_from_phase2 (default: enabled)")
+                    # ---------------- Construct optional args ----------------
+                    decay_arg=""
+                    optim_args=""
 
-# # HYPERPARAMS
-# parser.add_argument("--phase3_optim", type=str, default="ADAM")
-# parser.add_argument("--phase3_lr_ode_block", type=float, default=1e-5)
-# parser.add_argument("--phase3_eps_ode_block", type=float, default=1e-6)
-# parser.add_argument("--phase3_lr_fc", type=float, default=1e-6)
-# parser.add_argument("--phase3_eps_fc_block", type=float, default=1e-4)
-# parser.add_argument("--no_phase3_amsgrad", action="store_false", dest="phase3_amsgrad",
-#     help="Disable phase3_amsgrad (default: enabled)")
+                    if [[ "$decay" == "on" ]]; then
+                        decay_arg="--decay_lr"
+                    fi
 
-# parser.add_argument("--phase3_epochs", type=int, default=10)
-# parser.add_argument("--phase3_batch_size", type=int, default=128)
+                    if [[ "$optim" == "on" ]]; then
+                        optim_args="--phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad"
+                    fi
 
-# # LOGGING
-# parser.add_argument("--phase3_model_path", type=str, default=None)
+                    # ---------------- Construct experiment name ----------------
+                    exp_name="r1=${r1}_r2=${r2}_r3=${r3}_decay=${decay}_optim=${optim}"
 
+                    # ---------------- Output directory ----------------
+                    output_dir="../phase2paramfinding/${exp_name}"
 
-python run_sodef.py --output_dir '../phase1testing' --exp_name 'phase1_default_params' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_epoch 10 --phase1_lr 1e-2 --phase1_optim_eps 1e-3 --phase2_epoch 0 --phase2_batch_size 128 --phase3_epochs 0 --seed 100
+                    # ---------------- Command to run ----------------
+                    CMD="python run_sodef.py \
+                        $FIXED_ARGS \
+                        --phase2_weight_diag $r1 \
+                        --phase2_weight_off_diag $r2 \
+                        --phase2_weight_f $r3 \
+                        $decay_arg \
+                        $optim_args \
+                        --exp_name $exp_name \
+                        --output_dir $output_dir"
+
+                    echo "Running: $exp_name"
+                    echo "$CMD"
+                    eval $CMD
+
+                done
+            done
+        done
+    done
+done
+

@@ -229,6 +229,17 @@ def train_phase2(phase1_model, args, device, ):
     optimizer = torch.optim.Adam(phase2_model.parameters(), lr=args.phase2_lr, eps=args.phase2_eps, amsgrad=args.phase2_amsgrad)
     
 
+
+    total_iters = args.phase2_epoch * batches_per_epoch
+    decay_iter = int(0.75 * total_iters)
+    def lr_lambda(step):
+        if step >= decay_iter:
+            return 0.1
+        else:
+            return 1.0
+
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+
     for itr in trange(args.phase2_epoch * batches_per_epoch):
         phase2_model.train()
         optimizer.zero_grad()
@@ -254,6 +265,8 @@ def train_phase2(phase1_model, args, device, ):
 
         loss.backward()
         optimizer.step()
+        if args.decay_lr:
+            scheduler.step()
         torch.cuda.empty_cache()
         
         wandb.log({
