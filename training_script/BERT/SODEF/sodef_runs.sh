@@ -5,7 +5,7 @@
 
 # ----------- CONSTANT ARGUMENTS -----------
 FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz"
-PHASE1_MODEL="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase1testing/phase1"
+PHASE1_MODEL="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase1testing/phase1/phase1_best_acc_ckpt.pth"
 
 FIXED_ARGS="--feature_set_dir $FEATURE_DIR \
             --phase1_model_path $PHASE1_MODEL \
