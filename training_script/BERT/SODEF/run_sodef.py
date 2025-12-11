@@ -19,17 +19,27 @@ CLF_LAYER_DIR = f'{BERT_CKPT_DIR}/bert_clf.pth'
 
 from general_utils import get_args
 
+import wandb
+
 def main():
-    # python run_sodef.py --output_dir '../sodef_testing' --exp_name 'first_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2//saving_feats/0_feats.npz' --phase1_epochs 1 --phase2_epoch 1 --phase2_batch_size 128 --phase3_epochs 1
+
+    # python run_sodef.py --output_dir '../sodef_testing' --exp_name 'first_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2//saving_feats/0_feats.npz' --phase1_epochs 2 --phase2_epoch 1 --phase2_batch_size 128 --phase3_epochs 2
+    # python run_sodef.py --output_dir '../sodef_testing' --exp_name 'second_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2//saving_feats/0_feats.npz' --phase1_epochs 2 --phase2_epoch 1 --phase2_batch_size 128 --phase3_epochs 2 --seed 100
+    
     args = get_args()
+
+    wandb.init(project="BERT-SODEF-HYPERPARAM-FINDING", config=vars(args))
 
     print("Experiment:", args.exp_name)
     print("Output dir:", args.output_dir)
     
     device = 'cpu' if ((not torch.cuda.is_available()) or (not args.use_cuda)) else torch.device('cuda:0')
 
-    # Set seed
-    # bert sanity check 
+    from general_utils import set_seed_reproducability
+    set_seed_reproducability(args.seed)
+
+    # TODOOOOOOOOOO Set seed
+    # TODOOOOOOOOOO bert sanity check 
 
     from train_utils import train_phase1, load_phase1
     phase1_model = train_phase1(args, device) if args.phase1_model_path is None else load_phase1(args, device, True)
@@ -43,7 +53,7 @@ def main():
     phase3_model = train_phase3(phase2_model, args, device) if args.phase3_model_path is None else load_phase3(args, device, True)
     # base + phase3/phase3_best_acc_ckpt.pth
 
-    
+    wandb.finish()
     
 if __name__ == "__main__":
     main()

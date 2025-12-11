@@ -24,6 +24,7 @@ from data_utils import inf_generator
 from loss_utils import df_dz_regularizer, f_regularizer
 from model_utils import SingleOutputWrapper
 from model_utils import ODEBlock, Phase3Model, get_a_phase1_model, get_a_phase2_model, get_a_phase3_model
+import wandb
 
 def train_ce_one_epoch(epoch, model, loader, device, optimizer, criterion):
     model.train()
@@ -142,15 +143,21 @@ def train_phase1(args, device):
         )
         best_acc = te_results['best_acc']
 
-        print('tr_acc, tr_loss', tr_results['acc'], tr_results['loss'])
-        print('te_acc, te_loss', te_results['acc'], te_results['loss'])
+        # print('tr_acc, tr_loss', tr_results['acc'], tr_results['loss'])
+        # print('te_acc, te_loss', te_results['acc'], te_results['loss'])
         
         train_loss_history.append(tr_results['loss'])
         train_acc_history.append(tr_results['acc'])
         
         test_loss_history.append(te_results['loss'])
         test_acc_history.append(te_results['acc'])
-    
+
+        wandb.log({
+            'phase1/step': epoch, 
+            'phase1/train_ce': tr_results['loss'], 'phase1/train_acc': tr_results['acc'], 
+            'phase1/test_ce': te_results['loss'], 'phase1/test_acc': te_results['acc'], 
+        })
+
     return phase1_model
 
 def load_phase1(args, device, sanity_check = True): 
@@ -249,13 +256,22 @@ def train_phase2(phase1_model, args, device, ):
         optimizer.step()
         torch.cuda.empty_cache()
         
-        if itr % 20 == 0: 
-            print('itr', itr)
-            print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
-            print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
-            print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
-            print("loss"+str(loss.item()))
+        wandb.log({
+            'phase2/step': itr,
+            'phase2/regu1': regu1.item(),
+            'phase2/regu2': regu2.item(),
+            'phase2/regu3': regu3.item(),
+        })
 
+        if itr % 20 == 0: 
+            # print('itr', itr)
+            # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
+            # print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
+            # print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
+            # print("loss"+str(loss.item()))
+            pass
+
+        
         if itr % batches_per_epoch == 0:
             
             tr_res = test_ce_one_epoch(
@@ -277,6 +293,12 @@ def train_phase2(phase1_model, args, device, ):
             
             print('itr = ', itr, 'Train Acc, Loss', tr_res['acc'], tr_res['loss'])
             print('itr = ', itr, 'Test Acc, Loss', te_res['acc'], te_res['loss'])
+
+            wandb.log({
+                'phase2/step': itr,
+                'phase2/train_acc': tr_res['acc'],
+                'phase2/test_acc': te_res['acc'],
+            })
 
             torch.save(
                 {'model': phase2_model.state_dict(), 'itr': itr}, 
@@ -374,6 +396,11 @@ def train_phase3(phase2_model, args, device):
         test_loss_history.append(te_results['loss'])
         test_acc_history.append(te_results['acc'])
 
+        wandb.log({
+            'phase3/step': epoch, 
+            'phase3/train_ce': tr_results['loss'], 'phase3/train_acc': tr_results['acc'], 
+            'phase3/test_ce': te_results['loss'], 'phase3/test_acc': te_results['acc'], 
+        })
 
     return phase3_model
 
