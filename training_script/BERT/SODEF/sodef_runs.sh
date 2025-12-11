@@ -81,6 +81,6 @@
 # parser.add_argument("--phase3_model_path", type=str, default=None)
 
 
-python run_sodef.py --output_dir '../sodef_testing' --exp_name 'first_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_epochs 20 --phase1_lr 0.001 --phase1_optim_eps 1e-08 --no_phase1_amsgrad --phase2_epoch 0 --phase2_batch_size 128 --phase3_epochs 0 --seed 100 --
+python run_sodef.py --output_dir '../sodef_testing' --exp_name 'first_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_epochs 20 --phase1_lr 0.001 --phase1_optim_eps 1e-08 --no_phase1_amsgrad --phase2_epoch 0 --phase2_batch_size 128 --phase3_epochs 0 --seed 100 
 
 # python run_sodef.py --output_dir '../sodef_testing' --exp_name 'second_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_epochs 5 --phase2_epoch 2 --phase2_batch_size 128 --phase3_epochs 5 --seed 100
