@@ -234,7 +234,7 @@ def train_phase2(phase1_model, args, device, ):
         # y1 = x
         # y00 = y0 #.clone().detach().requires_grad_(True)
         x, y00, _ = phase2_model(x)
-        regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_transoffdig, device=device)
+        regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
         regu1 = regu1.mean()
         regu2 = regu2.mean()
         # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
@@ -242,7 +242,7 @@ def train_phase2(phase1_model, args, device, ):
         regu3 = f_regularizer(None, x, odefunc=odefunc, time_df=args.phase2_time_df, device=device, exponent_f=args.phase2_exponent_f)
         regu3 = regu3.mean()
         # print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
-        loss = args.phase2_weight_f*regu3 + args.phase2_weight_diag*regu1+ args.phase2_weight_offdiag*regu2
+        loss = args.phase2_weight_f*regu3 + args.phase2_weight_diag*regu1+ args.phase2_weight_off_diag*regu2
         # print("loss"+str(loss.item()))
 
         loss.backward()
