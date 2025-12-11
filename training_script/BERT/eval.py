@@ -314,16 +314,16 @@ def main():
     )
 
     if args.sodef_model is not None: 
-        from SODEF.model_utils import Phase3Model, MLP_OUT_BALL, MLP_OUT_ORTH_X_X, ODEBlock, ODEfunc_mlp
+        from SODEF.model_utils import Phase3Model, MLP_OUT_LINEAR, MLP_OUT_ORTH_X_X, ODEBlock, ODEfunc_mlp
         feature_dim = 768
         bridge_dim = 64
         sodef = Phase3Model(
             bridge_768_64=MLP_OUT_ORTH_X_X(feature_dim, bridge_dim), 
             ode_block=ODEBlock(odefunc=ODEfunc_mlp(bridge_dim)), 
-            fc=MLP_OUT_BALL(bridge_dim, num_labels)
+            fc=MLP_OUT_LINEAR(bridge_dim, num_labels)
             )
         saved_temp = torch.load(args.sodef_model)
-        statedic_temp = saved_temp['phase3_model']
+        statedic_temp = saved_temp['model'] # ['phase3_model']
         sodef.load_state_dict(statedic_temp)
         print('Sodef module: ')
         print(sodef)
