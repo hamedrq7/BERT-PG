@@ -15,9 +15,9 @@ FIXED_ARGS="--feature_set_dir $FEATURE_DIR \
             --phase2_epoch 20"
 
 # ----------- EXPERIMENT VALUE LISTS -----------
-reg1_list=(10. 5. 1. 0.1)
-reg2_list=(0.0 0.1 0.01 0.001 0.0001)
-reg3_list=(0.1 1.0 0.01)
+reg1_list=(10. )
+reg2_list=(0.0 0.001) # 0.01 0.1 0.0001 
+reg3_list=(0.1 1.0) #  0.01
 
 # Two binary toggles:
 decay_options=("on" "off")
