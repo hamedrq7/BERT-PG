@@ -155,7 +155,7 @@ def train_phase1(args, device):
 
 def load_phase1(args, device, sanity_check = True): 
     saved_temp = torch.load(args.phase1_model_path)
-    statedic_temp = saved_temp['model']
+    statedic_temp = saved_temp[list(saved_temp.keys())[0]]
 
     phase1_model = get_a_phase1_model(args.bert_feature_dim, args.ode_dim, args.num_classes)
     phase1_model.load_state_dict(statedic_temp)

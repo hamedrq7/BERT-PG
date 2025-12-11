@@ -20,7 +20,7 @@ CLF_LAYER_DIR = f'{BERT_CKPT_DIR}/bert_clf.pth'
 from general_utils import get_args
 
 def main():
-    # pythoh run_sodef --output_dir '../sodef_testing' --exp_name 'first_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2//saving_feats/{0}_feats.npz' --phase1_model_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/SODEF_stuff/SODEF-PG/testingBertSodef/duos/phase1/phase1_best_acc_ckpt.pth' --phase2_model_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/SODEF_stuff/SODEF-PG/testingBertSodef/duos/phase2model_9.pth' --phase3_model_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/SODEF_stuff/SODEF-PG/testingBertSodef/duos/phase3_best_acc_ckpt.pth'
+    # python run_sodef.py --output_dir '../sodef_testing' --exp_name 'first_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2//saving_feats/{0}_feats.npz' --phase1_model_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/SODEF_stuff/SODEF-PG/testingBertSodef/duos/phase1/phase1_best_acc_ckpt.pth' --phase2_model_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/SODEF_stuff/SODEF-PG/testingBertSodef/duos/phase2model_9.pth' --phase3_model_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/SODEF_stuff/SODEF-PG/testingBertSodef/duos/phase3_best_acc_ckpt.pth'
     args = get_args()
 
     print("Experiment:", args.exp_name)
