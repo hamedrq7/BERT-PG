@@ -20,7 +20,7 @@ CLF_LAYER_DIR = f'{BERT_CKPT_DIR}/bert_clf.pth'
 from general_utils import get_args
 
 def main():
-    # python run_sodef.py --output_dir '../sodef_testing' --exp_name 'first_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2//saving_feats/{0}_feats.npz' --phase1_epochs 1 --phase2_epoch 1 --phase2_batch_size 128 --phase3_epochs 1
+    # python run_sodef.py --output_dir '../sodef_testing' --exp_name 'first_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2//saving_feats/0_feats.npz' --phase1_epochs 1 --phase2_epoch 1 --phase2_batch_size 128 --phase3_epochs 1
     args = get_args()
 
     print("Experiment:", args.exp_name)
@@ -36,7 +36,7 @@ def main():
     # base + phase1/phase1_best_acc_ckpt.pth
 
     from train_utils import train_phase2, load_phase2
-    phase2_model = train_phase2(None, args, device) if args.phase2_model_path is None else load_phase2(args, device, True)
+    phase2_model = train_phase2(phase1_model, args, device) if args.phase2_model_path is None else load_phase2(args, device, True)
     # base + phase2/phase2_last_ckpt.pth
     
     from train_utils import train_phase3, load_phase3
