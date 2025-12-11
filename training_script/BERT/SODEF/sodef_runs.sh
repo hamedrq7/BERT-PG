@@ -3,18 +3,6 @@
 # parser.add_argument("--feature_set_dir", type=str, default=None) #  --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz'
 # parser.add_argument("--exp_name", type=str, required=True)
 
-# # ---------------------------
-# # PHASE 1
-# # ---------------------------
-
-# # TRAINING PARAMS
-# parser.add_argument("--phase1_epochs", type=int, default=4)
-# parser.add_argument("--phase1_lr", type=float, default=1e-1)
-# parser.add_argument("--phase1_optim_eps", type=float, default=1e-2)
-# parser.add_argument("--no_phase1_amsgrad", action="store_false", dest="phase1_amsgrad",
-#     help="Disable phase1_amsgrad (default: enabled)")
-
-# parser.add_argument("--phase1_model_path", type=str, default=None)
 
 # # ---------------------------
 # # PHASE 2
@@ -28,9 +16,9 @@
 # parser.add_argument("--phase2_epoch", type=int, default=20)
 
 # # HYPERPARAMS
-# parser.add_argument("--phase2_weight_diag", type=float, default=10)
-# parser.add_argument("--phase2_weight_off_diag", type=float, default=0.)
-# parser.add_argument("--phase2_weight_f", type=float, default=0.1)
+# parser.add_argument("--phase2_weight_diag", type=float, default=10) # reg1
+# parser.add_argument("--phase2_weight_off_diag", type=float, default=0.) # reg2
+# parser.add_argument("--phase2_weight_f", type=float, default=0.1) # reg3
 # parser.add_argument("--phase2_weight_norm", type=float, default=0.)
 # parser.add_argument("--phase2_weight_lossc", type=float, default=0.)
 # parser.add_argument("--phase2_exponent", type=float, default=1.0)
@@ -52,12 +40,6 @@
 # # ---------------------------
 # # PHASE 3
 # # ---------------------------
-
-# # TRAINING METHOD    
-# parser.add_argument("--no_phase3_freeze_backbone", action="store_false", dest="phase3_freeze_backbone",
-#     help="Disable phase3_freeze_backbone (default: enabled)")
-# parser.add_argument("--no_phase3_freeze_bridge_layer", action="store_false", dest="phase3_freeze_bridge_layer",
-#     help="Disable phase3_freeze_bridge_layer (default: enabled)")
 # parser.add_argument("--no_phase3_use_fc_from_phase2", action="store_false", dest="phase3_use_fc_from_phase2",
 #     help="Disable phase3_use_fc_from_phase2 (default: enabled)")
 
@@ -69,18 +51,12 @@
 # parser.add_argument("--phase3_eps_fc_block", type=float, default=1e-4)
 # parser.add_argument("--no_phase3_amsgrad", action="store_false", dest="phase3_amsgrad",
 #     help="Disable phase3_amsgrad (default: enabled)")
-# parser.add_argument("--phase3_integration_time", type=float, default=5.)
 
-# parser.add_argument("--phase3_loss", type=str, default="CE")
 # parser.add_argument("--phase3_epochs", type=int, default=10)
 # parser.add_argument("--phase3_batch_size", type=int, default=128)
 
 # # LOGGING
-# parser.add_argument("--phase3_metric", nargs="+", default=["ACC"])
-# parser.add_argument("--phase3_save_path", type=str, default="phase3")
 # parser.add_argument("--phase3_model_path", type=str, default=None)
 
 
-python run_sodef.py --output_dir '../sodef_testing' --exp_name 'first_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_epochs 20 --phase1_lr 0.001 --phase1_optim_eps 1e-08 --no_phase1_amsgrad --phase2_epoch 0 --phase2_batch_size 128 --phase3_epochs 0 --seed 100 
-
-# python run_sodef.py --output_dir '../sodef_testing' --exp_name 'second_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_epochs 5 --phase2_epoch 2 --phase2_batch_size 128 --phase3_epochs 5 --seed 100
+python run_sodef.py --output_dir '../phase1testing' --exp_name 'phase1_default_params' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase2_epoch 0 --phase2_batch_size 128 --phase3_epochs 0 --seed 100

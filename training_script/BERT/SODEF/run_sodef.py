@@ -28,7 +28,7 @@ def main():
     
     args = get_args()
 
-    wandb.init(project="BERT-SODEF-HYPERPARAM-FINDING", config=vars(args))
+    wandb.init(project="BERT-SODEF-HYPERPARAM-FINDING", config=vars(args), name=args.exp_name)
 
     print("Experiment:", args.exp_name)
     print("Output dir:", args.output_dir)
