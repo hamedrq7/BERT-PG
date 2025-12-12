@@ -40,7 +40,7 @@ for r1 in "${reg1_list[@]}"; do
                         # ---------------- Construct optional args ----------------
                         decay_arg=""
                         optim_args=""
-                        no_prev=""
+                        no_prev_args=""
 
                         if [[ "$decay" == "on" ]]; then
                             decay_arg="--decay_lr"
@@ -55,11 +55,11 @@ for r1 in "${reg1_list[@]}"; do
                         fi
                         
                         if [[ "$no_prev" == "on" ]]; then
-                            optim_args=" --no_phase2_use_fc_from_phase1 --no_phase3_use_fc_from_phase2"
+                            no_prev_args=" --no_phase2_use_fc_from_phase1 --no_phase3_use_fc_from_phase2"
                         fi 
 
                         # ---------------- Construct experiment name ----------------
-                        exp_name="r1=${r1}_r2=${r2}_r3=${r3}_decay=${decay}_optim=${optim}"
+                        exp_name="r1=${r1}_r2=${r2}_r3=${r3}_decay=${decay}_optim=${optim}_prev${no_prev}"
 
                         # ---------------- Output directory ----------------
                         output_dir="../phase2paramfinding/${exp_name}"
