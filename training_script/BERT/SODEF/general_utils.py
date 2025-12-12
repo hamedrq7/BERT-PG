@@ -20,15 +20,25 @@ def get_args():
     parser.add_argument("--num_workers", type=int, default=2)
     parser.add_argument("--no_pin_memory", action="store_false", dest="pin_memory",
             help="Disable pin_memory (default: enabled)")   
+    parser.add_argument("--no_wandb", action="store_false", dest="wandb",
+            help="Disable wandb logging (default: enabled)")   
     parser.add_argument("--no_use_cuda", action="store_false", dest="use_cuda",
-            help="Disable use_cuda (default: enabled)")    
+            help="Disable use_cuda (default: enabled)")   
+    
+
+     
     # LOADING MODELS AND DATA
     parser.add_argument("--output_dir", type=str, required=True)
     parser.add_argument("--feature_set_dir", type=str, default=None)
     parser.add_argument("--bert_dir", type=str, default=None)
     parser.add_argument("--bert_clf_dir", type=str, default=None)
     parser.add_argument("--exp_name", type=str, required=True)
-
+    parser.add_argument("--adv_glue_feature_set_dir", type=str, default=None)
+    
+    parser.add_argument("--skip_phase1", action="store_true", help="Skips phase1, make sure to pass mode path for other phases")
+    parser.add_argument("--skip_phase2", action="store_true", help="Skips phase2, make sure to pass mode path for phase3")
+    # parser.add_argument("--skip_phase3", action="store_true", help="Skips phase1, make sure to pass mode path for other phases")
+    
     # ARCHITECTURE
     parser.add_argument("--bert_feature_dim", type=int, default=768)
     parser.add_argument("--ode_dim", type=int, default=64)
@@ -147,7 +157,10 @@ def get_args():
     assert args.phase1_freeze_backbone, 'Not implemented yet (you need to add bert finetuning for this)'
     assert args.phase2_freeze_backbone, 'Not implemented yet (you need to add bert finetuning for this)'
     assert args.phase3_freeze_backbone, 'Not implemented yet (you need to add bert finetuning for this)'
-    
+    if args.skip_phase1:
+        if args.skip_phase2:
+            assert args.phase3_model_path is not None, 'Pass something'
+            
     return args
 
 import random

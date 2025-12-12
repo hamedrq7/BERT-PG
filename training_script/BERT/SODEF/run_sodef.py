@@ -28,7 +28,8 @@ def main():
     
     args = get_args()
 
-    wandb.init(project="BERT-SODEF-HYPERPARAM-FINDING", config=vars(args), name=args.exp_name)
+    if args.wandb:
+        wandb.init(project="BERT-SODEF-HYPERPARAM-FINDING", config=vars(args), name=args.exp_name)
 
     print("Experiment:", args.exp_name)
     print("Output dir:", args.output_dir)
@@ -41,19 +42,26 @@ def main():
     # TODOOOOOOOOOO Set seed
     # TODOOOOOOOOOO bert sanity check 
 
-    from train_utils import train_phase1, load_phase1
-    phase1_model = train_phase1(args, device) if args.phase1_model_path is None else load_phase1(args, device, True)
-    # base + phase1/phase1_best_acc_ckpt.pth
+    if not args.skip_phase1: 
+        from train_utils import train_phase1, load_phase1
+        phase1_model = train_phase1(args, device) if args.phase1_model_path is None else load_phase1(args, device, True)
+        # base + phase1/phase1_best_acc_ckpt.pth
 
-    from train_utils import train_phase2, load_phase2
-    phase2_model = train_phase2(phase1_model, args, device) if args.phase2_model_path is None else load_phase2(args, device, True)
-    # base + phase2/phase2_last_ckpt.pth
+    if not args.skip_phase2: 
+        from train_utils import train_phase2, load_phase2
+        phase2_model = train_phase2(phase1_model, args, device) if args.phase2_model_path is None else load_phase2(args, device, True)
+        # base + phase2/phase2_last_ckpt.pth
     
     from train_utils import train_phase3, load_phase3
-    phase3_model = train_phase3(phase2_model, args, device) if args.phase3_model_path is None else load_phase3(args, device, True)
+    phase3_model = load_phase3(args, device, True)  if args.phase3_model_path is not None else train_phase3(phase2_model, args, device) 
     # base + phase3/phase3_best_acc_ckpt.pth
 
-    wandb.finish()
+    if args.adv_glue_feature_set_dir is not None: 
+        from train_utils import test_adv_glue
+        test_adv_glue(args, device, phase3_model)
+
+    if args.wandb:
+        wandb.finish()
     
 if __name__ == "__main__":
     main()

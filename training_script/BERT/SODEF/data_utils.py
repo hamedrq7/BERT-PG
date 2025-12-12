@@ -38,6 +38,14 @@ def get_feature_dataloader(args, batch_size):
 
     return train_feature_loader, test_feature_loader
 
+def get_adv_glue_feature_dataset(path: str): 
+    loaded_np = np.load(path)
+    val_ds = BERT_feature_dataset(loaded_np['val_feats'], loaded_np['val_labels'])
+
+    print('Adv GLUE DS: ', val_ds.x.shape, val_ds.y.shape)
+    
+    return val_ds
+
 def get_sst2_feature_dataset(path: str): 
     loaded_np = np.load(path)
     # Keys: train_feats, train_labels, val_feats, val_labels

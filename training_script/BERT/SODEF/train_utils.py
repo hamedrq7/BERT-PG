@@ -152,11 +152,12 @@ def train_phase1(args, device):
         test_loss_history.append(te_results['loss'])
         test_acc_history.append(te_results['acc'])
 
-        wandb.log({
-            'phase1/step': epoch, 
-            'phase1/train_ce': tr_results['loss'], 'phase1/train_acc': tr_results['acc'], 
-            'phase1/test_ce': te_results['loss'], 'phase1/test_acc': te_results['acc'], 
-        })
+        if args.wandb:
+            wandb.log({
+                'phase1/step': epoch, 
+                'phase1/train_ce': tr_results['loss'], 'phase1/train_acc': tr_results['acc'], 
+                'phase1/test_ce': te_results['loss'], 'phase1/test_acc': te_results['acc'], 
+            })
 
     return phase1_model
 
@@ -271,12 +272,13 @@ def train_phase2(phase1_model, args, device, ):
             scheduler.step()
         torch.cuda.empty_cache()
         
-        wandb.log({
-            'phase2/step': itr,
-            'phase2/regu1': regu1.item(),
-            'phase2/regu2': regu2.item(),
-            'phase2/regu3': regu3.item(),
-        })
+        if args.wandb: 
+            wandb.log({
+                'phase2/step': itr,
+                'phase2/regu1': regu1.item(),
+                'phase2/regu2': regu2.item(),
+                'phase2/regu3': regu3.item(),
+            })
 
         if itr % 20 == 0: 
             # print('itr', itr)
@@ -309,11 +311,12 @@ def train_phase2(phase1_model, args, device, ):
             print('itr = ', itr, 'Train Acc, Loss', tr_res['acc'], tr_res['loss'])
             print('itr = ', itr, 'Test Acc, Loss', te_res['acc'], te_res['loss'])
 
-            wandb.log({
-                'phase2/step': itr,
-                'phase2/train_acc': tr_res['acc'],
-                'phase2/test_acc': te_res['acc'],
-            })
+            if args.wandb: 
+                wandb.log({
+                    'phase2/step': itr,
+                    'phase2/train_acc': tr_res['acc'],
+                    'phase2/test_acc': te_res['acc'],
+                })
 
             torch.save(
                 {'model': phase2_model.state_dict(), 'itr': itr}, 
@@ -410,11 +413,12 @@ def train_phase3(phase2_model, args, device):
         test_loss_history.append(te_results['loss'])
         test_acc_history.append(te_results['acc'])
 
-        wandb.log({
-            'phase3/step': epoch, 
-            'phase3/train_ce': tr_results['loss'], 'phase3/train_acc': tr_results['acc'], 
-            'phase3/test_ce': te_results['loss'], 'phase3/test_acc': te_results['acc'], 
-        })
+        if args.wandb:
+            wandb.log({
+                'phase3/step': epoch, 
+                'phase3/train_ce': tr_results['loss'], 'phase3/train_acc': tr_results['acc'], 
+                'phase3/test_ce': te_results['loss'], 'phase3/test_acc': te_results['acc'], 
+            })
 
     return phase3_model
 
@@ -436,3 +440,22 @@ def load_phase3(args, device, sanity_check = True):
         print('Test Acc, Loss', te_res['acc'], te_res['loss'])
 
     return phase3_model
+
+def test_adv_glue(args, device, model): 
+    from torch.utils.data import DataLoader
+
+    print('Testing adv glue')
+    from data_utils import get_adv_glue_feature_dataset
+    ds = get_adv_glue_feature_dataset(args.adv_glue_feature_set_dir)
+    loader = DataLoader(
+        ds,
+        batch_size=128,
+        shuffle=True, num_workers=args.num_workers,
+        pin_memory=args.pin_memory
+    )
+
+    res = test_ce_one_epoch(-1, model, loader, device, nn.CrossEntropyLoss(), 110, False, None, None)
+    print('Adv GLUE Acc, Loss', res['acc'], res['loss'])
+
+    if args.wandb: 
+        wandb.log({'AdvGLUE': res['acc']})
