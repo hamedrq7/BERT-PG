@@ -72,7 +72,7 @@ for r1 in "${reg1_list[@]}"; do
                             --phase2_weight_f $r3 \
                             $decay_arg \
                             $optim_args \
-                            $no_prev \
+                            $no_prev_args \
                             --exp_name $exp_name \
                             --output_dir $output_dir" \
 
