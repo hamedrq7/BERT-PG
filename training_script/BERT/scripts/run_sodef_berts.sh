@@ -56,6 +56,6 @@ for dir in "$BASE_DIR"/*/; do
     --per_device_eval_batch_size ${batch_size} \
     --seed 42 \
     --with_tracking \
-    --sub_output_dir sodef_model-clean_glue/ \
+    --sub_output_dir sodef_model-clean_glue \
     --eval_clean_glue
 done
