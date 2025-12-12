@@ -201,7 +201,7 @@ def train_phase2(phase1_model, args, device, ):
     # if you dont ignore dropout, you need to do a drop out at the very begining of every model
     # at the input data essentially 
     assert args.ignore_dropout, 'if you dont ignore dropout, you need to do a drop out at the very begining of every model at the input data essentially' 
-    assert args.phase2_optim == 'ADAM', 'Only Adam for now'
+    assert args.phase2_optim == 'ADAM' or args.phase2_optim == 'SGD', 'Only Adam and sgd for now'
 
     save_path = os.path.join(args.output_dir, args.phase2_save_path)
     os.makedirs(save_path, exist_ok=True)
@@ -226,9 +226,11 @@ def train_phase2(phase1_model, args, device, ):
     train_data_gen = inf_generator(trainloader)
     batches_per_epoch = len(trainloader)
 
-    optimizer = torch.optim.Adam(phase2_model.parameters(), lr=args.phase2_lr, eps=args.phase2_eps, amsgrad=args.phase2_amsgrad)
-    
-
+    if args.phase2_optim == 'ADAM': 
+        optimizer = torch.optim.Adam(phase2_model.parameters(), lr=args.phase2_lr, eps=args.phase2_eps, amsgrad=args.phase2_amsgrad)
+    elif args.phase2_optim == 'SGD': 
+        optimizer = torch.optim.SGD(phase2_model.parameters(), lr=args.phase2_lr,
+                                    momentum=0.9)
 
     total_iters = args.phase2_epoch * batches_per_epoch
     decay_iter = int(0.75 * total_iters)
@@ -366,7 +368,6 @@ def train_phase3(phase2_model, args, device):
     phase3_model.freeze_layer_given_name(freeze_layers)
     phase3_model = phase3_model.to(device)
     
-
     optimizer = torch.optim.Adam([{'params': phase3_model.ode_block.odefunc.parameters(), 'lr': args.phase3_lr_ode_block, 'eps':args.phase3_eps_ode_block,},
                                 {'params': phase3_model.fc.parameters(), 'lr': args.phase3_lr_fc, 'eps':args.phase3_eps_fc_block,}], amsgrad=args.phase3_amsgrad)
     criterion = get_loss(args.phase3_loss)

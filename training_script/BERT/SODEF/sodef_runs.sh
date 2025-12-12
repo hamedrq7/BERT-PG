@@ -21,7 +21,7 @@ reg3_list=(0.1) #  0.01
 
 # Two binary toggles:
 decay_options=("on") #  "off"
-optimizer_options=("off") # "on"
+optimizer_options=("sgd") # "on"
 
 # ----------- LOOP OVER ALL COMBINATIONS -----------
 for r1 in "${reg1_list[@]}"; do
@@ -40,6 +40,10 @@ for r1 in "${reg1_list[@]}"; do
 
                     if [[ "$optim" == "on" ]]; then
                         optim_args="--phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad"
+                    fi
+
+                    if [[ "$optim" == "sgd" ]]; then
+                        optim_args=" --phase2_optim SGD --phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad"
                     fi
 
                     # ---------------- Construct experiment name ----------------
