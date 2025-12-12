@@ -181,6 +181,8 @@ def main():
     else: 
         args.output_dir = os.path.join(args.sodef_model, "eval",  args.sub_output_dir) 
 
+    os.makedirs(args.output_dir, exist_ok=True)
+    
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     # If we're using tracking, we also need to initialize it here and it will by default pick up all supported trackers
     # in the environment
@@ -193,7 +195,6 @@ def main():
         datefmt="%m/%d/%Y %H:%M:%S",
         level=logging.INFO,
     )
-    os.makedirs(args.output_dir, exist_ok=True)
     log_path = os.path.join(args.output_dir, "evaluation.log")
     file_handler = logging.FileHandler(log_path)
     file_handler.setLevel(logging.INFO)
