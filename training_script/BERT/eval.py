@@ -176,7 +176,7 @@ def main():
     print(args)
 
     # For evals, create a subdir in models folder
-    if args.sodef_models is None:
+    if args.sodef_model is None:
         args.output_dir = os.path.join(args.model_name_or_path, "eval",  args.sub_output_dir) 
     else: 
         args.output_dir = os.path.join(args.sodef_model, "eval",  args.sub_output_dir) 
