@@ -10,13 +10,15 @@
 # ----------- CONSTANT ARGUMENTS -----------
 FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz"
 PHASE1_MODEL="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase1testing/phase1/phase1_best_acc_ckpt.pth"
+ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz"
 
 FIXED_ARGS="--feature_set_dir $FEATURE_DIR \
             --phase1_model_path $PHASE1_MODEL \
+            --adv_glue_feature_set_dir $ADV_GULE_DOR \
             --seed 100 \
             --phase2_batch_size 64 \
             --phase2_numm 64 \
-            --phase2_epoch 10"
+            --phase2_epoch 10" 
 
 # ----------- EXPERIMENT VALUE LISTS -----------
 reg1_list=(10. )
@@ -73,7 +75,6 @@ for r1 in "${reg1_list[@]}"; do
                             $no_prev \
                             --exp_name $exp_name \
                             --output_dir $output_dir" \
-                            --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz'
 
                         echo "Running: $exp_name"
                         echo "$CMD"
