@@ -25,51 +25,59 @@ reg3_list=(0.1) #  0.01
 
 # Two binary toggles:
 decay_options=("on") #  "off"
-optimizer_options=("sgd") # "on"
-
+optimizer_options=("on") # "on"
+no_prevs=("on")
 # ----------- LOOP OVER ALL COMBINATIONS -----------
 for r1 in "${reg1_list[@]}"; do
     for r2 in "${reg2_list[@]}"; do
         for r3 in "${reg3_list[@]}"; do
             for decay in "${decay_options[@]}"; do
                 for optim in "${optimizer_options[@]}"; do
+                    for no_prev in "${no_prevs[@]}"; do
 
-                    # ---------------- Construct optional args ----------------
-                    decay_arg=""
-                    optim_args=""
+                        # ---------------- Construct optional args ----------------
+                        decay_arg=""
+                        optim_args=""
+                        no_prev=""
 
-                    if [[ "$decay" == "on" ]]; then
-                        decay_arg="--decay_lr"
-                    fi
+                        if [[ "$decay" == "on" ]]; then
+                            decay_arg="--decay_lr"
+                        fi
 
-                    if [[ "$optim" == "on" ]]; then
-                        optim_args="--phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad"
-                    fi
+                        if [[ "$optim" == "on" ]]; then
+                            optim_args="--phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad"
+                        fi
 
-                    if [[ "$optim" == "sgd" ]]; then
-                        optim_args=" --phase2_optim SGD --phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad"
-                    fi
+                        if [[ "$optim" == "sgd" ]]; then
+                            optim_args=" --phase2_optim SGD --phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad"
+                        fi
+                        
+                        if [[ "$no_prev" == "on" ]]; then
+                            optim_args=" --no_phase2_use_fc_from_phase1 --no_phase3_use_fc_from_phase2"
+                        fi 
 
-                    # ---------------- Construct experiment name ----------------
-                    exp_name="r1=${r1}_r2=${r2}_r3=${r3}_decay=${decay}_optim=${optim}"
+                        # ---------------- Construct experiment name ----------------
+                        exp_name="r1=${r1}_r2=${r2}_r3=${r3}_decay=${decay}_optim=${optim}"
 
-                    # ---------------- Output directory ----------------
-                    output_dir="../phase2paramfinding/${exp_name}"
+                        # ---------------- Output directory ----------------
+                        output_dir="../phase2paramfinding/${exp_name}"
 
-                    # ---------------- Command to run ----------------
-                    CMD="python run_sodef.py \
-                        $FIXED_ARGS \
-                        --phase2_weight_diag $r1 \
-                        --phase2_weight_off_diag $r2 \
-                        --phase2_weight_f $r3 \
-                        $decay_arg \
-                        $optim_args \
-                        --exp_name $exp_name \
-                        --output_dir $output_dir"
+                        # ---------------- Command to run ----------------
+                        CMD="python run_sodef.py \
+                            $FIXED_ARGS \
+                            --phase2_weight_diag $r1 \
+                            --phase2_weight_off_diag $r2 \
+                            --phase2_weight_f $r3 \
+                            $decay_arg \
+                            $optim_args \
+                            $no_prev \
+                            --exp_name $exp_name \
+                            --output_dir $output_dir" \
+                            --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz'
 
-                    echo "Running: $exp_name"
-                    echo "$CMD"
-                    eval $CMD
+                        echo "Running: $exp_name"
+                        echo "$CMD"
+                        eval $CMD
 
                 done
             done
