@@ -148,6 +148,11 @@ def parse_args():
         action="store_true",
         help="no training, only eval",
     )
+    parser.add_argument(
+        "--save_features",
+        action="store_true",
+        help="Whether to save penultimate features.",
+    )
     
     args = parser.parse_args()
 
@@ -461,12 +466,20 @@ def main():
     logger.info(f"  Instantaneous batch size per device = {args.per_device_eval_batch_size}")
     # Only show the progress bar once on each machine.
 
+    val_pooled_features = []
+    val_pooled_labels = []
+
     model.eval()
     samples_seen = 0
     for step, batch in enumerate(eval_dataloader):
         with torch.no_grad():
             outputs = model(**batch)
-            
+        
+        if args.save_features: 
+            features_befor_clf = model.module.dropout(model.module.bert.pooler(outputs.hidden_states[-1])) 
+            val_pooled_features.append(features_befor_clf.cpu().detach().numpy().squeeze())
+            val_pooled_labels.append(batch['labels'].cpu().detach().numpy().squeeze())
+        
         predictions = outputs.logits.argmax(dim=-1) if not is_regression else outputs.logits.squeeze()
         predictions, references = accelerator.gather((predictions, batch["labels"]))
         # If we are in a multiprocess environment, the last batch has duplicates
@@ -481,6 +494,14 @@ def main():
             references=references,
         )
         del outputs
+
+    if args.save_features: 
+        import numpy as np 
+        val_pooled_labels = np.concatenate(val_pooled_labels)
+        val_pooled_features = np.concatenate(val_pooled_features, axis=0)
+        print('saving features and labels, size ', val_pooled_features.shape, val_pooled_labels.shape)          
+        save_name = 'AdvGLUE_val_feats' if (args.eval_adv_glue and not args.eval_clean_glue) else 'GLUE_val_feats'
+        np.savez(f'{args.output_dir}/{save_name}.npz', val_feats = val_pooled_features, val_labels = val_pooled_labels)
 
     eval_metric = metric.compute()
     logger.info(f"Val: {eval_metric}")
