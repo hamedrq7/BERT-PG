@@ -179,10 +179,12 @@ def main():
     if args.sodef_model is None:
         args.output_dir = os.path.join(args.model_name_or_path, "eval",  args.sub_output_dir) 
     else: 
-        args.output_dir = os.path.join(args.sodef_model, "eval",  args.sub_output_dir) 
+        from pathlib import Path
+        temp_path = str(Path(args.sodef_model).parent)
+        args.output_dir = os.path.join(temp_path, "eval",  args.sub_output_dir) 
 
     os.makedirs(args.output_dir, exist_ok=True)
-    
+
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     # If we're using tracking, we also need to initialize it here and it will by default pick up all supported trackers
     # in the environment
