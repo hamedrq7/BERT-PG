@@ -78,7 +78,7 @@ for r1 in "${reg1_list[@]}"; do
                         echo "Running: $exp_name"
                         echo "$CMD"
                         eval $CMD
-
+                    done
                 done
             done
         done
