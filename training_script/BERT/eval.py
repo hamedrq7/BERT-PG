@@ -176,7 +176,10 @@ def main():
     print(args)
 
     # For evals, create a subdir in models folder
-    args.output_dir = os.path.join(args.model_name_or_path, "eval",  args.sub_output_dir) 
+    if args.sodef_models is None:
+        args.output_dir = os.path.join(args.model_name_or_path, "eval",  args.sub_output_dir) 
+    else: 
+        args.output_dir = os.path.join(args.sodef_model, "eval",  args.sub_output_dir) 
 
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     # If we're using tracking, we also need to initialize it here and it will by default pick up all supported trackers
