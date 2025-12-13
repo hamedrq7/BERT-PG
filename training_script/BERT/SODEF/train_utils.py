@@ -361,8 +361,8 @@ def load_phase2(args, device, sanity_check = True):
         print('Sanity Check on loaded model phase 1 ... ')
         trainloader, testloader = get_feature_dataloader(args, args.phase2_batch_size)
         criterion = nn.CrossEntropyLoss()
-        tr_res = test_ce_one_epoch(-1, phase2_model, trainloader, device, criterion, 110, False, None, None)
-        te_res = test_ce_one_epoch(-1, phase2_model, testloader, device, criterion, 110, False, None, None)
+        tr_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), trainloader, device, criterion, 110, False, None, None)
+        te_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), testloader, device, criterion, 110, False, None, None)
         print('Train Acc, Loss', tr_res['acc'], tr_res['loss'])
         print('Test Acc, Loss', te_res['acc'], te_res['loss'])
 
