@@ -18,6 +18,7 @@ CLF_LAYER_DIR = f'{BERT_CKPT_DIR}/bert_clf.pth'
 #     print('Test Acc, Loss', te_res['acc'], te_res['loss'])
 
 from general_utils import get_args
+from data_utils import get_adv_glue_feature_dataset
 
 import wandb
 
@@ -36,11 +37,22 @@ def main():
     
     device = 'cpu' if ((not torch.cuda.is_available()) or (not args.use_cuda)) else torch.device('cuda:0')
 
+
     from general_utils import set_seed_reproducability
     set_seed_reproducability(args.seed)
 
     # TODOOOOOOOOOO Set seed
     # TODOOOOOOOOOO bert sanity check 
+    AdvGLUE=False
+    if args.adv_glue_feature_set_dir is not None:
+        ds = get_adv_glue_feature_dataset(args.adv_glue_feature_set_dir)
+        advglue_feature_loader = DataLoader(
+            ds,
+            batch_size=128,
+            shuffle=True, num_workers=args.num_workers,
+            pin_memory=args.pin_memory
+        )
+        AdvGLUE=True
 
     if not args.skip_phase1: 
         from train_utils import train_phase1, load_phase1
@@ -56,10 +68,13 @@ def main():
     phase3_model = load_phase3(args, device, True)  if args.phase3_model_path is not None else train_phase3(phase2_model, args, device) 
     # base + phase3/phase3_best_acc_ckpt.pth
 
-    if args.adv_glue_feature_set_dir is not None: 
+    
+    if AdvGLUE:
         from train_utils import test_adv_glue
-        test_adv_glue(args, device, phase3_model)
-
+        res = test_adv_glue(args, device, phase3_model, advglue_feature_loader)
+        if args.wandb: 
+            wandb.log({'AdvGLUE': res['acc']})
+    
     if args.wandb:
         wandb.finish()
     

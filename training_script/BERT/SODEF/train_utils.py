@@ -400,7 +400,7 @@ def test_sodef_regs(model, args, loader, device, phase, num_batches=20):
             })
 
 
-def train_phase3(phase2_model, args, device): 
+def train_phase3(phase2_model, args, device, adv_glue_loader=None): 
     
     # parser.add_argument("--phase3_metric", nargs="+", default=["ACC"])
     
@@ -444,7 +444,14 @@ def train_phase3(phase2_model, args, device):
     for epoch in trange(0, args.phase3_epochs):
         test_sodef_regs(phase3_model, args, trainloader, device, 'train', num_batches=20)
         test_sodef_regs(phase3_model, args, testloader, device, 'test', num_batches=20)
-
+        
+        if adv_glue_loader is not None:
+            adv_glue_res = test_ce_one_epoch(epoch, phase3_model, adv_glue_loader, device, criterion, 110, False, '', '')
+            if args.wandb:
+                wandb.log({
+                    'phase3/adv_glue_ce': adv_glue_res['loss'], 'phase3/adv_glue_acc': adv_glue_res['acc'], 
+                })
+                
         tr_results = train_ce_one_epoch(
             epoch=epoch, 
             model=phase3_model, 
@@ -464,6 +471,10 @@ def train_phase3(phase2_model, args, device):
             save_folder= save_path, # ?
             save_name= 'phase3' # ? 
         )
+
+        if args.adv_glue_feature_set_dir is not None: 
+            test_adv_glue(args, device, phase3_model)
+
         best_acc = te_results['best_acc']
 
         print('tr_acc, tr_loss', tr_results['acc'], tr_results['loss'])
@@ -503,21 +514,22 @@ def load_phase3(args, device, sanity_check = True):
 
     return phase3_model
 
-def test_adv_glue(args, device, model): 
-    from torch.utils.data import DataLoader
+from data_utils import get_adv_glue_feature_dataset
+from torch.utils.data import DataLoader
 
-    print('Testing adv glue')
-    from data_utils import get_adv_glue_feature_dataset
-    ds = get_adv_glue_feature_dataset(args.adv_glue_feature_set_dir)
-    loader = DataLoader(
-        ds,
-        batch_size=128,
-        shuffle=True, num_workers=args.num_workers,
-        pin_memory=args.pin_memory
-    )
+def test_adv_glue(args, device, model, loader = None): 
 
+    # print('Testing adv glue')
+    if loader is None:     
+        ds = get_adv_glue_feature_dataset(args.adv_glue_feature_set_dir)
+        loader = DataLoader(
+            ds,
+            batch_size=128,
+            shuffle=True, num_workers=args.num_workers,
+            pin_memory=args.pin_memory
+        )
+    
     res = test_ce_one_epoch(-1, model, loader, device, nn.CrossEntropyLoss(), 110, False, None, None)
-    print('Adv GLUE Acc, Loss', res['acc'], res['loss'])
+    # print('Adv GLUE Acc, Loss', res['acc'], res['loss'])
 
-    if args.wandb: 
-        wandb.log({'AdvGLUE': res['acc']})
+    return res
