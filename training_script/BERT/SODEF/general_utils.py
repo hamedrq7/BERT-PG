@@ -125,11 +125,17 @@ def get_args():
         help="Disable phase3_freeze_backbone (default: enabled)")
     parser.add_argument("--no_phase3_freeze_bridge_layer", action="store_false", dest="phase3_freeze_bridge_layer",
         help="Disable phase3_freeze_bridge_layer (default: enabled)")
+    parser.add_argument("--phase3_freeze_ode_block", action="store_true", help="phase3_freeze_ode_block (default: enabled)")
+    
+    
     parser.add_argument("--no_phase3_use_fc_from_phase2", action="store_false", dest="phase3_use_fc_from_phase2",
         help="Disable phase3_use_fc_from_phase2 (default: enabled)")
 
     # HYPERPARAMS
     parser.add_argument("--phase3_optim", type=str, default="ADAM")
+    parser.add_argument("--phase3_lr_bridge_layer", type=float, default=1e-6)
+    parser.add_argument("--phase3_eps_bridge_layer", type=float, default=1e-4)
+    
     parser.add_argument("--phase3_lr_ode_block", type=float, default=1e-5)
     parser.add_argument("--phase3_eps_ode_block", type=float, default=1e-6)
     parser.add_argument("--phase3_lr_fc", type=float, default=1e-6)

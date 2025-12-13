@@ -29,7 +29,7 @@ def main():
     args = get_args()
 
     if args.wandb:
-        wandb.init(project="BERT-SODEF-HYPERPARAM-FINDING", config=vars(args), name=args.exp_name)
+        wandb.init(project="BERT-SODEF-phase3-HYPERPARAM-FINDING", config=vars(args), name=args.exp_name)
 
     print("Experiment:", args.exp_name)
     print("Output dir:", args.output_dir)

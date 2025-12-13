@@ -287,11 +287,15 @@ class Phase3Model(nn.Module):
             else:
                 print(f"[FROZEN] {name}")
     
-    def forward(self, x): 
+    def forward(self, x, return_all_feats=False): 
         before_ode_feats = self.bridge_layer(x)
         after_ode_feats = self.ode_block(before_ode_feats)
         logits = self.fc(after_ode_feats)
-        return logits
+
+        if return_all_feats: 
+            return before_ode_feats, after_ode_feats, logits
+        else: 
+            return logits
 
 def get_a_phase3_model(feature_dim, ode_dim, num_classes, t):
     dummy = get_a_phase2_model(feature_dim, ode_dim, num_classes, t)

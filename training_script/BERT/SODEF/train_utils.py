@@ -278,16 +278,8 @@ def train_phase2(phase1_model, args, device, ):
                 'phase2/regu1': regu1.item(),
                 'phase2/regu2': regu2.item(),
                 'phase2/regu3': regu3.item(),
+                'phase2/loss': loss.item(),
             })
-
-        if itr % 20 == 0: 
-            # print('itr', itr)
-            # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
-            # print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
-            # print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
-            # print("loss"+str(loss.item()))
-            pass
-
         
         if itr % batches_per_epoch == 0:
             
@@ -322,6 +314,38 @@ def train_phase2(phase1_model, args, device, ):
                 {'model': phase2_model.state_dict(), 'itr': itr}, 
                 save_path+f'/phase2_last_ckpt.pth'
             )
+
+        if itr % 100 == 0: 
+
+            test_data_get = inf_generator(testloader)
+            for iter_test in range(20): 
+                with torch.no_grad():
+                    x, y = test_data_get.__next__()
+                    x = x.to(device)
+
+                    # modulelist = list(ODE_FCmodel)
+                    # y0 = x
+                    # x = modulelist[0](x)
+                    # y1 = x
+                    # y00 = y0 #.clone().detach().requires_grad_(True)
+                    x, y00, _ = phase2_model(x)
+                    regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
+                    regu1 = regu1.mean()
+                    regu2 = regu2.mean()
+                    # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
+                    # print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
+                    regu3 = f_regularizer(None, x, odefunc=odefunc, time_df=args.phase2_time_df, device=device, exponent_f=args.phase2_exponent_f)
+                    regu3 = regu3.mean()
+                    # print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
+                    loss = args.phase2_weight_f*regu3 + args.phase2_weight_diag*regu1+ args.phase2_weight_off_diag*regu2
+
+                wandb.log({
+                    'phase2/test_step': iter_test,
+                    'phase2/test_regu1': regu1.item(),
+                    'phase2/test_regu2': regu2.item(),
+                    'phase2/test_regu3': regu3.item(),
+                    'phase2/test_loss': loss.item(),
+                })
                 
     return phase2_model
 
@@ -343,6 +367,38 @@ def load_phase2(args, device, sanity_check = True):
         print('Test Acc, Loss', te_res['acc'], te_res['loss'])
 
     return phase2_model
+
+def test_sodef_regs(model, args, loader, device, phase, num_batches=20): 
+    for iter_test in range(num_batches):  
+        with torch.no_grad():
+            test_data_get = inf_generator(loader)
+            x, y = test_data_get.__next__()
+            x = x.to(device)
+
+            # modulelist = list(ODE_FCmodel)
+            # y0 = x
+            # x = modulelist[0](x)
+            # y1 = x
+            # y00 = y0 #.clone().detach().requires_grad_(True)
+            x, y00, _ = model(x, return_all_feats=True)
+            regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=model.ode_block.odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
+            regu1 = regu1.mean()
+            regu2 = regu2.mean()
+            # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
+            # print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
+            regu3 = f_regularizer(None, x, odefunc=model.ode_block.odefunc, time_df=args.phase2_time_df, device=device, exponent_f=args.phase2_exponent_f)
+            regu3 = regu3.mean()
+            # print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
+            loss = args.phase2_weight_f*regu3 + args.phase2_weight_diag*regu1+ args.phase2_weight_off_diag*regu2
+
+            wandb.log({
+                f'phase3/{phase}_step': iter_test,
+                f'phase3/{phase}_regu1': regu1.item(),
+                f'phase3/{phase}_regu2': regu2.item(),
+                f'phase3/{phase}_regu3': regu3.item(),
+                f'phase3/{phase}_loss': loss.item(),
+            })
+
 
 def train_phase3(phase2_model, args, device): 
     
@@ -366,12 +422,15 @@ def train_phase3(phase2_model, args, device):
     )
     phase3_model.set_all_req_grads(True)
     freeze_layers = []
-    if args.phase3_freeze_backbone: 
+    if args.phase3_freeze_bridge_layer: 
         freeze_layers.append('bridge_layer')
+    if args.phase3_freeze_ode_block:
+        freeze_layers.append('ode_block')
     phase3_model.freeze_layer_given_name(freeze_layers)
     phase3_model = phase3_model.to(device)
     
-    optimizer = torch.optim.Adam([{'params': phase3_model.ode_block.odefunc.parameters(), 'lr': args.phase3_lr_ode_block, 'eps':args.phase3_eps_ode_block,},
+    optimizer = torch.optim.Adam([{'params': phase3_model.bridge_layer.parameters(), 'lr': args.phase3_lr_bridge_layer, 'eps':args.phase3_eps_bridge_layer,},
+                                  {'params': phase3_model.ode_block.odefunc.parameters(), 'lr': args.phase3_lr_ode_block, 'eps':args.phase3_eps_ode_block,},
                                 {'params': phase3_model.fc.parameters(), 'lr': args.phase3_lr_fc, 'eps':args.phase3_eps_fc_block,}], amsgrad=args.phase3_amsgrad)
     criterion = get_loss(args.phase3_loss)
 
@@ -383,6 +442,9 @@ def train_phase3(phase2_model, args, device):
     test_acc_history = []
     
     for epoch in trange(0, args.phase3_epochs):
+        test_sodef_regs(phase3_model, args, trainloader, device, 'train', num_batches=20)
+        test_sodef_regs(phase3_model, args, testloader, device, 'test', num_batches=20)
+        
         tr_results = train_ce_one_epoch(
             epoch=epoch, 
             model=phase3_model, 
