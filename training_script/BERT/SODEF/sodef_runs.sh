@@ -5,259 +5,263 @@
 
 # Dir of adv features: /mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz
 
+torchrun run_sodef.py   --master_port 29501 --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_model_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase1testing/phase1/phase1_best_acc_ckpt.pth' --seed 100 --phase2_batch_size 64 --phase2_numm 64 --phase2_epoch 10 --phase2_weight_diag 10. --phase2_weight_off_diag 1.0 --phase2_weight_f 0.1 --decay_lr --phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad --ode_dim 64 --exp_name 'ODE64_r1=10._r2=1.0_r3=0.1_decay=on_optim=on' --output_dir '../phase2paramfinding/ODE64_r1=10._r2=1.0_r3=0.1_decay=on_optim=on' --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz'
 
-### Phase 3 shit: 
+torchrun run_sodef.py   --master_port 29501 --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_model_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase1testing/phase1/phase1_best_acc_ckpt.pth' --seed 100 --phase2_batch_size 64 --phase2_numm 64 --phase2_epoch 10 --phase2_weight_diag 10. --phase2_weight_off_diag 1.0 --phase2_weight_f 0.1 --decay_lr --phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad --ode_dim 128 --exp_name 'ODE128_r1=10._r2=1.0_r3=0.1_decay=on_optim=on' --output_dir '../phase2paramfinding/ODE128_r1=10._r2=1.0_r3=0.1_decay=on_optim=on' --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz'
 
-################################ No freeze
-PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
-PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
-BRIDGE_LR=1e-6
-BRIDGE=1
-BRIDGE_EPS=1e-4
-ODE_LR=1e-5
-ODE=1
-ODE_EPS=1e-6
-FC_LR=1e-6
-FC_EPS=1e-4
-EXP_NAME="BRIDGE_${BRIDGE}_${BRIDGE_LR}-ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
-OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
+
+# ### Phase 3 shit: 
+
+# ################################ No freeze
+# PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
+# PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
+# BRIDGE_LR=1e-6
+# BRIDGE=1
+# BRIDGE_EPS=1e-4
+# ODE_LR=1e-5
+# ODE=1
+# ODE_EPS=1e-6
+# FC_LR=1e-6
+# FC_EPS=1e-4
+# EXP_NAME="BRIDGE_${BRIDGE}_${BRIDGE_LR}-ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
+# OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
  
-torchrun run_sodef.py \
-    --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
-    --skip_phase1 \
-    --phase2_model_path $PHASE2_MODEL_PATH \
-    --seed 100 \
-    --exp_name $EXP_NAME \
-    --output_dir $OUTPUT_DIR \
-    --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
-    --no_phase3_freeze_bridge_layer --phase3_lr_bridge_layer ${BRIDGE_LR} --phase3_eps_bridge_layer ${BRIDGE_EPS} \
-    --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
-    --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
+# torchrun run_sodef.py \
+#     --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
+#     --skip_phase1 \
+#     --phase2_model_path $PHASE2_MODEL_PATH \
+#     --seed 100 \
+#     --exp_name $EXP_NAME \
+#     --output_dir $OUTPUT_DIR \
+#     --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
+#     --no_phase3_freeze_bridge_layer --phase3_lr_bridge_layer ${BRIDGE_LR} --phase3_eps_bridge_layer ${BRIDGE_EPS} \
+#     --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
+#     --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
 
-PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
-PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
-BRIDGE_LR=1e-5
-BRIDGE=1
-BRIDGE_EPS=1e-4
-ODE_LR=1e-3
-ODE=1
-ODE_EPS=1e-5
-FC_LR=1e-5
-FC_EPS=1e-3
-EXP_NAME="BRIDGE_${BRIDGE}_${BRIDGE_LR}-ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
-OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
+# PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
+# PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
+# BRIDGE_LR=1e-5
+# BRIDGE=1
+# BRIDGE_EPS=1e-4
+# ODE_LR=1e-3
+# ODE=1
+# ODE_EPS=1e-5
+# FC_LR=1e-5
+# FC_EPS=1e-3
+# EXP_NAME="BRIDGE_${BRIDGE}_${BRIDGE_LR}-ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
+# OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
  
-torchrun run_sodef.py \
-    --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
-    --skip_phase1 \
-    --phase2_model_path $PHASE2_MODEL_PATH \
-    --seed 100 \
-    --exp_name $EXP_NAME \
-    --output_dir $OUTPUT_DIR \
-    --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
-    --no_phase3_freeze_bridge_layer --phase3_lr_bridge_layer ${BRIDGE_LR} --phase3_eps_bridge_layer ${BRIDGE_EPS} \
-    --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
-    --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
+# torchrun run_sodef.py \
+#     --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
+#     --skip_phase1 \
+#     --phase2_model_path $PHASE2_MODEL_PATH \
+#     --seed 100 \
+#     --exp_name $EXP_NAME \
+#     --output_dir $OUTPUT_DIR \
+#     --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
+#     --no_phase3_freeze_bridge_layer --phase3_lr_bridge_layer ${BRIDGE_LR} --phase3_eps_bridge_layer ${BRIDGE_EPS} \
+#     --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
+#     --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
 
-PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
-PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
-BRIDGE_LR=1e-4
-BRIDGE=1
-BRIDGE_EPS=1e-3
-ODE_LR=1e-2
-ODE=1
-ODE_EPS=1e-4
-FC_LR=1e-4
-FC_EPS=1e-2
-EXP_NAME="BRIDGE_${BRIDGE}_${BRIDGE_LR}-ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
-OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
+# PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
+# PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
+# BRIDGE_LR=1e-4
+# BRIDGE=1
+# BRIDGE_EPS=1e-3
+# ODE_LR=1e-2
+# ODE=1
+# ODE_EPS=1e-4
+# FC_LR=1e-4
+# FC_EPS=1e-2
+# EXP_NAME="BRIDGE_${BRIDGE}_${BRIDGE_LR}-ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
+# OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
  
-torchrun run_sodef.py \
-    --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
-    --skip_phase1 \
-    --phase2_model_path $PHASE2_MODEL_PATH \
-    --seed 100 \
-    --exp_name $EXP_NAME \
-    --output_dir $OUTPUT_DIR \
-    --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
-    --no_phase3_freeze_bridge_layer --phase3_lr_bridge_layer ${BRIDGE_LR} --phase3_eps_bridge_layer ${BRIDGE_EPS} \
-    --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
-    --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
+# torchrun run_sodef.py \
+#     --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
+#     --skip_phase1 \
+#     --phase2_model_path $PHASE2_MODEL_PATH \
+#     --seed 100 \
+#     --exp_name $EXP_NAME \
+#     --output_dir $OUTPUT_DIR \
+#     --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
+#     --no_phase3_freeze_bridge_layer --phase3_lr_bridge_layer ${BRIDGE_LR} --phase3_eps_bridge_layer ${BRIDGE_EPS} \
+#     --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
+#     --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
 
-################################ freeze bridge
-PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
-PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
-BRIDGE_LR=1e-6
-BRIDGE=0
-BRIDGE_EPS=1e-4
-ODE_LR=1e-5
-ODE=1
-ODE_EPS=1e-6
-FC_LR=1e-6
-FC_EPS=1e-4
-EXP_NAME="ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
-OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
+# ################################ freeze bridge
+# PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
+# PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
+# BRIDGE_LR=1e-6
+# BRIDGE=0
+# BRIDGE_EPS=1e-4
+# ODE_LR=1e-5
+# ODE=1
+# ODE_EPS=1e-6
+# FC_LR=1e-6
+# FC_EPS=1e-4
+# EXP_NAME="ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
+# OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
  
-torchrun run_sodef.py \
-    --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
-    --skip_phase1 \
-    --phase2_model_path $PHASE2_MODEL_PATH \
-    --seed 100 \
-    --exp_name $EXP_NAME \
-    --output_dir $OUTPUT_DIR \
-    --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
-    --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
-    --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
+# torchrun run_sodef.py \
+#     --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
+#     --skip_phase1 \
+#     --phase2_model_path $PHASE2_MODEL_PATH \
+#     --seed 100 \
+#     --exp_name $EXP_NAME \
+#     --output_dir $OUTPUT_DIR \
+#     --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
+#     --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
+#     --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
 
-PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
-PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
-BRIDGE_LR=1e-6
-BRIDGE=0
-BRIDGE_EPS=1e-4
-ODE_LR=1e-4
-ODE=1
-ODE_EPS=1e-5
-FC_LR=1e-5
-FC_EPS=1e-3
-EXP_NAME="ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
-OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
+# PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
+# PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
+# BRIDGE_LR=1e-6
+# BRIDGE=0
+# BRIDGE_EPS=1e-4
+# ODE_LR=1e-4
+# ODE=1
+# ODE_EPS=1e-5
+# FC_LR=1e-5
+# FC_EPS=1e-3
+# EXP_NAME="ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
+# OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
  
-torchrun run_sodef.py \
-    --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
-    --skip_phase1 \
-    --phase2_model_path $PHASE2_MODEL_PATH \
-    --seed 100 \
-    --exp_name $EXP_NAME \
-    --output_dir $OUTPUT_DIR \
-    --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
-    --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
-    --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
+# torchrun run_sodef.py \
+#     --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
+#     --skip_phase1 \
+#     --phase2_model_path $PHASE2_MODEL_PATH \
+#     --seed 100 \
+#     --exp_name $EXP_NAME \
+#     --output_dir $OUTPUT_DIR \
+#     --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
+#     --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
+#     --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
 
-PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
-PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
-BRIDGE_LR=1e-6
-BRIDGE=0
-BRIDGE_EPS=1e-4
-ODE_LR=1e-3
-ODE=1
-ODE_EPS=1e-4
-FC_LR=1e-4
-FC_EPS=1e-3
-EXP_NAME="ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
-OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
+# PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
+# PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
+# BRIDGE_LR=1e-6
+# BRIDGE=0
+# BRIDGE_EPS=1e-4
+# ODE_LR=1e-3
+# ODE=1
+# ODE_EPS=1e-4
+# FC_LR=1e-4
+# FC_EPS=1e-3
+# EXP_NAME="ODE_${ODE}_${ODE_LR}_FC_${FC_LR}"
+# OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
  
-torchrun run_sodef.py \
-    --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
-    --skip_phase1 \
-    --phase2_model_path $PHASE2_MODEL_PATH \
-    --seed 100 \
-    --exp_name $EXP_NAME \
-    --output_dir $OUTPUT_DIR \
-    --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
-    --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
-    --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
+# torchrun run_sodef.py \
+#     --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
+#     --skip_phase1 \
+#     --phase2_model_path $PHASE2_MODEL_PATH \
+#     --seed 100 \
+#     --exp_name $EXP_NAME \
+#     --output_dir $OUTPUT_DIR \
+#     --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
+#     --phase3_lr_ode_block ${ODE_LR} --phase3_eps_ode_block ${ODE_EPS} \
+#     --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
 
 
 
-################################ freeze ODE
-PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
-PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
-BRIDGE_LR=1e-6
-BRIDGE=0
-BRIDGE_EPS=1e-4
-ODE_LR=1e-5
-ODE=0
-ODE_EPS=1e-6
-FC_LR=1e-6
-FC_EPS=1e-4
-EXP_NAME="FC_${FC_LR}"
-OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
+# ################################ freeze ODE
+# PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
+# PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
+# BRIDGE_LR=1e-6
+# BRIDGE=0
+# BRIDGE_EPS=1e-4
+# ODE_LR=1e-5
+# ODE=0
+# ODE_EPS=1e-6
+# FC_LR=1e-6
+# FC_EPS=1e-4
+# EXP_NAME="FC_${FC_LR}"
+# OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
  
-torchrun run_sodef.py \
-    --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
-    --skip_phase1 \
-    --phase2_model_path $PHASE2_MODEL_PATH \
-    --seed 100 \
-    --exp_name $EXP_NAME \
-    --output_dir $OUTPUT_DIR \
-    --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
-    --phase3_freeze_ode_block \
-    --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
+# torchrun run_sodef.py \
+#     --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
+#     --skip_phase1 \
+#     --phase2_model_path $PHASE2_MODEL_PATH \
+#     --seed 100 \
+#     --exp_name $EXP_NAME \
+#     --output_dir $OUTPUT_DIR \
+#     --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
+#     --phase3_freeze_ode_block \
+#     --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
 
-PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
-PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
-BRIDGE_LR=1e-6
-BRIDGE=0
-BRIDGE_EPS=1e-4
-ODE_LR=1e-5
-ODE=0
-ODE_EPS=1e-6
-FC_LR=1e-5
-FC_EPS=1e-3
-EXP_NAME="FC_${FC_LR}"
-OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
+# PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
+# PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
+# BRIDGE_LR=1e-6
+# BRIDGE=0
+# BRIDGE_EPS=1e-4
+# ODE_LR=1e-5
+# ODE=0
+# ODE_EPS=1e-6
+# FC_LR=1e-5
+# FC_EPS=1e-3
+# EXP_NAME="FC_${FC_LR}"
+# OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
  
-torchrun run_sodef.py \
-    --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
-    --skip_phase1 \
-    --phase2_model_path $PHASE2_MODEL_PATH \
-    --seed 100 \
-    --exp_name $EXP_NAME \
-    --output_dir $OUTPUT_DIR \
-    --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
-    --phase3_freeze_ode_block \
-    --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
+# torchrun run_sodef.py \
+#     --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
+#     --skip_phase1 \
+#     --phase2_model_path $PHASE2_MODEL_PATH \
+#     --seed 100 \
+#     --exp_name $EXP_NAME \
+#     --output_dir $OUTPUT_DIR \
+#     --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
+#     --phase3_freeze_ode_block \
+#     --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
 
 
-PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
-PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
-BRIDGE_LR=1e-6
-BRIDGE=0
-BRIDGE_EPS=1e-4
-ODE_LR=1e-5
-ODE=0
-ODE_EPS=1e-6
-FC_LR=1e-4
-FC_EPS=1e-4
-EXP_NAME="FC_${FC_LR}"
-OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
+# PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
+# PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
+# BRIDGE_LR=1e-6
+# BRIDGE=0
+# BRIDGE_EPS=1e-4
+# ODE_LR=1e-5
+# ODE=0
+# ODE_EPS=1e-6
+# FC_LR=1e-4
+# FC_EPS=1e-4
+# EXP_NAME="FC_${FC_LR}"
+# OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
  
-torchrun run_sodef.py \
-    --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
-    --skip_phase1 \
-    --phase2_model_path $PHASE2_MODEL_PATH \
-    --seed 100 \
-    --exp_name $EXP_NAME \
-    --output_dir $OUTPUT_DIR \
-    --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
-    --phase3_freeze_ode_block \
-    --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
+# torchrun run_sodef.py \
+#     --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
+#     --skip_phase1 \
+#     --phase2_model_path $PHASE2_MODEL_PATH \
+#     --seed 100 \
+#     --exp_name $EXP_NAME \
+#     --output_dir $OUTPUT_DIR \
+#     --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
+#     --phase3_freeze_ode_block \
+#     --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
 
-PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
-PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
-BRIDGE_LR=1e-6
-BRIDGE=0
-BRIDGE_EPS=1e-4
-ODE_LR=1e-5
-ODE=0
-ODE_EPS=1e-6
-FC_LR=1e-3
-FC_EPS=1e-8
-EXP_NAME="FC_${FC_LR}"
-OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
+# PHASE2_EXP_NAME="r1=10._r2=1.0_r3=0.1_decay=on_optim=on"
+# PHASE2_MODEL_PATH="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase2paramfinding/${PHASE2_EXP_NAME}/phase2/phase2_last_ckpt.pth"
+# BRIDGE_LR=1e-6
+# BRIDGE=0
+# BRIDGE_EPS=1e-4
+# ODE_LR=1e-5
+# ODE=0
+# ODE_EPS=1e-6
+# FC_LR=1e-3
+# FC_EPS=1e-8
+# EXP_NAME="FC_${FC_LR}"
+# OUTPUT_DIR="../phase3paramfinding/${EXP_NAME}"
  
-torchrun run_sodef.py \
-    --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
-    --skip_phase1 \
-    --phase2_model_path $PHASE2_MODEL_PATH \
-    --seed 100 \
-    --exp_name $EXP_NAME \
-    --output_dir $OUTPUT_DIR \
-    --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
-    --phase3_freeze_ode_block \
-    --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
+# torchrun run_sodef.py \
+#     --feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz" \
+#     --skip_phase1 \
+#     --phase2_model_path $PHASE2_MODEL_PATH \
+#     --seed 100 \
+#     --exp_name $EXP_NAME \
+#     --output_dir $OUTPUT_DIR \
+#     --adv_glue_feature_set_dir "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz" \
+#     --phase3_freeze_ode_block \
+#     --phase3_lr_fc ${FC_LR} --phase3_eps_fc_block ${FC_EPS} 
 
-torchrun run_sodef.py --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_model_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase1testing/phase1/phase1_best_acc_ckpt.pth' --seed 100 --phase2_batch_size 64 --phase2_numm 64 --phase2_epoch 10 --phase2_weight_diag 10. --phase2_weight_off_diag 1.0 --phase2_weight_f 0.1 --decay_lr --phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad --ode_dim 512 --exp_name 'ODE512_r1=10._r2=1.0_r3=0.1_decay=on_optim=on' --output_dir '../phase2paramfinding/ODE512_r1=10._r2=1.0_r3=0.1_decay=on_optim=on' --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz'
+# torchrun run_sodef.py --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/saving_feats/0_feats.npz' --phase1_model_path '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/phase1testing/phase1/phase1_best_acc_ckpt.pth' --seed 100 --phase2_batch_size 64 --phase2_numm 64 --phase2_epoch 10 --phase2_weight_diag 10. --phase2_weight_off_diag 1.0 --phase2_weight_f 0.1 --decay_lr --phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad --ode_dim 512 --exp_name 'ODE512_r1=10._r2=1.0_r3=0.1_decay=on_optim=on' --output_dir '../phase2paramfinding/ODE512_r1=10._r2=1.0_r3=0.1_decay=on_optim=on' --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2/eval/base_model-adv_glue/AdvGLUE_val_feats.npz'
 
 #!/bin/bash
 
