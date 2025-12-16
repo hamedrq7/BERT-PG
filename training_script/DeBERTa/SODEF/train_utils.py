@@ -93,7 +93,7 @@ def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save
     }
 
 
-def train_phase1(args, device): 
+def train_phase1(args, device, adv_glue_loader=None): 
 
     # if you dont ignore dropout, you need to do a drop out at the very begining of every model
     # at the input data essentially 
@@ -158,6 +158,13 @@ def train_phase1(args, device):
                 'phase1/train_ce': tr_results['loss'], 'phase1/train_acc': tr_results['acc'], 
                 'phase1/test_ce': te_results['loss'], 'phase1/test_acc': te_results['acc'], 
             })
+        
+        if adv_glue_loader is not None:
+            adv_glue_res = test_ce_one_epoch(epoch, phase1_model, adv_glue_loader, device, criterion, 110, False, '', '')
+            if args.wandb:
+                wandb.log({
+                    'phase1/adv_glue_acc': adv_glue_res['acc'], 
+                })
 
     return phase1_model
 
@@ -180,7 +187,7 @@ def load_phase1(args, device, sanity_check = True):
 
     return phase1_model
 
-def train_phase2(phase1_model, args, device, ): 
+def train_phase2(phase1_model, args, device, adv_glue_loader=None): 
     # # HYPERPARAMS
     # parser.add_argument("--phase2_weight_diag", type=float, default=10)
     # parser.add_argument("--phase2_weight_off_diag", type=float, default=0.)
@@ -300,6 +307,7 @@ def train_phase2(phase1_model, args, device, ):
                 best_acc=110, 
                 do_save=False, save_folder=None, save_name=None)
             
+            
             print('itr = ', itr, 'Train Acc, Loss', tr_res['acc'], tr_res['loss'])
             print('itr = ', itr, 'Test Acc, Loss', te_res['acc'], te_res['loss'])
 
@@ -309,6 +317,13 @@ def train_phase2(phase1_model, args, device, ):
                     'phase2/train_acc': tr_res['acc'],
                     'phase2/test_acc': te_res['acc'],
                 })
+
+            if adv_glue_loader is not None:
+                adv_glue_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), adv_glue_loader, device, nn.CrossEntropyLoss(), 110, False, '', '')
+                if args.wandb:
+                    wandb.log({
+                        'phase2/adv_glue_acc': adv_glue_res['acc'], 
+                    })
 
             torch.save(
                 {'model': phase2_model.state_dict(), 'itr': itr}, 
@@ -449,7 +464,7 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
             adv_glue_res = test_ce_one_epoch(epoch, phase3_model, adv_glue_loader, device, criterion, 110, False, '', '')
             if args.wandb:
                 wandb.log({
-                    'phase3/adv_glue_ce': adv_glue_res['loss'], 'phase3/adv_glue_acc': adv_glue_res['acc'], 
+                    'phase3/adv_glue_acc': adv_glue_res['acc'], 
                 })
                 
         tr_results = train_ce_one_epoch(
@@ -472,8 +487,8 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
             save_name= 'phase3' # ? 
         )
 
-        if args.adv_glue_feature_set_dir is not None: 
-            test_adv_glue(args, device, phase3_model)
+        # if args.adv_glue_feature_set_dir is not None: 
+        #     test_adv_glue(args, device, phase3_model)
 
         best_acc = te_results['best_acc']
 
