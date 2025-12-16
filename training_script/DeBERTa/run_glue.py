@@ -203,6 +203,7 @@ def main():
             )
 
     # Setup logging
+    os.makedirs(training_args.logging_dir, exist_ok=True)
     logging.root.handlers = []
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
