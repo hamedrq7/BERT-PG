@@ -99,7 +99,7 @@ def train_phase1(args, device, adv_glue_loader=None):
     # at the input data essentially 
     assert args.ignore_dropout, 'if you dont ignore dropout, you need to do a drop out at the very begining of every model at the input data essentially' 
     assert args.phase1_loss == 'CE', 'only CE for now'
-    assert args.phase1_optim == 'ADAM', 'Only Adam for now'
+    # assert args.phase1_optim == 'ADAM', 'Only Adam for now'
 
     trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
 
@@ -108,8 +108,14 @@ def train_phase1(args, device, adv_glue_loader=None):
     print('phase1_model', phase1_model)
 
     criterion = get_loss(args.phase1_loss)
-    optimizer = torch.optim.Adam(phase1_model.parameters(), lr=args.phase1_lr, eps=args.phase1_optim_eps, amsgrad=args.phase1_amsgrad)
-
+    if args.phase1_optim == 'ADAM': 
+        optimizer = torch.optim.Adam(phase1_model.parameters(), lr=args.phase1_lr, eps=args.phase1_optim_eps, amsgrad=args.phase1_amsgrad)
+    elif args.phase1_optim == 'SGD': 
+        optimizer = torch.optim.SGD(phase1_model.parameters(), lr=args.phase2_lr,
+                                    momentum=0.9)
+    else: 
+        print(f'OPtim {args.phase1_optim} not implemented for phase1')
+        
     save_path = os.path.join(args.output_dir, args.phase1_save_path)
     os.makedirs(save_path, exist_ok=True)
 

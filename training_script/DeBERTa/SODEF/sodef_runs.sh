@@ -4,46 +4,46 @@
 
 #### Tuning phase1: 
 # default
-PHASE1_EPOCHS=4
-PHASE1_OPTIM='ADAM'
-PHASE1_LR=1e-1
-PHASE1_EPS=1e-2
-EXPS_NAME="Phase1-Tuning/eps_${PHASE1_EPS}-optim_${PHASE1_OPTIM}-lr_${PHASE1_LR}-eps_${PHASE1_EPS}"
-python run_sodef.py  \
-    --phase1_epoch ${PHASE1_EPOCHS} \
-    --phase1_optim ${PHASE1_OPTIM} \
-    --phase1_lr ${PHASE1_LR} \
-    --phase1_optim_eps ${PHASE1_EPS} \
-    --exp_name ${EXPS_NAME} \
-    --output_dir ../DeBERTaFirstSODEF/${EXPS_NAME} \
-    --phase2_epoch 0 \
-    --phase3_epochs 0 \
-    --bert_feature_dim 1024 \
-    --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
-    --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
-    --seed 100 \
-    --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz' \
+# PHASE1_EPOCHS=4
+# PHASE1_OPTIM='ADAM'
+# PHASE1_LR=1e-1
+# PHASE1_EPS=1e-2
+# EXPS_NAME="Phase1-Tuning/eps_${PHASE1_EPS}-optim_${PHASE1_OPTIM}-lr_${PHASE1_LR}-eps_${PHASE1_EPS}"
+# python run_sodef.py  \
+#     --phase1_epoch ${PHASE1_EPOCHS} \
+#     --phase1_optim ${PHASE1_OPTIM} \
+#     --phase1_lr ${PHASE1_LR} \
+#     --phase1_optim_eps ${PHASE1_EPS} \
+#     --exp_name ${EXPS_NAME} \
+#     --output_dir ../DeBERTaFirstSODEF/${EXPS_NAME} \
+#     --phase2_epoch 0 \
+#     --phase3_epochs 0 \
+#     --bert_feature_dim 1024 \
+#     --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
+#     --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
+#     --seed 100 \
+#     --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz' \
 
-# Adam default
-PHASE1_EPOCHS=10
-PHASE1_OPTIM='ADAM'
-PHASE1_LR=1e-3
-PHASE1_EPS=1e-8
-EXPS_NAME="Phase1-Tuning/eps_${PHASE1_EPS}-optim_${PHASE1_OPTIM}-lr_${PHASE1_LR}-eps_${PHASE1_EPS}"
-python run_sodef.py  \
-    --phase1_epoch ${PHASE1_EPOCHS} \
-    --phase1_optim ${PHASE1_OPTIM} \
-    --phase1_lr ${PHASE1_LR} \
-    --phase1_optim_eps ${PHASE1_EPS} \
-    --exp_name ${EXPS_NAME} \
-    --output_dir ../DeBERTaFirstSODEF/${EXPS_NAME} \
-    --phase2_epoch 0 \
-    --phase3_epochs 0 \
-    --bert_feature_dim 1024 \
-    --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
-    --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
-    --seed 100 \
-    --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz' \
+# # Adam default
+# PHASE1_EPOCHS=10
+# PHASE1_OPTIM='ADAM'
+# PHASE1_LR=1e-3
+# PHASE1_EPS=1e-8
+# EXPS_NAME="Phase1-Tuning/eps_${PHASE1_EPS}-optim_${PHASE1_OPTIM}-lr_${PHASE1_LR}-eps_${PHASE1_EPS}"
+# python run_sodef.py  \
+#     --phase1_epoch ${PHASE1_EPOCHS} \
+#     --phase1_optim ${PHASE1_OPTIM} \
+#     --phase1_lr ${PHASE1_LR} \
+#     --phase1_optim_eps ${PHASE1_EPS} \
+#     --exp_name ${EXPS_NAME} \
+#     --output_dir ../DeBERTaFirstSODEF/${EXPS_NAME} \
+#     --phase2_epoch 0 \
+#     --phase3_epochs 0 \
+#     --bert_feature_dim 1024 \
+#     --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
+#     --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
+#     --seed 100 \
+#     --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz' \
 
 # SGD default
 PHASE1_EPOCHS=10
