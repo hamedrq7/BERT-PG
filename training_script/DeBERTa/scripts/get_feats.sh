@@ -13,7 +13,6 @@ CUDA_VISIBLE_DEVICES=0 torchrun --nproc_per_node=${num_gpus} --master_port=29501
   --config_name $EXP_DIR \
   --tokenizer_name $EXP_DIR \
   --task_name $TASK_NAME \
-  # --do_train \
   --do_eval \
   --max_seq_length 128 \
   --num_train_epochs ${num_epochs} \
