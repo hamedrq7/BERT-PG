@@ -450,11 +450,79 @@ def main():
     else:
         data_collator = None
 
-    
-    
+        import torch.nn as nn
+    from transformers.trainer import unwrap_model, is_peft_available, MODEL_FOR_CAUSAL_LM_MAPPING_NAMES
+    if is_peft_available():
+        from peft import PeftModel
 
+
+    class CustomTrainer(Trainer):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)   # <-- REQUIRED
+            self.hamed_pooled_features = []
+            self.hamed_pooled_labels = []
+
+        def compute_loss(self, model, inputs, return_outputs=False): #[?]
+            """
+            How the loss is computed by Trainer. By default, all models return the loss in the first element.
+
+            Subclass and override for custom behavior.
+            """
+            if self.label_smoother is not None and "labels" in inputs:
+                labels = inputs.pop("labels")
+            else:
+                labels = None
+
+            with torch.no_grad():
+                outputs = model(**inputs)
+
+            features_befor_clf = model.module.dropout(model.module.bert.pooler(outputs.hidden_states[-1])) 
+            self.hamed_pooled_features.append(features_befor_clf.cpu().detach().numpy().squeeze())
+            self.hamed_pooled_labels.append(inputs['labels'].cpu().detach().numpy().squeeze())
+
+            # Save past state if it exists
+            # TODO: this needs to be fixed and made cleaner later.
+            if self.args.past_index >= 0:
+                self._past = outputs[self.args.past_index]
+            
+            if labels is not None:
+                unwrapped_model = unwrap_model(model)
+                if is_peft_available() and isinstance(unwrapped_model, PeftModel):
+                    model_name = unwrapped_model.base_model.model._get_name()
+                else:
+                    model_name = unwrapped_model._get_name()
+                if model_name in MODEL_FOR_CAUSAL_LM_MAPPING_NAMES.values():
+                    loss = self.label_smoother(outputs, labels, shift_labels=True)
+                else:
+                    loss = self.label_smoother(outputs, labels)
+            else:
+                if isinstance(outputs, dict) and "loss" not in outputs:
+                    raise ValueError(
+                        "The model did not return a loss from the inputs, only the following keys: "
+                        f"{','.join(outputs.keys())}. For reference, the inputs it received are {','.join(inputs.keys())}."
+                    )
+                # We don't use .loss here since the model may return tuples instead of ModelOutput.
+                loss = outputs["loss"] if isinstance(outputs, dict) else outputs[0]
+
+            return (loss, outputs) if return_outputs else loss
+        
+    import numpy as np 
+    from transformers import TrainerCallback
+    class MyCallback(TrainerCallback):
+        def on_epoch_end(self, args, state, control, **kwargs):
+        # def on_epoch_begin(self, args, state, control, **kwargs):
+            labels = np.concatenate(self.trainer.hamed_pooled_labels)
+            feats = np.concatenate(self.trainer.hamed_pooled_features, axis=0)
+            print('saving features and labels at ', state.epoch, ' size ', feats.shape)            
+            np.savez(f'{self.save_dir}/features.npz', feats = feats, labels = labels)
+            trainer.hamed_pooled_features = []
+            trainer.hamed_pooled_labels = []
+            print('Flushed trainer savings: ', len(trainer.hamed_pooled_features), len(trainer.hamed_pooled_labels))
+
+    callback = MyCallback()
+          
     # Initialize our Trainer
-    trainer = Trainer(
+    trainer = CustomTrainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
@@ -463,38 +531,42 @@ def main():
         tokenizer=tokenizer,
         data_collator=data_collator,
     )
+    callback.trainer = trainer    # <--- ADD THIS
+    callback.save_dir = training_args.logging_dir
+    trainer.add_callback(callback)
 
-    import torch 
-    vocab_size = tokenizer.vocab_size    
-    batch_size = 4
-    seq_len = 32
-    random_input_ids = torch.randint(
-        low=0, 
-        high=vocab_size, 
-        size=(batch_size, seq_len)
-    )
-    random_attention_mask = torch.ones(
-        size=(batch_size, seq_len),
-        dtype=torch.long
-    )
-    outputs = model(
-        input_ids=random_input_ids.cuda(0),
-        attention_mask=random_attention_mask.cuda(0)
-    )
-    print(outputs.keys())
-    print('logits', outputs.logits.shape)
-    print('hidden_states', len(outputs.hidden_states))
-    print('hidden_states[0]', (outputs.hidden_states[0].shape))
-    print('attentions', len(outputs.attentions))
-    print('attentions[0]', len(outputs.attentions[0].shape))
-    # last_hidden_state = outputs.hidden_states[-1]
-    # pooler_output = model.bert.pooler(last_hidden_state)
-    pooler_output = model.pooler(outputs.hidden_states[-1])
-    features = model.dropout(pooler_output)
-    handy_logits = features @ model.classifier.weight.T + model.classifier.bias 
-    print(handy_logits)
-    print(outputs.logits)
-    exit()
+    print('trainer', trainer)
+
+    # import torch 
+    # vocab_size = tokenizer.vocab_size    
+    # batch_size = 4
+    # seq_len = 32
+    # random_input_ids = torch.randint(
+    #     low=0, 
+    #     high=vocab_size, 
+    #     size=(batch_size, seq_len)
+    # )
+    # random_attention_mask = torch.ones(
+    #     size=(batch_size, seq_len),
+    #     dtype=torch.long
+    # )
+    # outputs = model(
+    #     input_ids=random_input_ids.cuda(0),
+    #     attention_mask=random_attention_mask.cuda(0)
+    # )
+    # print(outputs.keys())
+    # print('logits', outputs.logits.shape)
+    # print('hidden_states', len(outputs.hidden_states))
+    # print('hidden_states[0]', (outputs.hidden_states[0].shape))
+    # print('attentions', len(outputs.attentions))
+    # print('attentions[0]', len(outputs.attentions[0].shape))
+    # # last_hidden_state = outputs.hidden_states[-1]
+    # # pooler_output = model.bert.pooler(last_hidden_state)
+    # pooler_output = model.pooler(outputs.hidden_states[-1])
+    # features = model.dropout(pooler_output)
+    # handy_logits = features @ model.classifier.weight.T + model.classifier.bias 
+    # print(handy_logits)
+    # print(outputs.logits)
 
     # Training
     if training_args.do_train:
