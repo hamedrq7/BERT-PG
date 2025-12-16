@@ -44,6 +44,7 @@ CUDA_VISIBLE_DEVICES=0 torchrun --nproc_per_node=${num_gpus} --master_port=29501
   --config_name $EXP_DIR \
   --tokenizer_name $EXP_DIR \
   --validation_file "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/dev.json" \
+  --train_file "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/dev.json" \
   --task_name $TASK_NAME \
   --do_eval \
   --max_seq_length 128 \
@@ -58,5 +59,5 @@ CUDA_VISIBLE_DEVICES=0 torchrun --nproc_per_node=${num_gpus} --master_port=29501
   --logging_dir $EXP_DIR/$EXP_INDEX \
   --save_total_limit 1 \
   --eval_accumulation_steps 1 \
- #  --max_val_samples 5 \
+  --max_val_samples 5 \
 #   --max_train_samples 100 \
