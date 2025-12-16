@@ -489,13 +489,13 @@ def main():
     print('attentions[0]', len(outputs.attentions[0].shape))
     # last_hidden_state = outputs.hidden_states[-1]
     # pooler_output = model.bert.pooler(last_hidden_state)
-    pooler_output = model.bert.pooler(outputs.hidden_states[-1])
+    pooler_output = model.pooler(outputs.hidden_states[-1])
     features = model.dropout(pooler_output)
     handy_logits = features @ model.classifier.weight.T + model.classifier.bias 
     print(handy_logits)
     print(outputs.logits)
     exit()
-    
+
     # Training
     if training_args.do_train:
         checkpoint = None
