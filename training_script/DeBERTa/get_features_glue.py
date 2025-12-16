@@ -465,8 +465,8 @@ def main():
         dtype=torch.long
     )
     outputs = model(
-        input_ids=random_input_ids.cuda(),
-        attention_mask=random_attention_mask.cuda()
+        input_ids=random_input_ids.cuda(0),
+        attention_mask=random_attention_mask.cuda(0)
     )
     print(outputs.keys())
     print('logits', outputs.logits.shape)
