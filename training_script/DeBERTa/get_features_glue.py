@@ -455,7 +455,7 @@ def main():
     if is_peft_available():
         from peft import PeftModel
 
-
+    import torch 
     class CustomTrainer(Trainer):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)   # <-- REQUIRED
