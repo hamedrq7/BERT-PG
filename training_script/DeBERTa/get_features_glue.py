@@ -523,7 +523,7 @@ def main():
 
     callback = MyCallback()
     
-    training_args.prediction_loss_only = True
+    # training_args.prediction_loss_only = True
     # Initialize our Trainer
     trainer = CustomTrainer(
         model=model,
