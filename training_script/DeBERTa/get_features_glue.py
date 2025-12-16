@@ -514,6 +514,10 @@ def main():
     class MyCallback(TrainerCallback):
         # def on_epoch_end(self, args, state, control, **kwargs):
         def on_evaluate(self, args, state, control, **kwargs):
+            print(len(self.trainer.hamed_pooled_labels))
+            print((self.trainer.hamed_pooled_labels[-1].shape))
+            print(len(self.trainer.hamed_pooled_features))
+            print((self.trainer.hamed_pooled_features[-1].shape))
             labels = np.concatenate(self.trainer.hamed_pooled_labels)
             feats = np.concatenate(self.trainer.hamed_pooled_features, axis=0)
             print('saving features and labels at ', state.epoch, ' size ', feats.shape)            
