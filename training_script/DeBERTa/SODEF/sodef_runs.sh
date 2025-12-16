@@ -54,7 +54,6 @@ python run_sodef.py  \
     --phase1_epoch ${PHASE1_EPOCHS} \
     --phase1_optim ${PHASE1_OPTIM} \
     --phase1_lr ${PHASE1_LR} \
-    --phase1_optim_eps ${PHASE1_EPS} \
     --exp_name ${EXPS_NAME} \
     --output_dir ../DeBERTaFirstSODEF/${EXPS_NAME} \
     --phase2_epoch 0 \
