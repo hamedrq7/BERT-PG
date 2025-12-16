@@ -52,12 +52,16 @@ def train_ce_one_epoch(epoch, model, loader, device, optimizer, criterion):
         'acc': correct/total
     }
 
+import numpy as np 
 
-def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save, save_folder, save_name):
+def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save, save_folder, save_name, return_preds = False):
     model.eval()
     test_loss = 0
     correct = 0
     total = 0
+
+    all_preds = []
+    all_labels = []
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(loader):            
             inputs, targets = inputs.to(device), targets.to(device)
@@ -69,7 +73,12 @@ def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save
             _, predicted = outputs.max(1)
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
+            all_labels.append(targets.detach().cpu().numpy())
+            all_preds.append(predicted.detach().cpu().numpy())
 
+    all_preds = np.stack(all_preds, axis=0)
+    all_labels = np.stack(all_labels, axis=0)
+    
     avg_loss = test_loss/(batch_idx+1)
     acc = correct/total
 
@@ -89,7 +98,9 @@ def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save
         'model': model,
         'loss': avg_loss, 
         'acc': acc,
-        'best_acc': best_acc
+        'best_acc': best_acc,
+        'preds': None if not return_preds else all_preds,
+        'labels': None if not return_preds else all_labels,
     }
 
 
@@ -115,7 +126,7 @@ def train_phase1(args, device, adv_glue_loader=None):
                                     momentum=0.9)
     else: 
         print(f'OPtim {args.phase1_optim} not implemented for phase1')
-        
+
     save_path = os.path.join(args.output_dir, args.phase1_save_path)
     os.makedirs(save_path, exist_ok=True)
 
@@ -166,11 +177,24 @@ def train_phase1(args, device, adv_glue_loader=None):
             })
         
         if adv_glue_loader is not None:
-            adv_glue_res = test_ce_one_epoch(epoch, phase1_model, adv_glue_loader, device, criterion, 110, False, '', '')
+            adv_glue_res = test_ce_one_epoch(epoch, phase1_model, adv_glue_loader, device, criterion, best_acc=110, do_save=False, save_folder='', save_name='', return_preds=True)
             if args.wandb:
                 wandb.log({
                     'phase1/adv_glue_acc': adv_glue_res['acc'], 
                 })
+
+                wandb.log(
+                    {
+                        "phase1/AdvGLUE CONFMAT": wandb.plot.confusion_matrix(
+                            y_true=adv_glue_res['labels'],
+                            preds=adv_glue_res['preds'],
+                            class_names=["class_0", "class_1"],
+                        )
+                    },
+                    step=epoch,  # <-- IMPORTANT
+                )
+
+
 
     return phase1_model
 
