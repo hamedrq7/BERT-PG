@@ -26,10 +26,11 @@ def get_args():
             help="Disable use_cuda (default: enabled)")   
     
 
-     
     # LOADING MODELS AND DATA
     parser.add_argument("--output_dir", type=str, required=True)
     parser.add_argument("--feature_set_dir", type=str, default=None)
+    parser.add_argument("--train_feature_set_dir", type=str, default=None)
+    parser.add_argument("--test_feature_set_dir", type=str, default=None)
     parser.add_argument("--bert_dir", type=str, default=None)
     parser.add_argument("--bert_clf_dir", type=str, default=None)
     parser.add_argument("--exp_name", type=str, required=True)
@@ -156,7 +157,8 @@ def get_args():
     args = parser.parse_args()
     
     # Sanitiy checks: 
-    assert args.feature_set_dir is not None, 'Have not implemented running feature from bert with this script yet, use the `get_feats...sh` script and pass directory of feature set to this script'
+    if args.train_feature_set_dir is None or args.test_feature_set_dir is None: 
+        assert args.feature_set_dir is not None, 'Have not implemented running feature from bert with this script yet, use the `get_feats...sh` script and pass directory of feature set to this script'
     assert args.bert_feature_dim == 768, 'not sure anything other than bert-base-cased works with this script'
     # assert args.ode_dim == 64, 'not sure other values work'
     assert args.num_classes == 2, 'for more classes, the MAX_ROW_DIS function is not sufficient (Complete this later)'
@@ -166,7 +168,7 @@ def get_args():
     if args.skip_phase1:
         if args.skip_phase2:
             assert args.phase3_model_path is not None, 'Pass something'
-            
+    
     return args
 
 import random

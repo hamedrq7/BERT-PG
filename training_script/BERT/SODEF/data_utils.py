@@ -22,7 +22,13 @@ class BERT_feature_dataset(Dataset):
         return x,y
 
 def get_feature_dataloader(args, batch_size): 
-    train_feature_set, test_feature_set = get_sst2_feature_dataset(args.feature_set_dir)
+
+    if args.feature_set_dir is None: 
+        train_feature_set = get_single_sst2_feature_dataset(args.train_feature_set_dir)
+        test_feature_set = get_single_sst2_feature_dataset(args.test_feature_set_dir)
+    else: 
+        train_feature_set, test_feature_set = get_sst2_feature_dataset(args.feature_set_dir)
+
     train_feature_loader = DataLoader(
         train_feature_set,
         batch_size=batch_size,
@@ -45,6 +51,15 @@ def get_adv_glue_feature_dataset(path: str):
     print('Adv GLUE DS: ', val_ds.x.shape, val_ds.y.shape)
     
     return val_ds
+
+def get_single_sst2_feature_dataset(path: str): 
+    loaded_np = np.load(path)
+    # Keys: train_feats, train_labels, val_feats, val_labels
+    ds = BERT_feature_dataset(loaded_np['feats'], loaded_np['labels'])
+
+    print('DS: ', ds.x.shape, ds.y.shape)
+    
+    return ds
 
 def get_sst2_feature_dataset(path: str): 
     loaded_np = np.load(path)
