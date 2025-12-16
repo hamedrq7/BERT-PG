@@ -19,7 +19,7 @@ CUDA_VISIBLE_DEVICES=0 torchrun --nproc_per_node=${num_gpus} --master_port=29501
   --warmup_steps ${warmup} \
   --learning_rate ${lr} \
   --per_device_train_batch_size ${batch_size} \
-  --per_device_eval_batch_size ${batch_size} \
+  --per_device_eval_batch_size 2 \
   --output_dir $EXP_DIR/$EXP_INDEX \
   --overwrite_output_dir \
   --logging_steps 10 \
