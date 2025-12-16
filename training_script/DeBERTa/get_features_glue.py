@@ -278,7 +278,7 @@ def main():
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
     # Labels
-    if data_args.task_name is not None:
+    if data_args.task_name is not None and data_args.validation_file is None:
         is_regression = data_args.task_name == "stsb"
         if not is_regression:
             label_list = datasets["train"].features["label"].names
