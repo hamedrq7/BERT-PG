@@ -59,5 +59,5 @@ CUDA_VISIBLE_DEVICES=0 torchrun --nproc_per_node=${num_gpus} --master_port=29501
   --logging_dir $EXP_DIR/$EXP_INDEX \
   --save_total_limit 1 \
   --eval_accumulation_steps 1 \
-  --max_val_samples 5 \
+#   --max_val_samples 5 \
 #   --max_train_samples 100 \
