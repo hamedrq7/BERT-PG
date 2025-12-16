@@ -310,7 +310,7 @@ def main():
         use_auth_token=True if model_args.use_auth_token else None,
 
         output_hidden_states = True, 
-        output_attentions = True, 
+        output_attentions = False, 
         return_dict = True,
     )
     tokenizer = AutoTokenizer.from_pretrained(
