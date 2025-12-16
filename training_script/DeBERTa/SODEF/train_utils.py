@@ -76,8 +76,8 @@ def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save
             all_labels.append(targets.detach().cpu().numpy())
             all_preds.append(predicted.detach().cpu().numpy())
 
-    all_preds = np.stack(all_preds, axis=0)
-    all_labels = np.stack(all_labels, axis=0)
+    all_preds = np.concatenate(all_preds, axis=0)
+    all_labels = np.concatenate(all_labels, axis=0)
     
     avg_loss = test_loss/(batch_idx+1)
     acc = correct/total
