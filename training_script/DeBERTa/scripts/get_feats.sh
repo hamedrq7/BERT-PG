@@ -43,7 +43,7 @@ CUDA_VISIBLE_DEVICES=0 torchrun --nproc_per_node=${num_gpus} --master_port=29501
   --model_name_or_path $EXP_DIR \
   --config_name $EXP_DIR \
   --tokenizer_name $EXP_DIR \
-  --validation_file "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/dev.json"
+  --validation_file "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/dev.json" \
   --task_name $TASK_NAME \
   --do_eval \
   --max_seq_length 128 \
