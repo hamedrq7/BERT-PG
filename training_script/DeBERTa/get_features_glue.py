@@ -509,8 +509,8 @@ def main():
     import numpy as np 
     from transformers import TrainerCallback
     class MyCallback(TrainerCallback):
-        def on_epoch_end(self, args, state, control, **kwargs):
-        # def on_epoch_begin(self, args, state, control, **kwargs):
+        # def on_epoch_end(self, args, state, control, **kwargs):
+        def on_evaluate(self, args, state, control, **kwargs):
             labels = np.concatenate(self.trainer.hamed_pooled_labels)
             feats = np.concatenate(self.trainer.hamed_pooled_features, axis=0)
             print('saving features and labels at ', state.epoch, ' size ', feats.shape)            
