@@ -45,7 +45,7 @@ def main():
     # TODOOOOOOOOOO bert sanity check 
     advglue_feature_loader = None
     if args.adv_glue_feature_set_dir is not None:
-        ds = get_adv_glue_feature_dataset(args.adv_glue_feature_set_dir)
+        ds = get_adv_glue_feature_dataset(args.adv_glue_feature_set_dir, True)
         advglue_feature_loader = DataLoader(
             ds,
             batch_size=128,
