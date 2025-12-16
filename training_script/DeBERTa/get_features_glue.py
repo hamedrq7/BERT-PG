@@ -597,6 +597,7 @@ def main():
     # Evaluation
     if training_args.do_eval:
         logger.info("*** Evaluate ***")
+        model.eval()
 
         # Loop to handle MNLI double evaluation (matched, mis-matched)
         tasks = [data_args.task_name]
