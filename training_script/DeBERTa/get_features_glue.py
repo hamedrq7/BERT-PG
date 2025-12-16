@@ -481,7 +481,8 @@ def main():
                 features_befor_clf = model.dropout(model.pooler(outputs.hidden_states[-1])) 
                 self.hamed_pooled_features.append(features_befor_clf.cpu().detach().numpy().squeeze())
                 self.hamed_pooled_labels.append(inputs['labels'].cpu().detach().numpy().squeeze())
-
+                print(len(self.hamed_pooled_features))
+                
                 # Save past state if it exists
                 # TODO: this needs to be fixed and made cleaner later.
                 if self.args.past_index >= 0:
