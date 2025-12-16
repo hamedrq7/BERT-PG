@@ -191,7 +191,6 @@ def train_phase1(args, device, adv_glue_loader=None):
                             class_names=["class_0", "class_1"],
                         )
                     },
-                    step=epoch,  # <-- IMPORTANT
                 )
 
 

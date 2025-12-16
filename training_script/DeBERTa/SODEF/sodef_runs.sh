@@ -46,7 +46,7 @@
 #     --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz' \
 
 # SGD default
-PHASE1_EPOCHS=10
+PHASE1_EPOCHS=20
 PHASE1_OPTIM='SGD'
 PHASE1_LR=1e-3
 EXPS_NAME="Phase1-Tuning/eps_${PHASE1_EPS}-optim_${PHASE1_OPTIM}-lr_${PHASE1_LR}-eps_${PHASE1_EPS}"
