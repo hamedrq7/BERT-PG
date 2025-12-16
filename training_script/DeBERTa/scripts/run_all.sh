@@ -5,7 +5,8 @@ lr=1e-5
 num_gpus=1
 batch_size=16
 
-torchrun --nproc_per_node=${num_gpus} \
+
+CUDA_VISIBLE_DEVICES=1 torchrun --nproc_per_node=${num_gpus} \
   run_glue.py \
   --model_name_or_path microsoft/deberta-large \
   --task_name $TASK_NAME \
@@ -29,7 +30,7 @@ lr=2e-5
 num_gpus=1
 batch_size=16
 
-torchrun --nproc_per_node=${num_gpus} \
+CUDA_VISIBLE_DEVICES=1 torchrun --nproc_per_node=${num_gpus} \
   run_glue.py \
   --model_name_or_path microsoft/deberta-large \
   --task_name $TASK_NAME \
@@ -53,7 +54,7 @@ lr=1e-5
 num_gpus=1
 batch_size=8
 
-torchrun --nproc_per_node=${num_gpus} \
+CUDA_VISIBLE_DEVICES=1 torchrun --nproc_per_node=${num_gpus} \
   run_glue.py \
   --model_name_or_path microsoft/deberta-large \
   --task_name $TASK_NAME \
@@ -77,7 +78,7 @@ lr=1e-5
 num_gpus=1
 batch_size=8
 
-torchrun --nproc_per_node=${num_gpus} \
+CUDA_VISIBLE_DEVICES=1 torchrun --nproc_per_node=${num_gpus} \
   run_glue.py \
   --model_name_or_path microsoft/deberta-large-mnli \
   --task_name $TASK_NAME \
