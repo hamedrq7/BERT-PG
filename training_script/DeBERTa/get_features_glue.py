@@ -473,8 +473,7 @@ def main():
             else:
                 labels = None
 
-            with torch.no_grad():
-                outputs = model(**inputs)
+            outputs = model(**inputs)
 
             # pooler_output = model.pooler(outputs.hidden_states[-1])
             # features = model.dropout(pooler_output)
