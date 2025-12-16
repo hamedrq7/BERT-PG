@@ -86,6 +86,7 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --phase2_batch_size 64 \
             --phase2_numm 64 \
             --phase2_epoch 5 \
+            --phase1_epoch 10 --phase1_lr 1e-2 --phase1_optim_eps 1e-3 \
             --bert_feature_dim 1024"
 
 # ----------- EXPERIMENT PARAMETER SETS -----------
