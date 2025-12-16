@@ -518,7 +518,7 @@ def main():
             print((self.trainer.hamed_pooled_labels[-1].shape))
             print(len(self.trainer.hamed_pooled_features))
             print((self.trainer.hamed_pooled_features[-1].shape))
-            labels = np.concatenate(self.trainer.hamed_pooled_labels)
+            labels = np.concatenate(self.trainer.hamed_pooled_labels, axis=0)
             feats = np.concatenate(self.trainer.hamed_pooled_features, axis=0)
             print('saving features and labels at ', state.epoch, ' size ', feats.shape)            
             np.savez(f'{self.save_dir}/test_features.npz', feats = feats, labels = labels)
