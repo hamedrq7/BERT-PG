@@ -4,7 +4,7 @@ num_epochs=7
 warmup=10000
 lr=0e-1
 num_gpus=1
-batch_size=8
+batch_size=1
 EXP_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2"
 
 CUDA_VISIBLE_DEVICES=0 torchrun --nproc_per_node=${num_gpus} --master_port=29501 \
