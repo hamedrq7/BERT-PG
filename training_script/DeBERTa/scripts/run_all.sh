@@ -1,0 +1,95 @@
+TASK_NAME=qqp
+num_epochs=8
+warmup=500
+lr=1e-5
+num_gpus=1
+batch_size=16
+
+torchrun --nproc_per_node=${num_gpus} \
+  run_glue.py \
+  --model_name_or_path microsoft/deberta-large \
+  --task_name $TASK_NAME \
+  --do_train \
+  --do_eval \
+  --max_seq_length 128 \
+  --num_train_epochs ${num_epochs} \
+  --warmup_steps ${warmup} \
+  --learning_rate ${lr} \
+  --per_device_train_batch_size ${batch_size} \
+  --output_dir ./models/DeBERTs/large/$TASK_NAME/ \
+  --overwrite_output_dir \
+  --logging_steps 10 \
+  --logging_dir ./models/DeBERTs/large/$TASK_NAME/ \
+  --save_total_limit 1
+
+TASK_NAME=mnli
+num_epochs=3
+warmup=1000
+lr=2e-5
+num_gpus=1
+batch_size=16
+
+torchrun --nproc_per_node=${num_gpus} \
+  run_glue.py \
+  --model_name_or_path microsoft/deberta-large \
+  --task_name $TASK_NAME \
+  --do_train \
+  --do_eval \
+  --max_seq_length 128 \
+  --num_train_epochs ${num_epochs} \
+  --warmup_steps ${warmup} \
+  --learning_rate ${lr} \
+  --per_device_train_batch_size ${batch_size} \
+  --output_dir ./models/DeBERTs/large/$TASK_NAME/ \
+  --overwrite_output_dir \
+  --logging_steps 10 \
+  --logging_dir ./models/DeBERTs/large/$TASK_NAME/ \
+  --save_total_limit 1
+
+TASK_NAME=qnli
+num_epochs=4
+warmup=500
+lr=1e-5
+num_gpus=1
+batch_size=8
+
+torchrun --nproc_per_node=${num_gpus} \
+  run_glue.py \
+  --model_name_or_path microsoft/deberta-large \
+  --task_name $TASK_NAME \
+  --do_train \
+  --do_eval \
+  --max_seq_length 512 \
+  --num_train_epochs ${num_epochs} \
+  --warmup_steps ${warmup} \
+  --learning_rate ${lr} \
+  --per_device_train_batch_size ${batch_size} \
+  --output_dir ./models/DeBERTs/large/$TASK_NAME/ \
+  --overwrite_output_dir \
+  --logging_steps 10 \
+  --logging_dir ./models/DeBERTs/large/$TASK_NAME/ \
+  --save_total_limit 1
+
+TASK_NAME=rte
+num_epochs=6
+warmup=50
+lr=1e-5
+num_gpus=1
+batch_size=8
+
+torchrun --nproc_per_node=${num_gpus} \
+  run_glue.py \
+  --model_name_or_path microsoft/deberta-large-mnli \
+  --task_name $TASK_NAME \
+  --do_train \
+  --do_eval \
+  --max_seq_length 320 \
+  --num_train_epochs ${num_epochs} \
+  --warmup_steps ${warmup} \
+  --learning_rate ${lr} \
+  --per_device_train_batch_size ${batch_size} \
+  --output_dir ./models/DeBERTs/large/$TASK_NAME/ \
+  --overwrite_output_dir \
+  --logging_steps 10 \
+  --logging_dir ./models/DeBERTs/large/$TASK_NAME/ \
+  --save_total_limit 1
