@@ -1,7 +1,7 @@
 TASK_NAME=sst2
 EXP_INDEX=feats
-num_epochs=5
-warmup=40
+num_epochs=7
+warmup=10000
 lr=0e-1
 num_gpus=1
 batch_size=8
