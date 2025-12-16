@@ -522,7 +522,8 @@ def main():
             print('Flushed trainer savings: ', len(trainer.hamed_pooled_features), len(trainer.hamed_pooled_labels))
 
     callback = MyCallback()
-          
+    
+    training_args.prediction_loss_only = True
     # Initialize our Trainer
     trainer = CustomTrainer(
         model=model,
