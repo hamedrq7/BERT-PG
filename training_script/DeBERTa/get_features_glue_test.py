@@ -123,6 +123,10 @@ class DataTrainingArguments:
     )
     test_file: Optional[str] = field(default=None, metadata={"help": "A csv or a json file containing the test data."})
 
+    is_adv_glue: bool = field(
+        default=False, metadata={"help": "Flag when using adv_glue"}
+    )
+
     def __post_init__(self):
         if self.task_name is not None:
             self.task_name = self.task_name.lower()
@@ -520,8 +524,8 @@ def main():
             print((self.trainer.hamed_pooled_features[-1].shape))
             labels = np.stack(self.trainer.hamed_pooled_labels, axis=0)
             feats = np.stack(self.trainer.hamed_pooled_features, axis=0)
-            print('saving features and labels at ', state.epoch, ' size ', feats.shape)            
-            np.savez(f'{self.save_dir}/advglue_features.npz', feats = feats, labels = labels)
+            print('saving features and labels at ', state.epoch, ' size ', feats.shape)    
+            np.savez(f'{self.save_dir}/{self.filename}_features.npz', feats = feats, labels = labels)
             trainer.hamed_pooled_features = []
             trainer.hamed_pooled_labels = []
             print('Flushed trainer savings: ', len(trainer.hamed_pooled_features), len(trainer.hamed_pooled_labels))
@@ -541,6 +545,7 @@ def main():
     )
     callback.trainer = trainer    # <--- ADD THIS
     callback.save_dir = training_args.logging_dir
+    callback.filename = 'adv_glue' if data_args.is_adv_glue else 'test'
     trainer.add_callback(callback)
 
     print('trainer', trainer)
