@@ -512,8 +512,8 @@ def main():
     import numpy as np 
     from transformers import TrainerCallback
     class MyCallback(TrainerCallback):
-        # def on_epoch_end(self, args, state, control, **kwargs):
-        def on_evaluate(self, args, state, control, **kwargs):
+        def on_epoch_end(self, args, state, control, **kwargs):
+        # def on_evaluate(self, args, state, control, **kwargs):
             print(len(self.trainer.hamed_pooled_labels))
             print((self.trainer.hamed_pooled_labels[-1].shape))
             print(len(self.trainer.hamed_pooled_features))
@@ -599,6 +599,7 @@ def main():
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
         trainer.save_state()
+        print('num_labels', num_labels)
 
     # Evaluation
     if training_args.do_eval:
