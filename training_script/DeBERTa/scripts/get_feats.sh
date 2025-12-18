@@ -1,6 +1,6 @@
 TASK_NAME=mnli
 EXP_INDEX=feats
-num_epochs=4
+num_epochs=10000
 warmup=10000
 lr=0e-1
 num_gpus=1
