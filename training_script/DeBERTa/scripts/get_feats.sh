@@ -1,4 +1,4 @@
-TASK_NAME=qqp
+TASK_NAME=mnli
 EXP_INDEX=feats
 num_epochs=7
 warmup=10000
