@@ -469,15 +469,15 @@ def main():
             Subclass and override for custom behavior.
 
             """
-           
+            raise RuntimeError("COMPUTE LOSS CALLED")
+
             if self.label_smoother is not None and "labels" in inputs:
                 labels = inputs.pop("labels")
             else:
                 labels = None
 
             outputs = model(**inputs)
-            print(outputs.shape)
-            
+
             features_befor_clf = model.module.dropout(model.module.pooler(outputs.hidden_states[-1])) 
             # features_befor_clf = model.dropout(model.pooler(outputs.hidden_states[-1])) 
             self.hamed_pooled_features.append(features_befor_clf.cpu().detach().numpy().squeeze())
