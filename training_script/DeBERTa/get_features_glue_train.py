@@ -531,7 +531,6 @@ def main():
     
     # training_args.prediction_loss_only = True
     # Initialize our Trainer
-    training_args.label_smoothing_factor = 0.1
 
     trainer = CustomTrainer(
         model=model,
@@ -596,7 +595,7 @@ def main():
             data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
         )
         metrics["train_samples"] = min(max_train_samples, len(train_dataset))
-        
+
         trainer.save_model()  # Saves the tokenizer too for easy upload
 
         trainer.log_metrics("train", metrics)
