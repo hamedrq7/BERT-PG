@@ -531,6 +531,8 @@ def main():
     
     # training_args.prediction_loss_only = True
     # Initialize our Trainer
+    training_args.label_smoothing_factor = 0.1
+
     trainer = CustomTrainer(
         model=model,
         args=training_args,
