@@ -469,7 +469,6 @@ def main():
             Subclass and override for custom behavior.
 
             """
-            raise RuntimeError("COMPUTE LOSS CALLED")
 
             if self.label_smoother is not None and "labels" in inputs:
                 labels = inputs.pop("labels")
