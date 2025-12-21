@@ -216,6 +216,8 @@ def load_phase1(args, device, sanity_check = True):
 
     return phase1_model
 
+from model_utils import topol_ODEfunc_mlp
+
 def train_phase2(phase1_model, args, device, adv_glue_loader=None): 
     # # HYPERPARAMS
     # parser.add_argument("--phase2_weight_diag", type=float, default=10)
@@ -245,7 +247,7 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
 
     trainloader, testloader = get_feature_dataloader(args, args.phase2_batch_size)
     
-    odefunc = ODEfunc_mlp(args.ode_dim)
+    odefunc = ODEfunc_mlp(args.ode_dim) if not args.use_topol_ode else topol_ODEfunc_mlp(args.ode_dim)
     phase2_model = Phase2Model(
         phase1_model.orthogonal_bridge_layer, 
         ODEBlocktemp(odefunc, args.phase2_integration_time), 

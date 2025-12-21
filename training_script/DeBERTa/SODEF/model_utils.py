@@ -236,6 +236,31 @@ class ConcatFC(nn.Module):
         return self._layer(x)
 
 
+class topol_ODEfunc_mlp(nn.Module):
+
+    def __init__(self, dim = 64):
+        super(topol_ODEfunc_mlp, self).__init__()
+        self.act = torch.sin 
+        self.f_coeffi = -1
+        self.fc1 = ConcatFC(dim, 256)
+        self.act1 = self.act
+        self.fc2 = ConcatFC(256, 256)
+        self.act2 = self.act
+        self.fc3 = ConcatFC(256, dim)
+        self.act3 = self.act
+        self.nfe = 0
+
+    def forward(self, t, x):
+        self.nfe += 1
+        out = self.f_coeffi*self.fc1(t, x)
+        out = self.act1(out)
+        out = self.f_coeffi*self.fc2(t, out)
+        out = self.act2(out)
+        out = self.f_coeffi*self.fc3(t, out)
+        out = self.act3(out)
+        
+        return out
+    
 class ODEfunc_mlp(nn.Module): 
 
     def __init__(self, dim):

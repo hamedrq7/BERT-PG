@@ -105,16 +105,17 @@ reg_sets=(
 # phase2_integration_time, 5.0
 phase2_param_sets=(
   "1.0 0.1 50.0 1.0 1.0 1.0 5.0" 
-  "1.0 0.1 50.0 1.0 1.0 1.0 8.0"   
-  "1.0 0.1 10.0 1.0 1.0 1.0 5.0" 
-  "1.0 0.1 75.0 1.0 1.0 1.0 5.0" 
-  "1.0 1.0 50.0 1.0 1.0 1.0 5.0" 
-  "1.0 5.0 50.0 1.0 1.0 1.0 5.0" 
-  "0.1 0.1 50.0 1.0 1.0 1.0 5.0" 
-  "5.0 0.1 50.0 1.0 1.0 1.0 5.0" 
-  "1.0 0.1 50.0 1.0 0.1 1.0 5.0" 
-  "1.0 0.1 50.0 1.0 1.0 0.1 5.0" 
 )
+#   "1.0 1.0 50.0 1.0 1.0 1.0 5.0" 
+#   "1.0 0.1 50.0 1.0 1.0 1.0 8.0"   
+#   "1.0 0.1 10.0 1.0 1.0 1.0 5.0" 
+#   "1.0 0.1 75.0 1.0 1.0 1.0 5.0" 
+#   "1.0 1.0 50.0 1.0 1.0 1.0 5.0" 
+#   "1.0 5.0 50.0 1.0 1.0 1.0 5.0" 
+#   "0.1 0.1 50.0 1.0 1.0 1.0 5.0" 
+#   "5.0 0.1 50.0 1.0 1.0 1.0 5.0" 
+#   "1.0 0.1 50.0 1.0 0.1 1.0 5.0" 
+#   "1.0 0.1 50.0 1.0 1.0 0.1 5.0" 
 
 # base
 # integ time
@@ -132,6 +133,7 @@ phase2_param_sets=(
 decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
+topol_ode="on"
 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
@@ -149,7 +151,12 @@ for reg_set in "${reg_sets[@]}"; do
                     decay_arg=""
                     optim_args=""
                     no_prev_args=""
+                    ode_args=""
 
+                    if [[ "$topol_ode" == "on" ]]; then
+                        ode_args="--use_topol_ode"
+                    fi
+                    
                     if [[ "$decay" == "on" ]]; then
                         decay_arg="--decay_lr"
                     fi
@@ -167,10 +174,10 @@ for reg_set in "${reg_sets[@]}"; do
                     fi
 
                     # ---------------- Construct experiment name ----------------
-                    exp_name="r1=${r1}_r2=${r2}_r3=${r3}_exp=${exp}_expoff_${exp_off}_expf=${exp_f}_timedf_${time_df}_trans_${trans}_transoff_${trans_off}_T=${integ_t}_dafaultAdam=${optim}_noprev=${no_prev}"
+                    exp_name="r1=${r1}_r2=${r2}_r3=${r3}_exp=${exp}_expoff_${exp_off}_expf=${exp_f}_timedf_${time_df}_trans_${trans}_transoff_${trans_off}_T=${integ_t}_dafaultAdam=${optim}_noprev=${no_prev}_topol_ode=${topol_ode}"
 
                     # ---------------- Output directory ----------------
-                    output_dir="../DeBERTaFirstSODEF-Phase2/${exp_name}"
+                    output_dir="../DeBERTaFirstSODEF-TopolSodef/${exp_name}"
 
                     # ---------------- Command to run ----------------
                     CMD="python run_sodef.py \
@@ -188,6 +195,7 @@ for reg_set in "${reg_sets[@]}"; do
                         $decay_arg \
                         $optim_args \
                         $no_prev_args \
+                        $ode_args \
                         --exp_name $exp_name \
                         --output_dir $output_dir"
 

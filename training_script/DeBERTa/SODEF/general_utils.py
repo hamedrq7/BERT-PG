@@ -47,6 +47,7 @@ def get_args():
     parser.add_argument("--no_ignore_dropout", action="store_false", dest="ignore_dropout",
         help="Disable ignore_dropout (default: enabled)"
     )
+    parser.add_argument("--use_topol_ode", action="store_true", help="Use a heavier ODE architecture")
     parser.add_argument("--seed", type=int, default=42)
 
     # ---------------------------
