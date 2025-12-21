@@ -396,7 +396,7 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
     return phase2_model
 
 def load_phase2(args, device, sanity_check = True): 
-    phase2_model = get_a_phase2_model(args.bert_feature_dim, args.ode_dim, args.num_classes, args.phase2_integration_time)
+    phase2_model = get_a_phase2_model(args.bert_feature_dim, args.ode_dim, args.num_classes, args.phase2_integration_time, topol=args.use_topol_ode)
 
     saved_temp = torch.load(args.phase2_model_path)
     statedic_temp = saved_temp[list(saved_temp.keys())[0]] # ['model']

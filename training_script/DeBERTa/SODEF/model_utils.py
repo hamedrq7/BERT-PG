@@ -186,9 +186,9 @@ class Phase2Model(nn.Module):
         logits = self.fc(after_ode_feats)
         return before_ode_feats, after_ode_feats, logits
 
-def get_a_phase2_model(feature_dim, ode_dim, num_classes, t): 
+def get_a_phase2_model(feature_dim, ode_dim, num_classes, t, topol=False): 
     dummy_phase1 = get_a_phase1_model(feature_dim, ode_dim, num_classes)
-    odefunc = ODEfunc_mlp(ode_dim)
+    odefunc = ODEfunc_mlp(ode_dim) if not topol else topol_ODEfunc_mlp(ode_dim)
     phase2_model = Phase2Model(
         dummy_phase1.orthogonal_bridge_layer, 
         ODEBlocktemp(odefunc, t), 
@@ -322,8 +322,8 @@ class Phase3Model(nn.Module):
         else: 
             return logits
 
-def get_a_phase3_model(feature_dim, ode_dim, num_classes, t):
-    dummy = get_a_phase2_model(feature_dim, ode_dim, num_classes, t)
+def get_a_phase3_model(feature_dim, ode_dim, num_classes, t, topol=False):
+    dummy = get_a_phase2_model(feature_dim, ode_dim, num_classes, t, topol=topol)
     ODE_layer = ODEBlock(odefunc=dummy.ode_block.odefunc, t = t)
 
     phase3_model = Phase3Model(
