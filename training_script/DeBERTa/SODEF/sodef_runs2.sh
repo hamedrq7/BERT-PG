@@ -1,22 +1,3 @@
-
-EXPS_NAME="Phase3-baseA-topolSodef"
-python run_sodef.py  \
-    --skip_phase1 \
-    --phase2_model "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaFirstSODEF-TopolSodef/r1=10.0_r2=1.0_r3=0.1_exp=1.0_expoff_0.1_expf=50.0_timedf_1.0_trans_1.0_transoff_1.0_T=5.0_dafaultAdam=on_noprev=off_topol_ode=on/phase2/phase2_last_ckpt.pth" \
-    --phase3_freeze_ode_block \
-    --phase3_lr_fc 1e-5 \
-    --phase3_eps_fc_block 1e-8 \
-    --phase3_epochs 20 \
-    --exp_name ${EXPS_NAME} \
-    --output_dir ../DeBERTaSodefPhase3Tuning/${EXPS_NAME} \
-    --bert_feature_dim 1024 \
-    --use_topol_ode \
-    --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
-    --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
-    --seed 100 \
-    --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz' \
-
-
 #!/usr/bin/env bash
 
 # ----------- CONSTANT ARGUMENTS -----------
@@ -25,7 +6,7 @@ TR_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/tra
 TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz"
 # PHASE1_MODEL="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaFirstSODEF/Phase1-Tuning/eps_-optim_SGD-lr_1e-3-eps_/phase1/phase1_best_acc_ckpt.pth"
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz"
-
+CUDA_ID=0
 FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
@@ -34,7 +15,9 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --phase2_numm 64 \
             --phase2_epoch 5 \
             --phase1_epoch 10 --phase1_lr 1e-2 --phase1_optim_eps 1e-3 \
-            --bert_feature_dim 1024"
+            --bert_feature_dim 1024 \
+            --phase3_freeze_ode_block \
+            --cuda_id $CUDA_ID"
 
 # ----------- EXPERIMENT PARAMETER SETS -----------
 
@@ -151,9 +134,8 @@ for reg_set in "${reg_sets[@]}"; do
                         $no_prev_args \
                         $ode_args \
                         --exp_name $exp_name \
-                        --output_dir $output_dir \
-                        --phase3_freeze_ode_block \ 
-                        --cuda_id 0
+                        --output_dir $output_dir" \
+                        
 
                     echo "Running: $exp_name"
                     echo "$CMD"
