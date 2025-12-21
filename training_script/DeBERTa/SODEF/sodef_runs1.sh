@@ -224,8 +224,8 @@ for reg_set in "${reg_sets[@]}"; do
                         --exp_name $exp_name \
                         --output_dir $output_dir \
                         --phase3_freeze_ode_block \ 
-                        --cuda_id 1 \
-                        "
+                        --cuda_id 1" \
+                        
 
                     echo "Running: $exp_name"
                     echo "$CMD"
