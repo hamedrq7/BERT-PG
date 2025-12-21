@@ -94,7 +94,7 @@ TR_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/tra
 TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz"
 # PHASE1_MODEL="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaFirstSODEF/Phase1-Tuning/eps_-optim_SGD-lr_1e-3-eps_/phase1/phase1_best_acc_ckpt.pth"
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz"
-
+CUDA_ID=1
 FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
@@ -103,7 +103,9 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --phase2_numm 64 \
             --phase2_epoch 5 \
             --phase1_epoch 10 --phase1_lr 1e-2 --phase1_optim_eps 1e-3 \
-            --bert_feature_dim 1024"
+            --bert_feature_dim 1024 \
+            --phase3_freeze_ode_block \
+            --cuda_id $CUDA_ID"
 
 # ----------- EXPERIMENT PARAMETER SETS -----------
 
@@ -158,7 +160,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="on"
-cuda_id=1
+
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
 for reg_set in "${reg_sets[@]}"; do
@@ -217,8 +219,6 @@ for reg_set in "${reg_sets[@]}"; do
                         --phase2_trans $trans \
                         --phase2_trans_off_diag $trans_off \
                         --phase2_integration_time $integ_t \
-                        --phase3_freeze_ode_block \
-                        --cuda_id $cuda_id \ 
                         $decay_arg \
                         $optim_args \
                         $no_prev_args \
