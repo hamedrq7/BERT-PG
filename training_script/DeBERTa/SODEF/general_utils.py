@@ -24,6 +24,7 @@ def get_args():
             help="Disable wandb logging (default: enabled)")   
     parser.add_argument("--no_use_cuda", action="store_false", dest="use_cuda",
             help="Disable use_cuda (default: enabled)")   
+    parser.add_argument("--cuda_id", type=int, default=0)
     
 
     # LOADING MODELS AND DATA

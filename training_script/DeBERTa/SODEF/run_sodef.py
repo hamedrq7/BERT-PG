@@ -35,9 +35,12 @@ def main():
     print("Experiment:", args.exp_name)
     print("Output dir:", args.output_dir)
     
-    device = 'cpu' if ((not torch.cuda.is_available()) or (not args.use_cuda)) else torch.device('cuda:0')
-
-
+    if ((not torch.cuda.is_available()) or (not args.use_cuda)):
+        device = 'cpu' 
+    else:
+        torch.cuda.set_device(args.cuda_id)
+        device = torch.device(f'cuda:{args.cuda_id}')
+        
     from general_utils import set_seed_reproducability
     set_seed_reproducability(args.seed)
 
