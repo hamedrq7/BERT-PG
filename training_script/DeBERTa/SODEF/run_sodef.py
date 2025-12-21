@@ -63,9 +63,14 @@ def main():
 
     if not args.skip_phase2: 
         from train_utils import train_phase2, load_phase2
-        phase2_model = train_phase2(phase1_model, args, device, adv_glue_loader=advglue_feature_loader) if args.phase2_model_path is None else load_phase2(args, device, True)
+        phase2_model = train_phase2(phase1_model, args, device, adv_glue_loader=advglue_feature_loader) if args.phase2_model_path is None else load_phase2(args, device, True, advglue_feature_loader)
         # base + phase2/phase2_last_ckpt.pth
     
+    print('******* After phase2... ******* ')
+    from train_utils import test_phase2
+    test_phase2(phase2_model, args, device, advglue_feature_loader)
+
+    print('Starting phase3...')
     from train_utils import train_phase3, load_phase3
     phase3_model = load_phase3(args, device, True)  if args.phase3_model_path is not None else train_phase3(phase2_model, args, device, adv_glue_loader=advglue_feature_loader) 
     # base + phase3/phase3_best_acc_ckpt.pth

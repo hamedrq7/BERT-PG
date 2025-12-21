@@ -395,7 +395,7 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
                 
     return phase2_model
 
-def load_phase2(args, device, sanity_check = True): 
+def load_phase2(args, device, sanity_check = True, advglue_feature_loader = None): 
     phase2_model = get_a_phase2_model(args.bert_feature_dim, args.ode_dim, args.num_classes, args.phase2_integration_time, topol=args.use_topol_ode)
 
     saved_temp = torch.load(args.phase2_model_path)
@@ -411,9 +411,23 @@ def load_phase2(args, device, sanity_check = True):
         te_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), testloader, device, criterion, 110, False, None, None)
         print('Train Acc, Loss', tr_res['acc'], tr_res['loss'])
         print('Test Acc, Loss', te_res['acc'], te_res['loss'])
+        if advglue_feature_loader is not None: 
+            adv_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), advglue_feature_loader, device, criterion, 110, False, None, None)
+            print('AdvGlue Acc, Loss', adv_res['acc'], adv_res['loss'])
 
     return phase2_model
 
+def test_phase2(phase2_model, args, device, advglue_feature_loader = None):
+    trainloader, testloader = get_feature_dataloader(args, args.phase2_batch_size)
+    criterion = nn.CrossEntropyLoss()
+    tr_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), trainloader, device, criterion, 110, False, None, None)
+    te_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), testloader, device, criterion, 110, False, None, None)
+    print('Train Acc, Loss', tr_res['acc'], tr_res['loss'])
+    print('Test Acc, Loss', te_res['acc'], te_res['loss'])
+    if advglue_feature_loader is not None: 
+        adv_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), advglue_feature_loader, device, criterion, 110, False, None, None)
+        print('AdvGlue Acc, Loss', adv_res['acc'], adv_res['loss'])
+        
 def test_sodef_regs(model, args, loader, device, phase, num_batches=20): 
     for iter_test in range(num_batches):  
         with torch.no_grad():
