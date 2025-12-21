@@ -158,7 +158,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="on"
-
+cuda_id=1
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
 for reg_set in "${reg_sets[@]}"; do
@@ -217,14 +217,14 @@ for reg_set in "${reg_sets[@]}"; do
                         --phase2_trans $trans \
                         --phase2_trans_off_diag $trans_off \
                         --phase2_integration_time $integ_t \
+                        --phase3_freeze_ode_block \
+                        --cuda_id $cuda_id \ 
                         $decay_arg \
                         $optim_args \
                         $no_prev_args \
                         $ode_args \
                         --exp_name $exp_name \
-                        --output_dir $output_dir \
-                        --phase3_freeze_ode_block \ 
-                        --cuda_id 1" \
+                        --output_dir $output_dir" \
                         
 
                     echo "Running: $exp_name"
