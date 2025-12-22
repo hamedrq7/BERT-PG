@@ -155,12 +155,11 @@ python run_sodef.py  \
     --skip_phase1 \
     --phase2_model_path "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaFirstSODEF-Phase2/${prev_model}/phase2/phase2_last_ckpt.pth" \
     --phase3_freeze_ode_block \
-    --no_phase3_use_fc_from_phase2 \
     --phase3_optim 'SGD' \
-    --phase3_lr_fc 0.00001 \
+    --phase3_lr_fc 0.000001 \
     --phase3_eps_fc_block 1e-8 \
     --phase3_epochs 50 \
-    --phase3_batch_size 4 \
+    --phase3_batch_size 128 \
     --exp_name ${EXP_NAME} \
     --output_dir ../DeBERTa-Phase3/${EXP_NAME} \
     --bert_feature_dim 1024 \
