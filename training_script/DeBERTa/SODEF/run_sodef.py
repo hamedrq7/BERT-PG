@@ -76,8 +76,6 @@ def main():
     phase3_model = load_phase3(args, device, True)  if args.phase3_model_path is not None else train_phase3(phase2_model, args, device, adv_glue_loader=advglue_feature_loader) 
     # base + phase3/phase3_best_acc_ckpt.pth
 
-    print(phase3_model)
-    exit()
 
     from train_utils import test_adv_glue
     res = test_adv_glue(args, device, phase3_model, advglue_feature_loader)
