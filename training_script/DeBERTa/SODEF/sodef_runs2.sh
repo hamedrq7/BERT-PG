@@ -161,7 +161,7 @@ python run_sodef.py  \
     --phase3_eps_fc_block 1e-8 \
     --phase3_epochs 50 \
     --phase3_batch_size 512 \
-    --exp_name ${EXPS_NAME} \
+    --exp_name ${EXP_NAME} \
     --output_dir ../DeBERTa-Phase3/${EXP_NAME} \
     --bert_feature_dim 1024 \
     --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
