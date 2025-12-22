@@ -157,10 +157,10 @@ python run_sodef.py  \
     --phase3_freeze_ode_block \
     --no_phase3_use_fc_from_phase2 \
     --phase3_optim 'SGD' \
-    --phase3_lr_fc 0.0001 \
+    --phase3_lr_fc 0.00001 \
     --phase3_eps_fc_block 1e-8 \
     --phase3_epochs 50 \
-    --phase3_batch_size 512 \
+    --phase3_batch_size 4 \
     --exp_name ${EXP_NAME} \
     --output_dir ../DeBERTa-Phase3/${EXP_NAME} \
     --bert_feature_dim 1024 \
