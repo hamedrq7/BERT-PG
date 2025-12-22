@@ -3,8 +3,8 @@ python run_sodef.py  \
     --skip_phase1 \
     --phase2_model_path "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaFirstSODEF-TopolSodef/${EXP_NAME}/phase2/phase2_last_ckpt.pth" \
     --phase3_model_path "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaFirstSODEF-TopolSodef/${EXP_NAME}/phase3/phase3_best_acc_ckpt.pth" \
-    --exp_name ${EXPS_NAME} \
-    --output_dir ../DeBERTaFirstSODEF-TopolSodef/${EXPS_NAME} \
+    --exp_name ${EXP_NAME} \
+    --output_dir ../DeBERTaFirstSODEF-TopolSodef/${EXP_NAME} \
     --bert_feature_dim 1024 \
     --use_topol_ode \
     --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
