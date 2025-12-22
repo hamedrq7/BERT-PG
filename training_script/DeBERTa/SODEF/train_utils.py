@@ -497,7 +497,9 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
                                     {'params': phase3_model.fc.parameters(), 'lr': args.phase3_lr_fc, }], momentum=0.9)
     
     # feats_before, feats_after, labels = phase3_model.collect_feats(trainloader, device)
-    feats_before, feats_after, labels = phase3_model.collect_feats(adv_glue_loader, device)
+    # feats_before, feats_after, labels = phase3_model.collect_feats(adv_glue_loader, device)
+    feats_before, feats_after, labels = phase3_model.collect_feats(testloader, device)
+    
     feats_after = feats_before
     N, D = feats_after.shape
     C = labels.max().item() + 1
