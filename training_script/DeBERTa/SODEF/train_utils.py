@@ -559,7 +559,7 @@ def load_phase3(args, device, sanity_check = True):
     saved_temp = torch.load(args.phase3_model_path)
     statedic_temp = saved_temp[list(saved_temp.keys())[0]] # ['model']
 
-    phase3_model = get_a_phase3_model(args.bert_feature_dim, args.ode_dim, args.num_classes, args.phase3_integration_time)
+    phase3_model = get_a_phase3_model(args.bert_feature_dim, args.ode_dim, args.num_classes, args.phase3_integration_time, topol=args.use_topol_ode)
     phase3_model.load_state_dict(statedic_temp)
     phase3_model = phase3_model.to(device)
 
