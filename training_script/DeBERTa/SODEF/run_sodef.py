@@ -80,6 +80,25 @@ def main():
     if args.wandb: 
         wandb.log({'AdvGLUE': res['acc']})
     
+    if args.eigval_analysis: 
+        from analysis_utils import eigval_analysis
+        from train_utils import get_feature_dataloader
+        trainloader, testloader = get_feature_dataloader(args, args.phase3_batch_size)
+
+        eigval_analysis(phase3_model, trainloader, device,
+                        output_path=f'{args.output_dir}/phase3', 
+                        phase='train', num_points=1000) 
+
+        eigval_analysis(phase3_model, testloader, device,
+                        output_path=f'{args.output_dir}/phase3', 
+                        phase='test', num_points=100) 
+
+        if advglue_feature_loader is not None:             
+            eigval_analysis(phase3_model, advglue_feature_loader, device,
+                            output_path=f'{args.output_dir}/phase3', 
+                            phase='advglue', num_points=147) 
+        
+
     if args.wandb:
         wandb.finish()
     

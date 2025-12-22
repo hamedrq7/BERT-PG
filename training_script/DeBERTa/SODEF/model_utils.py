@@ -152,6 +152,7 @@ class MLP_OUT_BALL_given_mat(nn.Module):
         return h1  
 
 ################################### 
+from tqdm import tqdm 
 
 class Phase2Model(nn.Module): 
     def __init__(self, bridge_layer, ode_block, fc): 
@@ -185,6 +186,31 @@ class Phase2Model(nn.Module):
         after_ode_feats = self.ode_block(before_ode_feats)
         logits = self.fc(after_ode_feats)
         return before_ode_feats, after_ode_feats, logits
+
+    def collect_feats(self, loader, device): 
+        self.eval()
+
+        feats_before_all = []
+        feats_after_all = []
+        labels_all = []
+
+        with torch.no_grad():
+            for X, y in tqdm(loader):
+                X = X.to(device)
+                y = y.to(device)
+
+                feats_before, feats_after, output = self.forward(X)
+
+                feats_before_all.append(feats_before)
+                feats_after_all.append(feats_after)
+                labels_all.append(y)
+
+        feats_before_all = torch.cat(feats_before_all, dim=0)  # (N, 2)
+        feats_after_all  = torch.cat(feats_after_all, dim=0)   # (N, 2)
+        labels_all       = torch.cat(labels_all, dim=0)        # (N,)
+
+        return feats_before_all, feats_after_all, labels_all
+
 
 def get_a_phase2_model(feature_dim, ode_dim, num_classes, t, topol=False): 
     dummy_phase1 = get_a_phase1_model(feature_dim, ode_dim, num_classes)
@@ -321,6 +347,31 @@ class Phase3Model(nn.Module):
             return before_ode_feats, after_ode_feats, logits
         else: 
             return logits
+        
+    def collect_feats(self, loader, device): 
+        self.eval()
+
+        feats_before_all = []
+        feats_after_all = []
+        labels_all = []
+
+        with torch.no_grad():
+            for X, y in tqdm(loader):
+                X = X.to(device)
+                y = y.to(device)
+
+                feats_before, feats_after, output = self.forward(X, return_all_feats=True)
+
+                feats_before_all.append(feats_before)
+                feats_after_all.append(feats_after)
+                labels_all.append(y)
+
+        feats_before_all = torch.cat(feats_before_all, dim=0)  # (N, 2)
+        feats_after_all  = torch.cat(feats_after_all, dim=0)   # (N, 2)
+        labels_all       = torch.cat(labels_all, dim=0)        # (N,)
+
+        return feats_before_all, feats_after_all, labels_all
+
 
 def get_a_phase3_model(feature_dim, ode_dim, num_classes, t, topol=False):
     dummy = get_a_phase2_model(feature_dim, ode_dim, num_classes, t, topol=topol)
