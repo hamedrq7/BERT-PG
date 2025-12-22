@@ -464,7 +464,6 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
     # parser.add_argument("--phase3_metric", nargs="+", default=["ACC"])
     
     assert args.ignore_dropout, 'if you dont ignore dropout, you need to do a drop out at the very begining of every model at the input data essentially' 
-    assert args.phase3_optim == 'ADAM', 'Only Adam for now'
     
     save_path = os.path.join(args.output_dir, args.phase3_save_path)
     os.makedirs(save_path, exist_ok=True)
@@ -488,9 +487,16 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
     phase3_model.freeze_layer_given_name(freeze_layers)
     phase3_model = phase3_model.to(device)
     
-    optimizer = torch.optim.Adam([{'params': phase3_model.bridge_layer.parameters(), 'lr': args.phase3_lr_bridge_layer, 'eps':args.phase3_eps_bridge_layer,},
-                                  {'params': phase3_model.ode_block.odefunc.parameters(), 'lr': args.phase3_lr_ode_block, 'eps':args.phase3_eps_ode_block,},
-                                {'params': phase3_model.fc.parameters(), 'lr': args.phase3_lr_fc, 'eps':args.phase3_eps_fc_block,}], amsgrad=args.phase3_amsgrad)
+    if args.phase3_optim == 'ADAM':
+        optimizer = torch.optim.Adam([{'params': phase3_model.bridge_layer.parameters(), 'lr': args.phase3_lr_bridge_layer, 'eps':args.phase3_eps_bridge_layer,},
+                                    {'params': phase3_model.ode_block.odefunc.parameters(), 'lr': args.phase3_lr_ode_block, 'eps':args.phase3_eps_ode_block,},
+                                    {'params': phase3_model.fc.parameters(), 'lr': args.phase3_lr_fc, 'eps':args.phase3_eps_fc_block,}], amsgrad=args.phase3_amsgrad)
+    elif args.phase3_optim == 'SGD': 
+        optimizer = torch.optim.SGD([{'params': phase3_model.bridge_layer.parameters(), 'lr': args.phase3_lr_bridge_layer,},
+                                    {'params': phase3_model.ode_block.odefunc.parameters(), 'lr': args.phase3_lr_ode_block,},
+                                    {'params': phase3_model.fc.parameters(), 'lr': args.phase3_lr_fc, }], momentum=0.9)
+        
+        
     criterion = get_loss(args.phase3_loss)
 
     best_acc = 0 
