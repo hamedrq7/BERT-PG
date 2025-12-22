@@ -495,7 +495,16 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
         optimizer = torch.optim.SGD([{'params': phase3_model.bridge_layer.parameters(), 'lr': args.phase3_lr_bridge_layer,},
                                     {'params': phase3_model.ode_block.odefunc.parameters(), 'lr': args.phase3_lr_ode_block,},
                                     {'params': phase3_model.fc.parameters(), 'lr': args.phase3_lr_fc, }], momentum=0.9)
-        
+    
+    feats_before, feats_after, labels = phase3_model.collect_feats(trainloader, device)
+    
+    N, D = feats_after.shape
+    C = labels.max().item() + 1
+
+    with torch.no_grad():
+        for c in range(C):
+            class_feats = feats_after[labels == c]   # [Nc, D]
+            phase3_model.fc.fc0.weight[c].copy_(class_feats.mean(dim=0))
         
     criterion = get_loss(args.phase3_loss)
 
