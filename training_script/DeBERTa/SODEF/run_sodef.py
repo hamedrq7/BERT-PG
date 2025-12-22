@@ -61,6 +61,7 @@ def main():
         phase1_model = train_phase1(args, device, adv_glue_loader=advglue_feature_loader) if args.phase1_model_path is None else load_phase1(args, device, True)
         # base + phase1/phase1_best_acc_ckpt.pth
 
+    phase2_model = None
     if not args.skip_phase2: 
         from train_utils import train_phase2, load_phase2
         phase2_model = train_phase2(phase1_model, args, device, adv_glue_loader=advglue_feature_loader) if args.phase2_model_path is None else load_phase2(args, device, True, advglue_feature_loader)
@@ -83,20 +84,26 @@ def main():
     if args.eigval_analysis: 
         from analysis_utils import eigval_analysis
         from train_utils import get_feature_dataloader
-        trainloader, testloader = get_feature_dataloader(args, args.phase3_batch_size)
+        models = [['phase3', phase3_model]]
+        if phase2_model is not None: 
+            models.append(['phase2', phase2_model])
+        
+        for model in models: 
+            print('Analysing ', model[0], ' model')
+            trainloader, testloader = get_feature_dataloader(args, args.phase3_batch_size)
+            
+            eigval_analysis(model[1], trainloader, device,
+                            output_path=f'{args.output_dir}/{model[0]}', 
+                            phase='train', num_points=1000) 
 
-        eigval_analysis(phase3_model, trainloader, device,
-                        output_path=f'{args.output_dir}/phase3', 
-                        phase='train', num_points=1000) 
+            eigval_analysis(model[1], testloader, device,
+                            output_path=f'{args.output_dir}/{model[0]}', 
+                            phase='test', num_points=100) 
 
-        eigval_analysis(phase3_model, testloader, device,
-                        output_path=f'{args.output_dir}/phase3', 
-                        phase='test', num_points=100) 
-
-        if advglue_feature_loader is not None:             
-            eigval_analysis(phase3_model, advglue_feature_loader, device,
-                            output_path=f'{args.output_dir}/phase3', 
-                            phase='advglue', num_points=147) 
+            if advglue_feature_loader is not None:             
+                eigval_analysis(model[1], advglue_feature_loader, device,
+                                output_path=f'{args.output_dir}/{model[0]}', 
+                                phase='advglue', num_points=147) 
         
 
     if args.wandb:
