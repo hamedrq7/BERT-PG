@@ -240,7 +240,6 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
     # if you dont ignore dropout, you need to do a drop out at the very begining of every model
     # at the input data essentially 
     assert args.ignore_dropout, 'if you dont ignore dropout, you need to do a drop out at the very begining of every model at the input data essentially' 
-    assert args.phase2_optim == 'ADAM' or args.phase2_optim == 'SGD', 'Only Adam and sgd for now'
 
     save_path = os.path.join(args.output_dir, args.phase2_save_path)
     os.makedirs(save_path, exist_ok=True)
