@@ -40,7 +40,7 @@ def main():
     """
 
     if args.wandb:
-        wandb.init(project="DeBERTa-SODEF", config=vars(args), name=args.exp_name)
+        wandb.init(project=f"{args.wandb_project_name}", config=vars(args), name=args.exp_name)
 
     print("Experiment:", args.exp_name)
     print("Output dir:", args.output_dir)

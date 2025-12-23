@@ -8,6 +8,7 @@ TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/tra
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz"
 CUDA_ID=0
 project_name="DeBERTa_SODEF_NEW"
+phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEF-FreezeFC_lossC/FREEZE_FC_baseA_lossC=0.0/phase1/phase1_best_acc_ckpt.pth"
 FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
@@ -18,7 +19,8 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --phase1_epoch 10 --phase1_lr 1e-2 --phase1_optim_eps 1e-3 \
             --bert_feature_dim 1024 \
             --phase3_freeze_ode_block \
-            --wandb_project_name ${project_name} \
+            --wandb_project_name $project_name \
+            --phase1_model_path $phase1_model_path \
             --cuda_id $CUDA_ID"
 
 # ----------- EXPERIMENT PARAMETER SETS -----------
