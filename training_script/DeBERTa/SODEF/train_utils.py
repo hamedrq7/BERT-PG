@@ -330,7 +330,7 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
             # torch.cuda.empty_cache()
 
             _, predicted = logits.max(1)
-            correct = predicted.eq(y).sum().item()
+            correct = predicted.eq(y).sum()
 
             if args.wandb: 
                 wandb.log({
