@@ -70,7 +70,7 @@ phase2_param_sets=(
 decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
-topol_ode="onn"
+topol_ode="on"
 lossC_set=(0.0 0.1 1.0 10.0) # 0.1 1.0 10.0
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
@@ -112,7 +112,7 @@ for reg_set in "${reg_sets[@]}"; do
 
                         # ---------------- Construct experiment name ----------------
                         # exp_name="r1=${r1}_r2=${r2}_r3=${r3}_exp=${exp}_expoff_${exp_off}_expf=${exp_f}_timedf_${time_df}_trans_${trans}_transoff_${trans_off}_T=${integ_t}_dafaultAdam=${optim}_noprev=${no_prev}_topol_ode=${topol_ode}"
-                        exp_name="FREEZE_FC_baseA_lossC=${lossC}"
+                        exp_name="FREEZE_FC_baseB_topol=${topol_ode}_lossC=${lossC}"
 
                         # ---------------- Output directory ----------------
                         output_dir="../DeBERTaSODEF-FreezeFC_lossC/${exp_name}"
