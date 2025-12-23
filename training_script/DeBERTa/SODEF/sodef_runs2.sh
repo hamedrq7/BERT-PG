@@ -15,7 +15,7 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --seed 100 \
             --phase2_batch_size 64 \
             --phase2_numm 64 \
-            --phase2_epoch 1 \
+            --phase2_epoch 5 \
             --phase1_epoch 10 --phase1_lr 1e-2 --phase1_optim_eps 1e-3 \
             --bert_feature_dim 1024 \
             --phase3_freeze_ode_block \
@@ -29,7 +29,7 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
 # base A "10.0 1.0 0.1"
 # base B "10.0 10.0 0.2"
 reg_sets=(
-  "10.0 1.0 0.1"
+  "10.0 10.0 0.2"
 )
 
 
@@ -71,7 +71,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="off"
-lossC_set=(0.0) # 0.1 1.0 10.0
+lossC_set=(0.0 0.1 1.0 10.0) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
 for reg_set in "${reg_sets[@]}"; do

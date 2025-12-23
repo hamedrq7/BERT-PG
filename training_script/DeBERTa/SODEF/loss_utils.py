@@ -17,8 +17,6 @@ def df_dz_regularizer(f, z, numm, odefunc, time_df, exponent, trans, exponent_of
         off_diagtemp = torch.exp(exponent_off*(offdiat+transoffdig))
         regu_offdiag += off_diagtemp
 
-    # print('diag mean: ',tempdiag.mean().item())
-    # print('offdiag mean: ',offdiat.mean().item())
     return regu_diag/numm, regu_offdiag/numm
 
 def f_regularizer(f, z, odefunc, time_df, device, exponent_f):
