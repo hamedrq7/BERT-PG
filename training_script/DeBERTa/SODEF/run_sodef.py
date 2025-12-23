@@ -30,7 +30,7 @@ def main():
     
     args = get_args()
 
-    
+    os.makedirs(args.output_dir, exist_ok=True)
     with open(f"{args.output_dir}/args.json", "w") as f:
         json.dump(vars(args), f, indent=2)
 
