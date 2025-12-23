@@ -7,6 +7,7 @@ TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/tra
 # PHASE1_MODEL="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaFirstSODEF/Phase1-Tuning/eps_-optim_SGD-lr_1e-3-eps_/phase1/phase1_best_acc_ckpt.pth"
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz"
 CUDA_ID=0
+project_name="DeBERTa_SODEF_NEW"
 FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
@@ -17,6 +18,7 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --phase1_epoch 10 --phase1_lr 1e-2 --phase1_optim_eps 1e-3 \
             --bert_feature_dim 1024 \
             --phase3_freeze_ode_block \
+            --wandb_project_name ${project_name} \
             --cuda_id $CUDA_ID"
 
 # ----------- EXPERIMENT PARAMETER SETS -----------
@@ -67,7 +69,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="off"
-lossC_set=(0.0 0.1 1.0 10.0)
+lossC_set=(0.0) # 0.1 1.0 10.0
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
 for reg_set in "${reg_sets[@]}"; do

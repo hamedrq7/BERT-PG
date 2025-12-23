@@ -25,6 +25,7 @@ def get_args():
     parser.add_argument("--no_use_cuda", action="store_false", dest="use_cuda",
             help="Disable use_cuda (default: enabled)")   
     parser.add_argument("--cuda_id", type=int, default=0)
+    parser.add_argument("--wandb_project_name", type=str, default="DeBERTa-SODEF")
     
 
     # LOADING MODELS AND DATA
