@@ -591,7 +591,7 @@ def pgd_l2_untargeted_early_stop(
     steps: int = 40,
     step_size: float = 0.1,
     random_start: bool = True,
-) -> tuple[torch.Tensor, bool]:
+) -> Tuple[torch.Tensor, bool]:
     """
     Untargeted PGD in L2 ball with early stopping:
     - tries to find x_adv within ||x_adv - x||_2 <= eps that flips prediction away from y0
