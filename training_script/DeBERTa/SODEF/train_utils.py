@@ -494,36 +494,36 @@ def test_phase2(phase2_model, args, device, advglue_feature_loader = None):
         adv_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), advglue_feature_loader, device, criterion, 110, False, None, None)
         print('AdvGlue Acc, Loss', adv_res['acc'], adv_res['loss'])
         
-def test_sodef_regs(model, args, loader, device, phase, num_batches=20): 
-    for iter_test in range(num_batches):  
-        with torch.no_grad():
-            test_data_get = inf_generator(loader)
-            x, y = test_data_get.__next__()
-            x = x.to(device)
+# def test_sodef_regs(model, args, loader, device, phase, num_batches=20): 
+#     for iter_test in range(num_batches):  
+#         with torch.no_grad():
+#             test_data_get = inf_generator(loader)
+#             x, y = test_data_get.__next__()
+#             x = x.to(device)
 
-            # modulelist = list(ODE_FCmodel)
-            # y0 = x
-            # x = modulelist[0](x)
-            # y1 = x
-            # y00 = y0 #.clone().detach().requires_grad_(True)
-            x, y00, _ = model(x, return_all_feats=True)
-            regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=model.ode_block.odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
-            regu1 = regu1.mean()
-            regu2 = regu2.mean()
-            # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
-            # print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
-            regu3 = f_regularizer(None, x, odefunc=model.ode_block.odefunc, time_df=args.phase2_time_df, device=device, exponent_f=args.phase2_exponent_f)
-            regu3 = regu3.mean()
-            # print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
-            loss = args.phase2_weight_f*regu3 + args.phase2_weight_diag*regu1+ args.phase2_weight_off_diag*regu2
+#             # modulelist = list(ODE_FCmodel)
+#             # y0 = x
+#             # x = modulelist[0](x)
+#             # y1 = x
+#             # y00 = y0 #.clone().detach().requires_grad_(True)
+#             x, y00, _ = model(x, return_all_feats=True)
+#             regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=model.ode_block.odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
+#             regu1 = regu1.mean()
+#             regu2 = regu2.mean()
+#             # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
+#             # print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
+#             regu3 = f_regularizer(None, x, odefunc=model.ode_block.odefunc, time_df=args.phase2_time_df, device=device, exponent_f=args.phase2_exponent_f)
+#             regu3 = regu3.mean()
+#             # print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
+#             loss = args.phase2_weight_f*regu3 + args.phase2_weight_diag*regu1+ args.phase2_weight_off_diag*regu2
 
-            wandb.log({
-                f'phase3/{phase}_step': iter_test,
-                f'phase3/{phase}_regu1': regu1.item(),
-                f'phase3/{phase}_regu2': regu2.item(),
-                f'phase3/{phase}_regu3': regu3.item(),
-                f'phase3/{phase}_loss': loss.item(),
-            })
+#             wandb.log({
+#                 f'phase3/{phase}_step': iter_test,
+#                 f'phase3/{phase}_regu1': regu1.item(),
+#                 f'phase3/{phase}_regu2': regu2.item(),
+#                 f'phase3/{phase}_regu3': regu3.item(),
+#                 f'phase3/{phase}_loss': loss.item(),
+#             })
 
 
 def train_phase3(phase2_model, args, device, adv_glue_loader=None): 
@@ -532,11 +532,13 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
     
     assert args.ignore_dropout, 'if you dont ignore dropout, you need to do a drop out at the very begining of every model at the input data essentially' 
     
+    if args.wandb:
+        wandb.define_metric("phase3/*", step_metric="phase3_step")
+
     save_path = os.path.join(args.output_dir, args.phase3_save_path)
     os.makedirs(save_path, exist_ok=True)
 
     trainloader, testloader = get_feature_dataloader(args, args.phase3_batch_size)
-
 
     ODE_layer = ODEBlock(odefunc=phase2_model.ode_block.odefunc, t = args.phase3_integration_time)
     
@@ -586,15 +588,9 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
     test_acc_history = []
     
     for epoch in trange(0, args.phase3_epochs):
-        test_sodef_regs(phase3_model, args, trainloader, device, 'train', num_batches=20)
-        test_sodef_regs(phase3_model, args, testloader, device, 'test', num_batches=20)
-        
-        if adv_glue_loader is not None:
-            adv_glue_res = test_ce_one_epoch(epoch, phase3_model, adv_glue_loader, device, criterion, 110, False, '', '')
-            if args.wandb:
-                wandb.log({
-                    'phase3/adv_glue_acc': adv_glue_res['acc'], 
-                })
+        # TODO add this later using the other function + log wandb here properly
+        # test_sodef_regs(phase3_model, args, trainloader, device, 'train', num_batches=20)
+        # test_sodef_regs(phase3_model, args, testloader, device, 'test', num_batches=20)
                 
         tr_results = train_ce_one_epoch(
             epoch=epoch, 
@@ -602,7 +598,7 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
             loader=trainloader, 
             device=device, 
             optimizer=optimizer,
-            criterion=criterion
+            criterion=criterion,
         )
         te_results = test_ce_one_epoch(
             epoch=epoch, 
@@ -613,11 +609,9 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
             best_acc=best_acc,
             do_save=True,
             save_folder= save_path, # ?
-            save_name= 'phase3' # ? 
+            save_name= 'phase3', # ?
+            return_preds=True 
         )
-
-        # if args.adv_glue_feature_set_dir is not None: 
-        #     test_adv_glue(args, device, phase3_model)
 
         best_acc = te_results['best_acc']
 
@@ -630,12 +624,28 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
         test_loss_history.append(te_results['loss'])
         test_acc_history.append(te_results['acc'])
 
+        wandb_logging = {
+            "phase3_step": epoch,
+            "phase3/train_acc": tr_results['acc'],
+            "phase3/test_acc": te_results['acc'],
+            "phase3/test_confmat":  wandb.plot.confusion_matrix(
+                y_true=te_results['labels'],
+                preds=te_results['preds'],
+                class_names=["class_0", "class_1"],
+            )
+        }
+
+        if adv_glue_loader is not None:
+            adv_glue_res = test_ce_one_epoch(epoch, phase3_model, adv_glue_loader, device, criterion, 110, False, '', '', True)
+            wandb_logging['phase3/adv_glue_acc'] = adv_glue_res['acc']
+            wandb_logging['phase3/adv_glue_confmat'] = wandb.plot.confusion_matrix(
+                y_true=adv_glue_res['labels'],
+                preds=adv_glue_res['preds'],
+                class_names=["class_0", "class_1"],
+            )
+
         if args.wandb:
-            wandb.log({
-                'phase3/step': epoch, 
-                'phase3/train_ce': tr_results['loss'], 'phase3/train_acc': tr_results['acc'], 
-                'phase3/test_ce': te_results['loss'], 'phase3/test_acc': te_results['acc'], 
-            })
+            wandb.log(wandb_logging)
 
     return phase3_model
 

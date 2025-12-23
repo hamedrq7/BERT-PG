@@ -21,6 +21,7 @@ from general_utils import get_args
 from data_utils import get_adv_glue_feature_dataset
 
 import wandb
+import json
 
 def main():
 
@@ -28,6 +29,15 @@ def main():
     # python run_sodef.py --output_dir '../sodef_testing' --exp_name 'second_test' --feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/BERT/models/no_trainer/sst2//saving_feats/0_feats.npz' --phase1_epochs 2 --phase2_epoch 1 --phase2_batch_size 128 --phase3_epochs 2 --seed 100
     
     args = get_args()
+
+    
+    with open(f"{args.output_dir}/args.json", "w") as f:
+        json.dump(vars(args), f, indent=2)
+
+    """
+    with open("args.json", "r") as f:
+        args_dict = json.load(f)
+    """
 
     if args.wandb:
         wandb.init(project="DeBERTa-SODEF", config=vars(args), name=args.exp_name)
