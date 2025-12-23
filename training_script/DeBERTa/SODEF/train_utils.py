@@ -344,7 +344,6 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
                 })
             
             phase2_batch_step += 1
-            break 
 
         if args.decay_lr:
             scheduler.step()

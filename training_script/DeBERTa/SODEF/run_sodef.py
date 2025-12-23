@@ -125,13 +125,13 @@ def main():
         from analysis_utils import raddddddi, raddddddi_rand
         # raddddddi(phase3_model, 'train_phase3', trainloader, device)
         # raddddddi(phase2_model, 'train_phase2', trainloader, device)
-        # raddddddi_rand(phase3_model, 'test_phase3', testloader, device)
-        # raddddddi_rand(phase3_model, 'adv_phase3', advglue_feature_loader, device)
-        # raddddddi_rand(phase3_model, 'train_phase3', trainloader, device)
+        raddddddi_rand(phase3_model, 'test_phase3', testloader, device)
+        raddddddi_rand(phase3_model, 'adv_phase3', advglue_feature_loader, device)
+        raddddddi_rand(phase3_model, 'train_phase3', trainloader, device)
 
-        # raddddddi_rand(phase2_model, 'test_phase2', testloader, device)
-        # raddddddi_rand(phase2_model, 'adv_phase2', advglue_feature_loader, device)
-        # raddddddi_rand(phase2_model, 'train_phase2', trainloader, device)
+        raddddddi_rand(phase2_model, 'test_phase2', testloader, device)
+        raddddddi_rand(phase2_model, 'adv_phase2', advglue_feature_loader, device)
+        raddddddi_rand(phase2_model, 'train_phase2', trainloader, device)
         
 
     if args.wandb:
