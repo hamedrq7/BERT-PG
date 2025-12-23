@@ -42,7 +42,7 @@ def get_args():
     # parser.add_argument("--skip_phase3", action="store_true", help="Skips phase1, make sure to pass mode path for other phases")
     
     parser.add_argument("--eigval_analysis", action="store_true", help="do eigval analysis on ode block")
-    
+    parser.add_argument("--denoising_analysis", action="store_true", help="do denoising analysis on ode block")
 
     # ARCHITECTURE
     parser.add_argument("--bert_feature_dim", type=int, default=768)

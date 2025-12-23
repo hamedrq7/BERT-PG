@@ -105,7 +105,12 @@ def main():
                 eigval_analysis(model[1], advglue_feature_loader, device,
                                 output_path=f'{args.output_dir}/{model[0]}', 
                                 phase='advglue', num_points=147) 
-        
+    
+    if args.denoising_analysis: 
+        from analysis_utils import denoising_analysis
+        trainloader, testloader = get_feature_dataloader(args, args.phase3_batch_size)
+        denoising_analysis(phase2_model, phase3_model, trainloader, testloader, device, advglue_feature_loader) 
+
 
     if args.wandb:
         wandb.finish()

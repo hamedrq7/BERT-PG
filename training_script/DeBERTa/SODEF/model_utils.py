@@ -181,35 +181,79 @@ class Phase2Model(nn.Module):
             else:
                 print(f"[FROZEN] {name}")
     
-    def forward(self, x): 
+    def forward(self, x, return_raw_logits = False): 
         before_ode_feats = self.bridge_layer(x)
         after_ode_feats = self.ode_block(before_ode_feats)
         logits = self.fc(after_ode_feats)
-        return before_ode_feats, after_ode_feats, logits
+        if return_raw_logits: 
+            raw_logits = self.fc(before_ode_feats)
+            return before_ode_feats, after_ode_feats, raw_logits, logits 
+        else: 
+            return before_ode_feats, after_ode_feats, logits
 
-    def collect_feats(self, loader, device): 
+        
+    def collect_feats(self, loader, device, return_outputs=False): 
         self.eval()
 
         feats_before_all = []
         feats_after_all = []
         labels_all = []
-
+        
+        raw_outputs = []
+        denoised_outputs = []
+        raw_losses = []
+        denoised_losses = []
+        raw_preds = []
+        denoised_preds = []
+        
         with torch.no_grad():
             for X, y in tqdm(loader):
                 X = X.to(device)
                 y = y.to(device)
 
-                feats_before, feats_after, output = self.forward(X)
+                feats_before, feats_after, raw_logits, denoised_logits = self.forward(X, return_all_feats=True, return_raw_output = True)
+                
+                raw_loss = F.cross_entropy(raw_logits, y, reduction="none")
+                denoised_loss = F.cross_entropy(denoised_logits, y, reduction="none")
+                raw_pred = raw_logits.argmax(1)
+                denoised_pred = denoised_logits.argmax(1)
 
-                feats_before_all.append(feats_before)
-                feats_after_all.append(feats_after)
-                labels_all.append(y)
+                feats_before_all.append(feats_before.detach().cpu())
+                feats_after_all.append(feats_after.detach().cpu())
+                raw_losses.append(raw_loss.detach().cpu())
+                denoised_losses.append(denoised_loss.detach().cpu())
+                raw_preds.append(raw_pred.detach().cpu())
+                denoised_preds.append(denoised_pred.detach().cpu())
+                raw_outputs.append(raw_logits.detach().cpu())
+                denoised_outputs.append(denoised_logits.detach().cpu())
+                labels_all.append(y.cpu())
 
-        feats_before_all = torch.cat(feats_before_all, dim=0)  # (N, 2)
-        feats_after_all  = torch.cat(feats_after_all, dim=0)   # (N, 2)
-        labels_all       = torch.cat(labels_all, dim=0)        # (N,)
+        feats_before_all = torch.cat(feats_before_all, dim=0)  
+        feats_after_all  = torch.cat(feats_after_all, dim=0)   
+        raw_outputs = torch.cat(raw_outputs, dim=0)
+        denoised_outputs = torch.cat(denoised_outputs, dim=0)
+        raw_losses = torch.cat(raw_losses, dim=0)
+        denoised_losses = torch.cat(denoised_losses, dim=0)
+        raw_preds = torch.cat(raw_preds, dim=0)
+        denoised_preds = torch.cat(denoised_preds, dim=0)
+        labels_all       = torch.cat(labels_all, dim=0)        
 
-        return feats_before_all, feats_after_all, labels_all
+        if not return_outputs: 
+            return feats_before_all, feats_after_all, labels_all
+        else: 
+            return SodefAnalysisInputs(
+                before_feats=feats_before_all,
+                after_feats=feats_after_all,
+                labels=labels_all.long(),
+                pred_before=raw_preds.long(),
+                pred_after=denoised_preds.long(),
+                loss_before=raw_losses.float(),
+                loss_after=denoised_losses.float(),
+                final_layer=self.fc.fc0,
+                raw_logits=raw_outputs,
+                denoised_logits=denoised_outputs
+            )
+        
 
 
 def get_a_phase2_model(feature_dim, ode_dim, num_classes, t, topol=False): 
@@ -338,40 +382,85 @@ class Phase3Model(nn.Module):
             else:
                 print(f"[FROZEN] {name}")
     
-    def forward(self, x, return_all_feats=False): 
+    def forward(self, x, return_all_feats=False, return_raw_output = False): 
         before_ode_feats = self.bridge_layer(x)
         after_ode_feats = self.ode_block(before_ode_feats)
+        
         logits = self.fc(after_ode_feats)
 
         if return_all_feats: 
-            return before_ode_feats, after_ode_feats, logits
+            if not return_raw_output: 
+                return before_ode_feats, after_ode_feats, logits
+            else:
+                raw_logits = self.fc(before_ode_feats) 
+                return before_ode_feats, after_ode_feats, raw_logits, logits 
         else: 
             return logits
         
-    def collect_feats(self, loader, device): 
+    def collect_feats(self, loader, device, return_outputs=False): 
         self.eval()
 
         feats_before_all = []
         feats_after_all = []
         labels_all = []
-
+        
+        raw_outputs = []
+        denoised_outputs = []
+        raw_losses = []
+        denoised_losses = []
+        raw_preds = []
+        denoised_preds = []
+        
         with torch.no_grad():
             for X, y in tqdm(loader):
                 X = X.to(device)
                 y = y.to(device)
 
-                feats_before, feats_after, output = self.forward(X, return_all_feats=True)
+                feats_before, feats_after, raw_logits, denoised_logits = self.forward(X, return_all_feats=True, return_raw_output = True)
+                
+                raw_loss = F.cross_entropy(raw_logits, y, reduction="none")
+                denoised_loss = F.cross_entropy(denoised_logits, y, reduction="none")
+                raw_pred = raw_logits.argmax(1)
+                denoised_pred = denoised_logits.argmax(1)
 
-                feats_before_all.append(feats_before)
-                feats_after_all.append(feats_after)
-                labels_all.append(y)
+                feats_before_all.append(feats_before.detach().cpu())
+                feats_after_all.append(feats_after.detach().cpu())
+                raw_losses.append(raw_loss.detach().cpu())
+                denoised_losses.append(denoised_loss.detach().cpu())
+                raw_preds.append(raw_pred.detach().cpu())
+                denoised_preds.append(denoised_pred.detach().cpu())
+                raw_outputs.append(raw_logits.detach().cpu())
+                denoised_outputs.append(denoised_logits.detach().cpu())
+                labels_all.append(y.cpu())
 
-        feats_before_all = torch.cat(feats_before_all, dim=0)  # (N, 2)
-        feats_after_all  = torch.cat(feats_after_all, dim=0)   # (N, 2)
-        labels_all       = torch.cat(labels_all, dim=0)        # (N,)
+        feats_before_all = torch.cat(feats_before_all, dim=0)  
+        feats_after_all  = torch.cat(feats_after_all, dim=0)   
+        raw_outputs = torch.cat(raw_outputs, dim=0)
+        denoised_outputs = torch.cat(denoised_outputs, dim=0)
+        raw_losses = torch.cat(raw_losses, dim=0)
+        denoised_losses = torch.cat(denoised_losses, dim=0)
+        raw_preds = torch.cat(raw_preds, dim=0)
+        denoised_preds = torch.cat(denoised_preds, dim=0)
+        labels_all       = torch.cat(labels_all, dim=0)        
 
-        return feats_before_all, feats_after_all, labels_all
+        if not return_outputs: 
+            return feats_before_all, feats_after_all, labels_all
+        else: 
+            return SodefAnalysisInputs(
+                before_feats=feats_before_all,
+                after_feats=feats_after_all,
+                labels=labels_all.long(),
+                pred_before=raw_preds.long(),
+                pred_after=denoised_preds.long(),
+                loss_before=raw_losses.float(),
+                loss_after=denoised_losses.float(),
+                final_layer=self.fc.fc0,
+                raw_logits=raw_outputs,
+                denoised_logits=denoised_outputs
+            )
 
+
+from analysis_utils import SodefAnalysisInputs
 
 def get_a_phase3_model(feature_dim, ode_dim, num_classes, t, topol=False):
     dummy = get_a_phase2_model(feature_dim, ode_dim, num_classes, t, topol=topol)
