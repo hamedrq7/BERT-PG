@@ -208,7 +208,7 @@ def train_phase1(args, device, adv_glue_loader=None):
         if args.wandb:
             wandb.log(wandb_logging)
 
-    return phase1_model
+    return phase1_model # TODO return best model not the last...
 
 def load_phase1(args, device, sanity_check = True): 
     saved_temp = torch.load(args.phase1_model_path)
@@ -344,6 +344,7 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
                 })
             
             phase2_batch_step += 1
+            break 
 
         if args.decay_lr:
             scheduler.step()
@@ -373,48 +374,59 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
         tr_eigvals = online_eigval_analysis(phase2_model, feats=tr_res['feats_before_ode'], device=device, num_points=128)
         te_eigvals = online_eigval_analysis(phase2_model, feats=te_res['feats_before_ode'], device=device, num_points=128)
 
-        wandb_logging = {
+        wandb_logging_stats = []
+        wandb_logging_stats.append({
             "phase2_epoch": epoch,
             "phase2/val/train_acc": tr_res['acc'],
             "phase2/val/train_real_max": tr_eigvals['real_max'],
-            "phase2/val/train_confmat": wandb.plot.confusion_matrix(
-                y_true=tr_res['labels'],
-                preds=tr_res['preds'],
-                class_names=["class_0", "class_1"],
-            ),
             "phase2/val/test_acc": te_res['acc'],
-            "phase2/val/test_confmat": wandb.plot.confusion_matrix(
-                y_true=te_res['labels'],
-                preds=te_res['preds'],
-                class_names=["class_0", "class_1"],
-            ),
             "phase2/val/test_real_max": te_eigvals['real_max'],
             "phase2/val/test_regu1": te_reg_stats['regu1'],
             "phase2/val/test_regu2": te_reg_stats['regu2'],
             "phase2/val/test_regu3": te_reg_stats['regu3'],
             "phase2/val/test_regu_total": te_reg_stats['total_loss'],
-        }
-
+        })
+        wandb_logging_stats.append({
+            "phase2_epoch": epoch,
+            "phase2/val/train_confmat": wandb.plot.confusion_matrix(
+                y_true=tr_res['labels'],
+                preds=tr_res['preds'],
+                class_names=["class_0", "class_1"],
+        )})
+        wandb_logging_stats.append({
+            "phase2_epoch": epoch,
+            "phase2/val/test_confmat": wandb.plot.confusion_matrix(
+                y_true=te_res['labels'],
+                preds=te_res['preds'],
+                class_names=["class_0", "class_1"],
+        )})
+        
         # feats.norm(dim=1)
 
         if adv_glue_loader is not None:
             adv_glue_reg_stats = test_phase2_regu(args, phase2_model, odefunc, device, testloader)
             adv_glue_res = test_ce_one_epoch(-1, phase2_model, adv_glue_loader, device, nn.CrossEntropyLoss(), 110, False, '', '', True, True)
             adv_glue_eigvals = online_eigval_analysis(phase2_model, feats=adv_glue_res['feats_before_ode'], device=device, num_points=128)
-            wandb_logging['phase2/val/advglue_acc'] = adv_glue_res['acc']
-            wandb_logging['phase2/val/advglue_confmat'] = wandb.plot.confusion_matrix(
+            wandb_logging_stats.append({
+                "phase2_epoch": epoch,
+                'phase2/val/advglue_acc': adv_glue_res['acc'],
+                'phase2/val/advglue_real_max': adv_glue_eigvals['real_max'],
+                'phase2/val/advglue_regu1': adv_glue_reg_stats['regu1'],
+                'phase2/val/advglue_regu2': adv_glue_reg_stats['regu2'],
+                'phase2/val/advglue_regu3': adv_glue_reg_stats['regu3'],
+                'phase2/val/advglue_regu_total': adv_glue_reg_stats['total_loss'],
+            })
+            wandb_logging_stats.append({
+                "phase2_epoch": epoch,
+                "phase2/val/advglue_confmat": wandb.plot.confusion_matrix(
                 y_true=adv_glue_res['labels'],
                 preds=adv_glue_res['preds'],
                 class_names=["class_0", "class_1"],
-            ),
-            wandb_logging['phase2/val/advglue_real_max'] = adv_glue_eigvals['real_max']
-            wandb_logging['phase2/val/advglue_regu1'] = adv_glue_reg_stats['regu1']
-            wandb_logging['phase2/val/advglue_regu2'] = adv_glue_reg_stats['regu2']
-            wandb_logging['phase2/val/advglue_regu3'] = adv_glue_reg_stats['regu3']
-            wandb_logging['phase2/val/advglue_regu_total'] = adv_glue_reg_stats['total_loss']
+            )})
             
         if args.wandb:
-            wandb.log(wandb_logging)
+            for lg in wandb_logging_stats: 
+                wandb.log(lg)
 
         torch.save(
             {'model': phase2_model.state_dict(), 'itr': itr}, 
@@ -624,28 +636,39 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
         test_loss_history.append(te_results['loss'])
         test_acc_history.append(te_results['acc'])
 
-        wandb_logging = {
+        wandb_logging_stats = []
+        wandb_logging_stats.append({
             "phase3_step": epoch,
             "phase3/train_acc": tr_results['acc'],
             "phase3/test_acc": te_results['acc'],
+        })
+
+        wandb_logging_stats.append({
+            "phase3_step": epoch,
             "phase3/test_confmat":  wandb.plot.confusion_matrix(
                 y_true=te_results['labels'],
                 preds=te_results['preds'],
                 class_names=["class_0", "class_1"],
-            )
-        }
+        )})
 
         if adv_glue_loader is not None:
             adv_glue_res = test_ce_one_epoch(epoch, phase3_model, adv_glue_loader, device, criterion, 110, False, '', '', True)
-            wandb_logging['phase3/adv_glue_acc'] = adv_glue_res['acc']
-            wandb_logging['phase3/adv_glue_confmat'] = wandb.plot.confusion_matrix(
+            wandb_logging_stats.append({
+                "phase3_step": epoch,
+                "phase3/adv_glue_acc": adv_glue_res['acc']
+            })
+            wandb_logging_stats.append({
+                "phase3_step": epoch,
+                'phase3/adv_glue_confmat': wandb.plot.confusion_matrix(
                 y_true=adv_glue_res['labels'],
                 preds=adv_glue_res['preds'],
                 class_names=["class_0", "class_1"],
-            )
+            )})
+            
 
         if args.wandb:
-            wandb.log(wandb_logging)
+            for lg in wandb_logging_stats: 
+                wandb.log(lg)
 
     return phase3_model
 
