@@ -64,16 +64,16 @@ def main():
     phase2_model = None
     if not args.skip_phase2: 
         from train_utils import train_phase2, load_phase2
-        phase2_model = train_phase2(phase1_model, args, device, adv_glue_loader=advglue_feature_loader) if args.phase2_model_path is None else load_phase2(args, device, True, advglue_feature_loader)
+        phase2_model = train_phase2(phase1_model, args, device, adv_glue_loader=advglue_feature_loader) if args.phase2_model_path is None else load_phase2(args, device, False, advglue_feature_loader)
         # base + phase2/phase2_last_ckpt.pth
     
-        print('******* After phase2... ******* ')
-        from train_utils import test_phase2
-        test_phase2(phase2_model, args, device, advglue_feature_loader)
+        # print('******* After phase2... ******* ')
+        # from train_utils import test_phase2
+        # test_phase2(phase2_model, args, device, advglue_feature_loader)
 
     print('Starting phase3...')
     from train_utils import train_phase3, load_phase3
-    phase3_model = load_phase3(args, device, True)  if args.phase3_model_path is not None else train_phase3(phase2_model, args, device, adv_glue_loader=advglue_feature_loader) 
+    phase3_model = load_phase3(args, device, False)  if args.phase3_model_path is not None else train_phase3(phase2_model, args, device, adv_glue_loader=advglue_feature_loader) 
     # base + phase3/phase3_best_acc_ckpt.pth
 
 
@@ -108,9 +108,21 @@ def main():
     
     if args.denoising_analysis: 
         from analysis_utils import denoising_analysis
+        from train_utils import get_feature_dataloader
         trainloader, testloader = get_feature_dataloader(args, args.phase3_batch_size)
         denoising_analysis(phase2_model, phase3_model, trainloader, testloader, device, advglue_feature_loader) 
 
+        from analysis_utils import raddddddi, raddddddi_rand
+        # raddddddi(phase3_model, 'train_phase3', trainloader, device)
+        # raddddddi(phase2_model, 'train_phase2', trainloader, device)
+        # raddddddi_rand(phase3_model, 'test_phase3', testloader, device)
+        # raddddddi_rand(phase3_model, 'adv_phase3', advglue_feature_loader, device)
+        # raddddddi_rand(phase3_model, 'train_phase3', trainloader, device)
+
+        # raddddddi_rand(phase2_model, 'test_phase2', testloader, device)
+        # raddddddi_rand(phase2_model, 'adv_phase2', advglue_feature_loader, device)
+        # raddddddi_rand(phase2_model, 'train_phase2', trainloader, device)
+        
 
     if args.wandb:
         wandb.finish()

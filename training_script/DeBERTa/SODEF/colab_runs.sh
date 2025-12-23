@@ -1,5 +1,5 @@
 EXPS_NAME="baseA+expf=75.0"
-base_dir=""
+base_dir="/content/drive/MyDrive/Colab Notebooks/DeBERTa-sst2"
 python run_sodef.py  \
     --skip_phase1 \
     --phase2_model_path "${base_dir}/phase2_last_ckpt.pth" \
@@ -12,5 +12,5 @@ python run_sodef.py  \
     --seed 100 \
     --adv_glue_feature_set_dir "${base_dir}/advglue_features.npz" \
     --no_wandb \
-    --eigval_analysis \
-    --denoising_analysis
+    --denoising_analysis \
+    # --eigval_analysis \

@@ -98,9 +98,9 @@ def get_args():
     parser.add_argument("--phase2_weight_diag", type=float, default=10)
     parser.add_argument("--phase2_weight_off_diag", type=float, default=0.)
     parser.add_argument("--phase2_weight_f", type=float, default=0.1)
+    parser.add_argument("--phase2_ce_weight", type=float, default=0.)
 
     parser.add_argument("--phase2_weight_norm", type=float, default=0.)
-    parser.add_argument("--phase2_weight_lossc", type=float, default=0.)
     
     parser.add_argument("--phase2_exponent", type=float, default=1.0)
     parser.add_argument("--phase2_exponent_off", type=float, default=0.1)

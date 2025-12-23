@@ -19,6 +19,20 @@ from torch.nn.parameter import Parameter
 import math 
 from torchdiffeq import odeint_adjoint as odeint
 from PIL import Image
+from dataclasses import dataclass
+
+@dataclass
+class SodefAnalysisInputs:
+    before_feats: torch.Tensor              # [N,d]
+    after_feats: torch.Tensor               # [N,d]
+    labels: torch.Tensor                    # [N]
+    pred_before: torch.Tensor               # [N]
+    pred_after: torch.Tensor                # [N]
+    loss_before: torch.Tensor               # [N] per-sample
+    loss_after: torch.Tensor                # [N] per-sample
+    final_layer: nn.Linear                  # Linear(d,C)
+    raw_logits: torch.Tensor 
+    denoised_logits: torch.Tensor 
 
 
 class Phase1Model(nn.Module): 
@@ -32,7 +46,23 @@ class Phase1Model(nn.Module):
     def set_all_req_grads(self, value=True):
         for name, param in self.named_parameters():
             param.requires_grad = value
-            
+    
+    def freeze_layer_given_name(self, layer_names): 
+        if isinstance(layer_names, str):
+            layer_names = [layer_names]
+
+        for target in layer_names:
+            if target in self._modules:   # only top-level modules
+                module = self._modules[target]
+                for param in module.parameters():
+                    param.requires_grad = False
+
+        for name, param in self.named_parameters():
+            if param.requires_grad == True: 
+                print(f"[TRAINABLE] {name}")
+            else:
+                print(f"[FROZEN] {name}")
+
     def forward(self, x): 
         x = self.orthogonal_bridge_layer(x)
         x = self.fc(x)
@@ -181,7 +211,7 @@ class Phase2Model(nn.Module):
             else:
                 print(f"[FROZEN] {name}")
     
-    def forward(self, x, return_raw_logits = False): 
+    def forward(self, x, return_feats = True, return_raw_logits = False): 
         before_ode_feats = self.bridge_layer(x)
         after_ode_feats = self.ode_block(before_ode_feats)
         logits = self.fc(after_ode_feats)
@@ -211,7 +241,7 @@ class Phase2Model(nn.Module):
                 X = X.to(device)
                 y = y.to(device)
 
-                feats_before, feats_after, raw_logits, denoised_logits = self.forward(X, return_all_feats=True, return_raw_output = True)
+                feats_before, feats_after, raw_logits, denoised_logits = self.forward(X, return_raw_logits = True)
                 
                 raw_loss = F.cross_entropy(raw_logits, y, reduction="none")
                 denoised_loss = F.cross_entropy(denoised_logits, y, reduction="none")
@@ -459,8 +489,6 @@ class Phase3Model(nn.Module):
                 denoised_logits=denoised_outputs
             )
 
-
-from analysis_utils import SodefAnalysisInputs
 
 def get_a_phase3_model(feature_dim, ode_dim, num_classes, t, topol=False):
     dummy = get_a_phase2_model(feature_dim, ode_dim, num_classes, t, topol=topol)

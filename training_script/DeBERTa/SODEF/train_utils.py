@@ -54,7 +54,7 @@ def train_ce_one_epoch(epoch, model, loader, device, optimizer, criterion):
 
 import numpy as np 
 
-def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save, save_folder, save_name, return_preds = False):
+def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save, save_folder, save_name, return_preds = False, return_feats = False):
     model.eval()
     test_loss = 0
     correct = 0
@@ -62,11 +62,19 @@ def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save
 
     all_preds = []
     all_labels = []
+    all_feats_before_ode = []
+    all_feats_after_ode = []
+
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(loader):            
             inputs, targets = inputs.to(device), targets.to(device)
             x = inputs
-            outputs = model(x)
+            if return_feats: 
+                before_ode_feats, after_ode_feats, outputs =  model(x, return_feats = True)
+                all_feats_before_ode.append(before_ode_feats.detach().cpu())
+                all_feats_after_ode.append(after_ode_feats.detach().cpu())
+            else: 
+                outputs = model(x)
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
@@ -101,6 +109,8 @@ def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save
         'best_acc': best_acc,
         'preds': None if not return_preds else all_preds,
         'labels': None if not return_preds else all_labels,
+        'feats_before_ode': None if not return_feats else torch.cat(all_feats_before_ode, dim=0), 
+        'feats_after_ode': None if not return_feats else torch.cat(all_feats_after_ode, dim=0)
     }
 
 
@@ -112,10 +122,14 @@ def train_phase1(args, device, adv_glue_loader=None):
     assert args.phase1_loss == 'CE', 'only CE for now'
     # assert args.phase1_optim == 'ADAM', 'Only Adam for now'
 
-    trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
+    if args.wandb:
+        wandb.define_metric("phase1/*", step_metric="phase1_step")
 
+    trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
     phase1_model = Phase1Model(args.bert_feature_dim, args.ode_dim, args.num_classes).to(device)
     phase1_model.set_all_req_grads()
+    phase1_model.freeze_layer_given_name(['fc'])
+    
     print('phase1_model', phase1_model)
 
     criterion = get_loss(args.phase1_loss)
@@ -125,7 +139,7 @@ def train_phase1(args, device, adv_glue_loader=None):
         optimizer = torch.optim.SGD(phase1_model.parameters(), lr=args.phase2_lr,
                                     momentum=0.9)
     else: 
-        print(f'OPtim {args.phase1_optim} not implemented for phase1')
+        print(f'Optim {args.phase1_optim} not implemented for phase1')
 
     save_path = os.path.join(args.output_dir, args.phase1_save_path)
     os.makedirs(save_path, exist_ok=True)
@@ -156,7 +170,8 @@ def train_phase1(args, device, adv_glue_loader=None):
             best_acc=best_acc,
             do_save=True,
             save_folder= save_path, # ?
-            save_name= 'phase1' # ? 
+            save_name= 'phase1', # ?
+            return_preds=True 
         )
         best_acc = te_results['best_acc']
 
@@ -169,31 +184,29 @@ def train_phase1(args, device, adv_glue_loader=None):
         test_loss_history.append(te_results['loss'])
         test_acc_history.append(te_results['acc'])
 
-        if args.wandb:
-            wandb.log({
-                'phase1/step': epoch, 
-                'phase1/train_ce': tr_results['loss'], 'phase1/train_acc': tr_results['acc'], 
-                'phase1/test_ce': te_results['loss'], 'phase1/test_acc': te_results['acc'], 
-            })
-        
+        wandb_logging = {
+            "phase1_step": epoch,
+            "phase1/train_acc": tr_results['acc'],
+            "phase1/test_acc": te_results['acc'],
+            "phase1/test_confmat":  wandb.plot.confusion_matrix(
+                y_true=te_results['labels'],
+                preds=te_results['preds'],
+                class_names=["class_0", "class_1"],
+            )
+        }
+    
+        adv_glue_res = None
         if adv_glue_loader is not None:
             adv_glue_res = test_ce_one_epoch(epoch, phase1_model, adv_glue_loader, device, criterion, best_acc=110, do_save=False, save_folder='', save_name='', return_preds=True)
-            if args.wandb:
-                wandb.log({
-                    'phase1/adv_glue_acc': adv_glue_res['acc'], 
-                })
-
-                wandb.log(
-                    {
-                        "phase1/AdvGLUE CONFMAT": wandb.plot.confusion_matrix(
-                            y_true=adv_glue_res['labels'],
-                            preds=adv_glue_res['preds'],
-                            class_names=["class_0", "class_1"],
-                        )
-                    },
-                )
-
-
+            wandb_logging['phase1/adv_glue_acc'] = adv_glue_res['acc']
+            wandb_logging['phase1/adv_glue_confmat'] = wandb.plot.confusion_matrix(
+                y_true=adv_glue_res['labels'],
+                preds=adv_glue_res['preds'],
+                class_names=["class_0", "class_1"],
+            )
+            
+        if args.wandb:
+            wandb.log(wandb_logging)
 
     return phase1_model
 
@@ -217,6 +230,7 @@ def load_phase1(args, device, sanity_check = True):
     return phase1_model
 
 from model_utils import topol_ODEfunc_mlp
+from analysis_utils import online_eigval_analysis 
 
 def train_phase2(phase1_model, args, device, adv_glue_loader=None): 
     # # HYPERPARAMS
@@ -241,6 +255,10 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
     # at the input data essentially 
     assert args.ignore_dropout, 'if you dont ignore dropout, you need to do a drop out at the very begining of every model at the input data essentially' 
 
+    if args.wandb: 
+        wandb.define_metric("phase2/running/*", step_metric="phase2_batch_step")
+        wandb.define_metric("phase2/val/*",   step_metric="phase2_epoch")
+
     save_path = os.path.join(args.output_dir, args.phase2_save_path)
     os.makedirs(save_path, exist_ok=True)
 
@@ -261,16 +279,13 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
     phase2_model.freeze_layer_given_name(freeze_layers)
     phase2_model = phase2_model.to(device)
 
-    train_data_gen = inf_generator(trainloader)
-    batches_per_epoch = len(trainloader)
-
     if args.phase2_optim == 'ADAM': 
         optimizer = torch.optim.Adam(phase2_model.parameters(), lr=args.phase2_lr, eps=args.phase2_eps, amsgrad=args.phase2_amsgrad)
     elif args.phase2_optim == 'SGD': 
         optimizer = torch.optim.SGD(phase2_model.parameters(), lr=args.phase2_lr,
                                     momentum=0.9)
 
-    total_iters = args.phase2_epoch * batches_per_epoch
+    total_iters = args.phase2_epoch
     decay_iter = int(0.75 * total_iters)
     def lr_lambda(step):
         if step >= decay_iter:
@@ -279,121 +294,162 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
             return 1.0
 
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
-
-    for itr in trange(args.phase2_epoch * batches_per_epoch):
+    
+    phase2_batch_step = 0
+    for epoch in trange(args.phase2_epoch): 
+        
+        # Training...
         phase2_model.train()
-        optimizer.zero_grad()
-        x, y = train_data_gen.__next__()
-        x = x.to(device)
+        for itr, (x, y) in enumerate(trainloader): 
+            x = x.to(device)
+            y = y.to(device)
 
-        # modulelist = list(ODE_FCmodel)
-        # y0 = x
-        # x = modulelist[0](x)
-        # y1 = x
-        # y00 = y0 #.clone().detach().requires_grad_(True)
-        x, y00, _ = phase2_model(x)
-        regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
-        regu1 = regu1.mean()
-        regu2 = regu2.mean()
-        # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
-        # print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
-        regu3 = f_regularizer(None, x, odefunc=odefunc, time_df=args.phase2_time_df, device=device, exponent_f=args.phase2_exponent_f)
-        regu3 = regu3.mean()
-        # print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
-        loss = args.phase2_weight_f*regu3 + args.phase2_weight_diag*regu1+ args.phase2_weight_off_diag*regu2
-        # print("loss"+str(loss.item()))
+            optimizer.zero_grad()
+            x, y00, logits = phase2_model(x)
+            regu1, regu2  = df_dz_regularizer(
+                None, x, numm=args.phase2_numm, odefunc=odefunc, 
+                time_df=args.phase2_time_df, exponent=args.phase2_exponent, 
+                trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, 
+                transoffdig=args.phase2_trans_off_diag, device=device
+            )
+            regu3 = f_regularizer(
+                None, x, odefunc=odefunc, 
+                time_df=args.phase2_time_df, 
+                device=device, exponent_f=args.phase2_exponent_f
+            )
+            regu1 = regu1.mean()
+            regu2 = regu2.mean()
+            regu3 = regu3.mean()
 
-        loss.backward()
-        optimizer.step()
-        if args.decay_lr:
-            scheduler.step()
-        torch.cuda.empty_cache()
-        
-        if args.wandb: 
-            wandb.log({
-                'phase2/step': itr,
-                'phase2/regu1': regu1.item(),
-                'phase2/regu2': regu2.item(),
-                'phase2/regu3': regu3.item(),
-                'phase2/loss': loss.item(),
-            })
-        
-        if itr % batches_per_epoch == 0:
+            ce_loss = F.cross_entropy(logits, y)
+            loss = args.phase2_weight_f*regu3 + args.phase2_weight_diag*regu1+ args.phase2_weight_off_diag*regu2 + args.phase2_ce_weight*ce_loss
+
+            loss.backward()
+            optimizer.step()
             
-            tr_res = test_ce_one_epoch(
-                epoch=-1, 
-                model=SingleOutputWrapper(phase2_model), 
-                loader=trainloader, 
-                device=device, 
-                criterion=nn.CrossEntropyLoss(), 
-                best_acc=110, 
-                do_save=False, save_folder=None, save_name=None)
-            te_res = test_ce_one_epoch(
-                epoch=-1, 
-                model=SingleOutputWrapper(phase2_model), 
-                loader=testloader, 
-                device=device, 
-                criterion=nn.CrossEntropyLoss(), 
-                best_acc=110, 
-                do_save=False, save_folder=None, save_name=None)
-            
-            
-            print('itr = ', itr, 'Train Acc, Loss', tr_res['acc'], tr_res['loss'])
-            print('itr = ', itr, 'Test Acc, Loss', te_res['acc'], te_res['loss'])
+            # torch.cuda.empty_cache()
+
+            _, predicted = logits.max(1)
+            correct = predicted.eq(y).sum().item()
 
             if args.wandb: 
                 wandb.log({
-                    'phase2/step': itr,
-                    'phase2/train_acc': tr_res['acc'],
-                    'phase2/test_acc': te_res['acc'],
+                    "phase2_batch_step": phase2_batch_step,
+                    "phase2/running/regu1": regu1.item(),
+                    "phase2/running/regu2": regu2.item(),
+                    "phase2/running/regu3": regu3.item(),
+                    "phase2/running/ce_loss": ce_loss.item(),
+                    "phase2/running/total_loss": loss.item(),
+                    "phase2/running/acc": correct.item() / y.shape[0],
                 })
+            
+            phase2_batch_step += 1
 
-            if adv_glue_loader is not None:
-                adv_glue_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), adv_glue_loader, device, nn.CrossEntropyLoss(), 110, False, '', '')
-                if args.wandb:
-                    wandb.log({
-                        'phase2/adv_glue_acc': adv_glue_res['acc'], 
-                    })
+        if args.decay_lr:
+            scheduler.step()
 
-            torch.save(
-                {'model': phase2_model.state_dict(), 'itr': itr}, 
-                save_path+f'/phase2_last_ckpt.pth'
-            )
+        phase2_model.eval()
 
-        if itr % 100 == 0: 
+        # Test sodef regularizations on Test-set 
+        te_reg_stats = test_phase2_regu(args, phase2_model, odefunc, device, testloader)
+        tr_res = test_ce_one_epoch(
+            epoch=-1, 
+            model=phase2_model, 
+            loader=trainloader, 
+            device=device, 
+            criterion=nn.CrossEntropyLoss(), 
+            best_acc=110, 
+            do_save=False, save_folder=None, save_name=None, return_preds=True, return_feats=True)
+        te_res = test_ce_one_epoch(
+            epoch=-1, 
+            model=phase2_model, 
+            loader=testloader, 
+            device=device, 
+            criterion=nn.CrossEntropyLoss(), 
+            best_acc=110, 
+            do_save=False, save_folder=None, save_name=None, return_preds=True, return_feats=True)
 
-            test_data_get = inf_generator(testloader)
-            for iter_test in range(20): 
-                with torch.no_grad():
-                    x, y = test_data_get.__next__()
-                    x = x.to(device)
+        # Eigvals, keys = max_real_max, real_max
+        tr_eigvals = online_eigval_analysis(phase2_model, feats=tr_res['feats_before_ode'], device=device, num_points=128)
+        te_eigvals = online_eigval_analysis(phase2_model, feats=te_res['feats_before_ode'], device=device, num_points=128)
 
-                    # modulelist = list(ODE_FCmodel)
-                    # y0 = x
-                    # x = modulelist[0](x)
-                    # y1 = x
-                    # y00 = y0 #.clone().detach().requires_grad_(True)
-                    x, y00, _ = phase2_model(x)
-                    regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
-                    regu1 = regu1.mean()
-                    regu2 = regu2.mean()
-                    # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))
-                    # print("regu2:weight_offdiag "+str(regu2.item())+':'+str(args.phase2_weight_off_diag))
-                    regu3 = f_regularizer(None, x, odefunc=odefunc, time_df=args.phase2_time_df, device=device, exponent_f=args.phase2_exponent_f)
-                    regu3 = regu3.mean()
-                    # print("regu3:weight_f "+str(regu3.item())+':'+str(args.phase2_weight_f))
-                    loss = args.phase2_weight_f*regu3 + args.phase2_weight_diag*regu1+ args.phase2_weight_off_diag*regu2
+        wandb_logging = {
+            "phase2_epoch": epoch,
+            "phase2/val/train_acc": tr_res['acc'],
+            "phase2/val/train_real_max": tr_eigvals['real_max'],
+            "phase2/val/train_confmat": wandb.plot.confusion_matrix(
+                y_true=tr_res['labels'],
+                preds=tr_res['preds'],
+                class_names=["class_0", "class_1"],
+            ),
+            "phase2/val/test_acc": te_res['acc'],
+            "phase2/val/test_confmat": wandb.plot.confusion_matrix(
+                y_true=te_res['labels'],
+                preds=te_res['preds'],
+                class_names=["class_0", "class_1"],
+            ),
+            "phase2/val/test_real_max": te_eigvals['real_max'],
+            "phase2/val/test_regu1": te_reg_stats['regu1'],
+            "phase2/val/test_regu2": te_reg_stats['regu2'],
+            "phase2/val/test_regu3": te_reg_stats['regu3'],
+            "phase2/val/test_regu_total": te_reg_stats['total_loss'],
+        }
 
-                wandb.log({
-                    'phase2/test_step': iter_test,
-                    'phase2/test_regu1': regu1.item(),
-                    'phase2/test_regu2': regu2.item(),
-                    'phase2/test_regu3': regu3.item(),
-                    'phase2/test_loss': loss.item(),
-                })
-                
+        # feats.norm(dim=1)
+
+        if adv_glue_loader is not None:
+            adv_glue_reg_stats = test_phase2_regu(args, phase2_model, odefunc, device, testloader)
+            adv_glue_res = test_ce_one_epoch(-1, phase2_model, adv_glue_loader, device, nn.CrossEntropyLoss(), 110, False, '', '', True, True)
+            adv_glue_eigvals = online_eigval_analysis(phase2_model, feats=adv_glue_res['feats_before_ode'], device=device, num_points=128)
+            wandb_logging['phase2/val/advglue_acc'] = adv_glue_res['acc']
+            wandb_logging['phase2/val/advglue_confmat'] = wandb.plot.confusion_matrix(
+                y_true=adv_glue_res['labels'],
+                preds=adv_glue_res['preds'],
+                class_names=["class_0", "class_1"],
+            ),
+            wandb_logging['phase2/val/advglue_real_max'] = adv_glue_eigvals['real_max']
+            wandb_logging['phase2/val/advglue_regu1'] = adv_glue_reg_stats['regu1']
+            wandb_logging['phase2/val/advglue_regu2'] = adv_glue_reg_stats['regu2']
+            wandb_logging['phase2/val/advglue_regu3'] = adv_glue_reg_stats['regu3']
+            wandb_logging['phase2/val/advglue_regu_total'] = adv_glue_reg_stats['total_loss']
+            
+        if args.wandb:
+            wandb.log(wandb_logging)
+
+        torch.save(
+            {'model': phase2_model.state_dict(), 'itr': itr}, 
+            save_path+f'/phase2_last_ckpt.pth'
+        )
+
     return phase2_model
 
+def test_phase2_regu(args, model, odefunc, device, loader): 
+    regu1_total = 0.0 
+    regu2_total = 0.0 
+    regu3_total = 0.0 
+    total_loss = 0.0 
+    for itr, (x, y) in enumerate(loader):
+        with torch.no_grad():
+            x = x.to(device)
+            y = y.to(device)
+            x, y00, _ = model(x)
+            regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
+            regu1 = regu1.mean()
+            regu2 = regu2.mean()
+            regu3 = f_regularizer(None, x, odefunc=odefunc, time_df=args.phase2_time_df, device=device, exponent_f=args.phase2_exponent_f)
+            regu3 = regu3.mean()
+            loss = args.phase2_weight_f*regu3 + args.phase2_weight_diag*regu1+ args.phase2_weight_off_diag*regu2
+            regu1_total += regu1.item()
+            regu2_total += regu2.item()
+            regu3_total += regu3.item()
+            total_loss += loss.item()
+    return {
+        'regu1': regu1_total / itr, 
+        'regu2': regu2_total / itr, 
+        'regu3': regu3_total / itr, 
+        'total_loss': total_loss / itr, 
+    }
+        
 def load_phase2(args, device, sanity_check = True, advglue_feature_loader = None): 
     phase2_model = get_a_phase2_model(args.bert_feature_dim, args.ode_dim, args.num_classes, args.phase2_integration_time, topol=args.use_topol_ode)
 
@@ -402,6 +458,17 @@ def load_phase2(args, device, sanity_check = True, advglue_feature_loader = None
     phase2_model.load_state_dict(statedic_temp)
     phase2_model = phase2_model.to(device)
 
+    # trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
+    # feats_before, feats_after, labels = phase2_model.collect_feats(trainloader, device)
+    # # # feats_before, feats_after, labels = phase3_model.collect_feats(adv_glue_loader, device)
+    # # feats_before, feats_after, labels = phase3_model.collect_feats(testloader, device)
+    # N, D = feats_after.shape
+    # C = labels.max().item() + 1
+    # with torch.no_grad():
+    #     for c in range(C):
+    #         class_feats = feats_after[labels == c]   # [Nc, D]
+    #         phase2_model.fc.fc0.weight[c].copy_(class_feats.mean(dim=0))
+        
     if sanity_check: 
         print('Sanity Check on loaded model phase 1 ... ')
         trainloader, testloader = get_feature_dataloader(args, args.phase2_batch_size)
@@ -580,6 +647,18 @@ def load_phase3(args, device, sanity_check = True):
     phase3_model.load_state_dict(statedic_temp)
     phase3_model = phase3_model.to(device)
 
+    # trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
+    # feats_before, feats_after, labels = phase3_model.collect_feats(trainloader, device)
+    # # # feats_before, feats_after, labels = phase3_model.collect_feats(adv_glue_loader, device)
+    # # feats_before, feats_after, labels = phase3_model.collect_feats(testloader, device)
+    # feats_after = feats_before
+    # N, D = feats_after.shape
+    # C = labels.max().item() + 1
+    # with torch.no_grad():
+    #     for c in range(C):
+    #         class_feats = feats_after[labels == c]   # [Nc, D]
+    #         phase3_model.fc.fc0.weight[c].copy_(class_feats.mean(dim=0))
+        
     if sanity_check: 
         print('Sanity Check on loaded model phase 3 ... ')
         trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
