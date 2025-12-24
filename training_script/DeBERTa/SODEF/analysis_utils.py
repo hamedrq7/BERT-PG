@@ -1262,7 +1262,7 @@ def AFS(feats, tars, num_classes):
             np.linalg.norm(m_i) * np.linalg.norm(total_mean)
         )
         temp = 1 - cos_sim
-        temp = n * temp
+        # temp = n * temp
         s_b += temp
     
     s_b /= num_classes
