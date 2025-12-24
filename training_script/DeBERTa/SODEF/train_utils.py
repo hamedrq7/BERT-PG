@@ -667,7 +667,7 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
             adv_glue_res = test_ce_one_epoch(epoch, phase3_model, adv_glue_loader, device, criterion, 110, False, '', '', True)
             wandb_logging_stats.append({
                 "phase3_step": epoch,
-                "phase3/adv_glue_acc": adv_glue_res['acc']
+                "phase3/adv_glue_acc": adv_glue_res['acc'],
                 "phase3/adv_glue_f1": adv_glue_res['f1']
             })
             wandb_logging_stats.append({
