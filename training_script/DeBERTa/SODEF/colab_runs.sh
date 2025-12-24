@@ -128,6 +128,7 @@
 #     --no_phase1_freeze_fc
 
 # Center Loss
+wandb="DebertASODEF-Phase1"
 EXP_NAME="AdamDefault-centerLoss"
 python run_sodef.py  \
     --bert_feature_dim 1024 \
