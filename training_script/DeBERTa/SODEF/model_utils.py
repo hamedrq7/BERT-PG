@@ -96,8 +96,6 @@ class Phase1Model(nn.Module):
                 labels_all.append(y.cpu())
 
                 idx += 1 
-                if idx > 5:
-                    break 
 
         raw_feats_all = torch.cat(raw_feats_all, dim=0)  
         bridge_feats_all  = torch.cat(bridge_feats_all, dim=0)   

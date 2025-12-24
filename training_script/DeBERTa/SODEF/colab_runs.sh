@@ -53,7 +53,7 @@
 #     --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
 #     --wandb_project_name $wandb
 
-
+######################### Vis
 wandb="DebertASODEF-Phase1"
 EXP_NAME="AdamDefault"
 python run_sodef.py  \
@@ -68,25 +68,64 @@ python run_sodef.py  \
     --output_dir "../DeBERTaSODEFPhase1/${EXP_NAME}" \
     --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
     --wandb_project_name $wandb
+EXP_NAME="Default"
+python run_sodef.py  \
+    --bert_feature_dim 1024 \
+    --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
+    --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
+    --seed 100 \
+    --phase1_model_path "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/${EXP_NAME}/phase1/phase1_best_acc_ckpt.pth" \
+    --skip_phase2 \
+    --skip_phase3 \
+    --exp_name ${EXP_NAME} \
+    --output_dir "../DeBERTaSODEFPhase1/${EXP_NAME}" \
+    --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
+    --wandb_project_name $wandb
+EXP_NAME="SGDDefault"
+python run_sodef.py  \
+    --bert_feature_dim 1024 \
+    --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
+    --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
+    --seed 100 \
+    --phase1_model_path "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/${EXP_NAME}/phase1/phase1_best_acc_ckpt.pth" \
+    --skip_phase2 \
+    --skip_phase3 \
+    --exp_name ${EXP_NAME} \
+    --output_dir "../DeBERTaSODEFPhase1/${EXP_NAME}" \
+    --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
+    --wandb_project_name $wandb
+EXP_NAME="SGDLong"
+python run_sodef.py  \
+    --bert_feature_dim 1024 \
+    --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
+    --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
+    --seed 100 \
+    --phase1_model_path "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/${EXP_NAME}/phase1/phase1_best_acc_ckpt.pth" \
+    --skip_phase2 \
+    --skip_phase3 \
+    --exp_name ${EXP_NAME} \
+    --output_dir "../DeBERTaSODEFPhase1/${EXP_NAME}" \
+    --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
+    --wandb_project_name $wandb
+############################### 
 
-
-# wandb="DebertASODEF-Phase1"
-# EXP_NAME="AdamDefault-no-freeze"
-# python run_sodef.py  \
-#     --bert_feature_dim 1024 \
-#     --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
-#     --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
-#     --seed 100 \
-#     --phase1_epoch 20 \
-#     --phase1_lr 0.001 \
-#     --phase1_optim_eps 1e-8 \
-#     --skip_phase2 \
-#     --skip_phase3 \
-#     --exp_name ${EXP_NAME} \
-#     --output_dir "../DeBERTaSODEFPhase1/${EXP_NAME}" \
-#     --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
-#     --wandb_project_name $wandb \
-#     --no_phase1_freeze_fc
+wandb="DebertASODEF-Phase1"
+EXP_NAME="AdamDefault-no-freeze"
+python run_sodef.py  \
+    --bert_feature_dim 1024 \
+    --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
+    --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
+    --seed 100 \
+    --phase1_epoch 20 \
+    --phase1_lr 0.001 \
+    --phase1_optim_eps 1e-8 \
+    --skip_phase2 \
+    --skip_phase3 \
+    --exp_name ${EXP_NAME} \
+    --output_dir "../DeBERTaSODEFPhase1/${EXP_NAME}" \
+    --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
+    --wandb_project_name $wandb \
+    --no_phase1_freeze_fc
 
 # EXP_NAME="Default"
 # python run_sodef.py  \
