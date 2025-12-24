@@ -1,5 +1,6 @@
 import torch 
 import numpy as np 
+from torch.func import jacrev, vmap, jacfwd
 
 def df_dz_regularizer(f, z, numm, odefunc, time_df, exponent, trans, exponent_off, transoffdig, device):
     # print("+++++++++++")
@@ -18,6 +19,58 @@ def df_dz_regularizer(f, z, numm, odefunc, time_df, exponent, trans, exponent_of
         regu_offdiag += off_diagtemp
 
     return regu_diag/numm, regu_offdiag/numm
+
+def batched_df_dz_regularizer(f, z, numm, odefunc, time_df, exponent, trans, exponent_off, transoffdig, device):
+    # Sample indices
+    idx = np.random.choice(z.shape[0], size=numm, replace=False)
+    idx = np.arange(z.shape[0])
+    # idx: [numm]
+
+    # Compute batched Jacobian
+    jacobian = vmap(jacrev(lambda x: odefunc(torch.tensor(time_df).to(device), x)))(z[idx])
+    # batchijacobian: [numm, d, d]
+
+    d = jacobian.shape[-1]
+
+    # -------------------------
+    # Diagonal regularizer
+    # -------------------------
+    diag = torch.diagonal(jacobian, dim1=1, dim2=2)
+    # diag: [numm, d]
+
+    regu_diag = torch.exp(exponent * (diag + trans))
+    # regu_diag: [numm, d]
+    regu_diag = regu_diag.sum(dim=0)
+    # regu_diag: [d]
+
+    # -------------------------
+    # Off-diagonal regularizer
+    # -------------------------
+    eye = torch.eye(d, device=device)
+    # eye: [d, d]
+
+    offdiag_mask = ((-1 * eye + 0.5) * 2)
+    # offdiag_mask: [d, d]
+    # diagonal -> -1, off-diagonal -> 1
+
+    offdiag = torch.abs(jacobian) * offdiag_mask
+    # offdiag: [numm, d, d]
+
+    offdiat = offdiag.sum(dim=1)
+    # offdiat: [numm, d]
+
+    regu_offdiag = torch.exp(exponent_off * (offdiat + transoffdig))
+    # regu_offdiag: [numm, d]
+
+    regu_offdiag = regu_offdiag.sum(dim=0)    
+    # regu_offdiag: [d]
+
+    # -------------------------
+    # Normalize (same as original loop)
+    # -------------------------
+    return regu_diag / numm, regu_offdiag / numm
+
+
 
 def f_regularizer(f, z, odefunc, time_df, device, exponent_f):
     tempf = torch.abs(odefunc(torch.tensor(time_df).to(device), z))

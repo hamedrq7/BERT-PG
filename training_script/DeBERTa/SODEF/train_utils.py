@@ -21,7 +21,7 @@ from general_utils import (
 from data_utils import get_feature_dataloader
 from model_utils import ODEfunc_mlp, Phase2Model, ODEBlocktemp, MLP_OUT_LINEAR
 from data_utils import inf_generator
-from loss_utils import df_dz_regularizer, f_regularizer
+from loss_utils import df_dz_regularizer, f_regularizer, batched_df_dz_regularizer
 from model_utils import SingleOutputWrapper
 from model_utils import ODEBlock, Phase3Model, get_a_phase1_model, get_a_phase2_model, get_a_phase3_model
 import wandb
@@ -306,7 +306,7 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
 
             optimizer.zero_grad()
             x, y00, logits = phase2_model(x)
-            regu1, regu2  = df_dz_regularizer(
+            regu1, regu2  = batched_df_dz_regularizer(
                 None, x, numm=args.phase2_numm, odefunc=odefunc, 
                 time_df=args.phase2_time_df, exponent=args.phase2_exponent, 
                 trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, 
@@ -444,7 +444,7 @@ def test_phase2_regu(args, model, odefunc, device, loader):
             x = x.to(device)
             y = y.to(device)
             x, y00, _ = model(x)
-            regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
+            regu1, regu2  = batched_df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
             regu1 = regu1.mean()
             regu2 = regu2.mean()
             regu3 = f_regularizer(None, x, odefunc=odefunc, time_df=args.phase2_time_df, device=device, exponent_f=args.phase2_exponent_f)
@@ -518,7 +518,7 @@ def test_phase2(phase2_model, args, device, advglue_feature_loader = None):
 #             # y1 = x
 #             # y00 = y0 #.clone().detach().requires_grad_(True)
 #             x, y00, _ = model(x, return_all_feats=True)
-#             regu1, regu2  = df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=model.ode_block.odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
+#             regu1, regu2  = batched_df_dz_regularizer(None, x, numm=args.phase2_numm, odefunc=model.ode_block.odefunc, time_df=args.phase2_time_df, exponent=args.phase2_exponent, trans=args.phase2_trans, exponent_off=args.phase2_exponent_off, transoffdig=args.phase2_trans_off_diag, device=device)
 #             regu1 = regu1.mean()
 #             regu2 = regu2.mean()
 #             # print("regu1:weight_diag "+str(regu1.item())+':'+str(args.phase2_weight_diag))

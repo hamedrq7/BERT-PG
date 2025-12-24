@@ -21,7 +21,7 @@ from general_utils import (
 from data_utils import get_feature_dataloader
 from model_utils import ODEfunc_mlp, Phase2Model, ODEBlocktemp, MLP_OUT_LINEAR
 from data_utils import inf_generator
-from loss_utils import df_dz_regularizer, f_regularizer
+from loss_utils import df_dz_regularizer, f_regularizer, batched_df_dz_regularizer
 from model_utils import SingleOutputWrapper
 from model_utils import ODEBlock, Phase3Model, get_a_phase1_model, get_a_phase2_model, get_a_phase3_model
 import wandb
