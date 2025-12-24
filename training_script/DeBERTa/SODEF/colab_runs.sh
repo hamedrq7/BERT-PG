@@ -129,7 +129,7 @@
 
 # Center Loss
 wandb="DebertASODEF-Phase1"
-EXP_NAME="AdamDefault-centerLoss"
+EXP_NAME="AdamDefault-nofreeze-randomFC"
 python run_sodef.py  \
     --bert_feature_dim 1024 \
     --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
@@ -144,6 +144,7 @@ python run_sodef.py  \
     --output_dir "../DeBERTaSODEFPhase1/${EXP_NAME}" \
     --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
     --wandb_project_name $wandb \
+    --no_phase1_freeze_fc
 
 #######################################
 # EXP_NAME="Default"

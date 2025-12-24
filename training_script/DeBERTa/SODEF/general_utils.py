@@ -67,6 +67,9 @@ def get_args():
     parser.add_argument("--no_phase1_freeze_fc", action="store_false", dest="phase1_freeze_fc",
         help="Disable phase1_freeze_fc (default: enabled)")
     
+    parser.add_argument("--do_centerloss", action="store_true", help="Center Loss for phase1")
+    parser.add_argument("--center_weight", type=float, default=1e-3)
+
     # OPTIM PARAMS
     parser.add_argument("--phase1_optim", type=str, default="ADAM")
     parser.add_argument("--phase1_lr", type=float, default=1e-1)

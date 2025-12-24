@@ -74,7 +74,7 @@ def train_ce_one_epoch(epoch, model, loader, device, optimizer, criterion, cente
         'model': model, 
         'loss': train_loss/(batch_idx+1), 
         'acc': correct/total,
-        'cent_loss': None if centers is None else cent_loss/(batch_idx+1),   # #cent
+        'cent_loss': 0.0 if centers is None else cent_loss/(batch_idx+1),   # #cent
     }
 
 import numpy as np 
@@ -169,11 +169,16 @@ def train_phase1(args, device, adv_glue_loader=None):
         print(f'Optim {args.phase1_optim} not implemented for phase1')
 
     #### CENT ###### # #cent
-    from loss_utils import CenterLossNormal
-    rad = 1.
-    centers = CenterLossNormal(args.num_classes, args.ode_dim, init_value=phase1_model.fc.fc0.weight.detach().clone()* rad).to(device)
-    optim4cent = torch.optim.SGD(centers.parameters(), lr = 0.0)
-    cent_weight = 0.001
+    if args.do_centerloss: 
+        from loss_utils import CenterLossNormal
+        rad = 1.
+        centers = CenterLossNormal(args.num_classes, args.ode_dim, init_value=phase1_model.fc.fc0.weight.detach().clone()* rad).to(device)
+        optim4cent = torch.optim.SGD(centers.parameters(), lr = 0.0)
+        cent_weight = args.center_weight
+    else:
+        centers=None
+        optim4cent=None
+        cent_weight=None
     ################
 
     save_path = os.path.join(args.output_dir, args.phase1_save_path)

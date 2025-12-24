@@ -212,7 +212,7 @@ class MLP_OUT_BALL_given_mat(nn.Module):
         self.fc0 = nn.Linear(dim, num_classes, bias=False)
         matrix_temp = torch.tensor(mat)
 
-        self.fc0.weight.data = matrix_temp
+        # self.fc0.weight.data = matrix_temp
     def forward(self, input_):
         h1 = self.fc0(input_)
         return h1  
