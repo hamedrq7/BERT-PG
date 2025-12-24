@@ -117,9 +117,9 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
 # base A "10.0 1.0 0.1"
 # base B "10.0 10.0 0.2"
 reg_sets=(
-  "1.0 1.0 1.0"
+  "10.0 1.0 0.1"
 )
-
+#   "1.0 1.0 1.0"
 #   "0.1 1.0 1.0"
 #   "1.0 0.1 1.0"
 #   "1.0 1.0 0.1"
@@ -164,7 +164,7 @@ phase2_param_sets=(
 decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
-topol_ode="onn"
+topol_ode="on"
 lossC_set=(0.0) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
