@@ -1198,6 +1198,7 @@ def tsne_plot_phase1(args, model, device, advglue_loader=None):
         if isinstance(model, Phase1Model):    
             # assuming model is phase1: 
             raw_feats_all, bridge_feats_all, labels_all, preds_all = model.collect_feats(loader, device)
+            print('acc', (labels_all == preds_all).sum()/preds_all.shape[0])
         else:
             print('Not implemented for model')
 
