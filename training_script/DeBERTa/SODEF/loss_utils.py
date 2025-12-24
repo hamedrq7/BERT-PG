@@ -22,8 +22,7 @@ def df_dz_regularizer(f, z, numm, odefunc, time_df, exponent, trans, exponent_of
 
 def batched_df_dz_regularizer(f, z, numm, odefunc, time_df, exponent, trans, exponent_off, transoffdig, device):
     # Sample indices
-    idx = np.random.choice(z.shape[0], size=numm, replace=False)
-    print(z.shape[0], size=numm)
+    idx = np.random.choice(z.shape[0], size=min(numm,z.shape[0]), replace=False)
     # idx: [numm]
 
     # Compute batched Jacobian
