@@ -22,7 +22,7 @@ python run_sodef.py  \
     --phase2_model "/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEF-FreezeFC_lossC/FREEZE_FC_baseA_topol=on_lossC=1.0/phase2/phase2_last_ckpt.pth" \
     --phase3_freeze_ode_block \
     --phase3_optim 'SGD' \
-    --phase3_lr_fc 1e-5 \
+    --phase3_lr_fc 1e-6 \
     --phase3_eps_fc_block 1e-8 \
     --phase3_epochs 20 \
     --exp_name ${EXPS_NAME} \
@@ -33,3 +33,4 @@ python run_sodef.py  \
     --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
     --seed 100 \
     --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz' \
+    --wandb_project_name 'DeBERTa_SODEF_NEW' \
