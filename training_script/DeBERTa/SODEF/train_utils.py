@@ -74,7 +74,7 @@ def train_ce_one_epoch(epoch, model, loader, device, optimizer, criterion, cente
         'model': model, 
         'loss': train_loss/(batch_idx+1), 
         'acc': correct/total,
-        'cent_loss': None if centers is None else cent_loss/(batch_idx+1),  
+        'cent_loss': None if centers is None else cent_loss/(batch_idx+1),   # #cent
     }
 
 import numpy as np 
@@ -168,7 +168,7 @@ def train_phase1(args, device, adv_glue_loader=None):
     else: 
         print(f'Optim {args.phase1_optim} not implemented for phase1')
 
-    #### CENT ######
+    #### CENT ###### # #cent
     from loss_utils import CenterLossNormal
     rad = 1.
     centers = CenterLossNormal(args.num_classes, args.ode_dim, init_value=phase1_model.fc.fc0.weight.detach().clone()* rad)
@@ -195,9 +195,9 @@ def train_phase1(args, device, adv_glue_loader=None):
             device=device, 
             optimizer=optimizer,
             criterion=criterion,
-            centers=centers,
-            optim4cent=optim4cent,
-            cent_weight=cent_weight
+            centers=centers, # #cent
+            optim4cent=optim4cent, # #cent
+            cent_weight=cent_weight # #cent
         )
         te_results = test_ce_one_epoch(
             epoch=epoch, 
@@ -226,6 +226,7 @@ def train_phase1(args, device, adv_glue_loader=None):
             "phase1_step": epoch,
             "phase1/train_acc": tr_results['acc'],
             "phase1/train_ce_loss": tr_results['loss'],
+            "phase1/train_cent_loss": tr_results['cent_loss'], #cent
             "phase1/test_acc": te_results['acc'],
             "phase1/test_f1": te_results['f1'],
             "phase1/test_confmat":  wandb.plot.confusion_matrix(
