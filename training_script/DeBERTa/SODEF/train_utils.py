@@ -170,10 +170,10 @@ def train_phase1(args, device, adv_glue_loader=None):
 
     #### CENT ###### # #cent
     from loss_utils import CenterLossNormal
-    rad = 1.
+    rad = 20.
     centers = CenterLossNormal(args.num_classes, args.ode_dim, init_value=phase1_model.fc.fc0.weight.detach().clone()* rad).to(device)
-    optim4cent = torch.optim.SGD(centers.parameters(), lr = 0.5)
-    cent_weight = 0.00001
+    optim4cent = torch.optim.SGD(centers.parameters(), lr = 0.0)
+    cent_weight = 0.001
     ################
 
     save_path = os.path.join(args.output_dir, args.phase1_save_path)
