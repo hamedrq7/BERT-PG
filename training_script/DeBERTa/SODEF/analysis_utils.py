@@ -1187,6 +1187,90 @@ def plot_embeddings(
     plt.show()
     plt.close(fig)
 
+import numpy as np
+
+def trace_within_class_covariance(X, y):
+    """
+    X: [N, D] numpy array
+    y: [N] labels
+    Returns: dict {class_label: trace}
+    """
+    traces = {}
+
+    for c in np.unique(y):
+        Xc = X[y == c]
+        mu_c = Xc.mean(axis=0)
+        cov_c = np.mean((Xc - mu_c) ** 2, axis=0)  # diagonal covariance
+        traces[c] = cov_c.sum()
+
+    return traces
+
+def mean_within_class_trace(X, y):
+    traces = trace_within_class_covariance(X, y)
+    return np.mean(list(traces.values()))
+
+
+def trace_between_class_covariance(X, y):
+    """
+    X: [N, D] numpy array
+    y: [N] labels
+    Returns: scalar
+    """
+    mu = X.mean(axis=0)
+    N = len(y)
+
+    trace = 0.0
+    for c in np.unique(y):
+        Xc = X[y == c]
+        mu_c = Xc.mean(axis=0)
+        p_c = len(Xc) / N
+        trace += p_c * np.sum((mu_c - mu) ** 2)
+
+    return trace
+
+def covariance_trace_analysis(X, y):
+    return {
+        "sw": mean_within_class_trace(X, y),
+        "sb": trace_between_class_covariance(X, y),
+    }
+
+def AFS(feats, tars, num_classes):
+    labeled_feats = np.hstack((tars[:, np.newaxis], feats))
+    total_mean = np.mean(feats, axis=0)
+    total_mean = np.mean(feats, axis=0)
+
+    # calculate s_w
+    s_w = 0
+    for i in range(num_classes):
+        feats_i = labeled_feats[labeled_feats[:, 0] == i]
+        c = feats_i[:, 1:]
+        m = np.mean(c, axis=0)
+        for x in c:
+            cos_sim = np.dot(x, m) / (np.linalg.norm(x) * np.linalg.norm(m))
+            temp = 1 - cos_sim
+            s_w += temp
+    s_w /= feats.shape[0]
+
+    # calculate s_b
+    s_b = 0
+    for i in range(num_classes):
+        feats_i = labeled_feats[labeled_feats[:, 0] == i]
+        c = feats_i[:, 1:]
+        n = len(c)
+        m_i = np.mean(c, axis=0)
+        cos_sim = np.dot(m_i, total_mean) / (
+            np.linalg.norm(m_i) * np.linalg.norm(total_mean)
+        )
+        temp = 1 - cos_sim
+        temp = n * temp
+        s_b += temp
+    
+    s_b /= num_classes
+
+    AFS = s_w / s_b
+
+    return AFS, s_w, s_b
+
 def tsne_plot_phase1(args, model, device, advglue_loader=None):
     trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
     
@@ -1214,3 +1298,31 @@ def tsne_plot_phase1(args, model, device, advglue_loader=None):
     plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_F TSNE')
     plot_embeddings(data_train, data_test, data_adv, method="pca", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F PCA')
     plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F TSNE')
+
+    cov_tr = covariance_trace_analysis(data_train['feats'], data_train['labels'])
+    cov_te = covariance_trace_analysis(data_test['feats'], data_test['labels'])
+    cov_adv = None if advglue_loader is None else covariance_trace_analysis(data_adv['feats'], data_adv['labels'])
+
+    tr_AFS, tr_s_w, tr_s_b = AFS(data_train['feats'], data_train['labels'], args.num_classes)
+    te_AFS, te_s_w, te_s_b = AFS(data_train['feats'], data_train['labels'], args.num_classes)
+    adv_AFS, adv_s_w, adv_s_b = AFS(data_train['feats'], data_train['labels'], args.num_classes)
+    
+    if args.wandb:    
+        wandb.summary["train_sw"] = cov_tr['sw']
+        wandb.summary["train_sb"] = cov_tr['sb']
+        wandb.summary["train_AFS"] = tr_AFS
+        wandb.summary["train_Asw"] = tr_s_w
+        wandb.summary["train_Asb"] = tr_s_b
+
+        wandb.summary["test_sw"] = cov_te['sw']
+        wandb.summary["test_sb"] = cov_te['sb']
+        wandb.summary["test_AFS"] = te_AFS
+        wandb.summary["test_Asw"] = te_s_w
+        wandb.summary["test_Asb"] = te_s_b
+
+        if cov_adv is not None:
+            wandb.summary["adv_sw"] = cov_adv['sw']
+            wandb.summary["adv_sb"] = cov_adv['sb']
+            wandb.summary["adv_AFS"] = adv_AFS
+            wandb.summary["adv_Asw"] = adv_s_w
+            wandb.summary["adv_Asb"] = adv_s_b
