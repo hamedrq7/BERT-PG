@@ -1116,10 +1116,11 @@ def get_shared_limits(embeddings):
 def plot_panel(ax, Z, labels, preds, title):
     correct = labels == preds
     classes = np.unique(labels)
-
+    
     for c in classes:
         idx = labels == c
-
+        print(Z[idx & correct, 0].shape)
+        print(Z[idx & ~correct, 0].shape)
         # correct predictions → black edge
         ax.scatter(
             Z[idx & correct, 0],
@@ -1150,7 +1151,7 @@ def plot_embeddings(
         adv_data[feature_key] if adv_data is not None else None,
         method=method
     )
-
+    print(embeddings['train'].shape, embeddings['adv'].shape, embeddings['test'].shape)
     xlim, ylim = get_shared_limits(embeddings)
 
     panels = ["train", "test"] + (["adv"] if adv_data is not None else [])
