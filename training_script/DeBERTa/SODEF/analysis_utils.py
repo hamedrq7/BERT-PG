@@ -1284,10 +1284,10 @@ def tsne_plot_phase1(args, model, device, advglue_loader=None):
             print('Not implemented for model')
         
         return {
-            'inputs': raw_feats_all[:K], 
-            'feats': bridge_feats_all[:K], 
-            'labels': labels_all[:K], 
-            'preds': preds_all[:K] 
+            'inputs': raw_feats_all.numpy()[:K], 
+            'feats': bridge_feats_all.numpy()[:K], 
+            'labels': labels_all.numpy()[:K], 
+            'preds': preds_all.numpy()[:K] 
         }
     
     data_train = get_feats(model, device, trainloader)
@@ -1296,8 +1296,8 @@ def tsne_plot_phase1(args, model, device, advglue_loader=None):
 
     plot_embeddings(data_train, data_test, data_adv, method="pca", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_F PCA')
     plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_F TSNE')
-    plot_embeddings(data_train, data_test, data_adv, method="pca", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F PCA')
-    plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F TSNE')
+    # plot_embeddings(data_train, data_test, data_adv, method="pca", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F PCA')
+    # plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F TSNE')
 
     cov_tr = covariance_trace_analysis(data_train['feats'], data_train['labels'])
     cov_te = covariance_trace_analysis(data_test['feats'], data_test['labels'])
