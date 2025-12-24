@@ -129,7 +129,7 @@
 
 # Center Loss
 wandb="DebertASODEF-Phase1"
-EXP_NAME="AdamDefault-nofreeze-randomFC"
+EXP_NAME="AdamDefault-nofreeze"
 python run_sodef.py  \
     --bert_feature_dim 1024 \
     --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
@@ -145,6 +145,46 @@ python run_sodef.py  \
     --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
     --wandb_project_name $wandb \
     --no_phase1_freeze_fc
+
+wandb="DebertASODEF-Phase1"
+EXP_NAME="AdamDefault"
+python run_sodef.py  \
+    --bert_feature_dim 1024 \
+    --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
+    --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
+    --seed 100 \
+    --phase1_epoch 20 \
+    --phase1_lr 0.001 \
+    --phase1_optim_eps 1e-8 \
+    --skip_phase2 \
+    --skip_phase3 \
+    --exp_name ${EXP_NAME} \
+    --output_dir "../DeBERTaSODEFPhase1/${EXP_NAME}" \
+    --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
+    --wandb_project_name $wandb \
+
+
+cl_set=(0.00001 0.0001 0.001 0.01 0.1 1.0)
+
+for cl in "${cl_set[@]}"; do
+    wandb="DebertASODEF-Phase1"
+    EXP_NAME="AdamDefault+cl=${cl}"
+    python run_sodef.py  \
+        --bert_feature_dim 1024 \
+        --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
+        --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
+        --seed 100 \
+        --phase1_epoch 20 \
+        --phase1_lr 0.001 \
+        --phase1_optim_eps 1e-8 \
+        --skip_phase2 \
+        --skip_phase3 \
+        --exp_name ${EXP_NAME} \
+        --output_dir "../DeBERTaSODEFPhase1/${EXP_NAME}" \
+        --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
+        --wandb_project_name $wandb \
+        --do_centerloss \
+        --center_weight $cl
 
 #######################################
 # EXP_NAME="Default"
