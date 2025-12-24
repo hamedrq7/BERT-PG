@@ -28,30 +28,53 @@ import wandb
 from sklearn.metrics import f1_score
 
 
-def train_ce_one_epoch(epoch, model, loader, device, optimizer, criterion):
+def train_ce_one_epoch(epoch, model, loader, device, optimizer, criterion, centers=None, optim4cent = None, cent_weight = None):
     model.train()
-    train_loss = 0
-    correct = 0
-    total = 0
-    for batch_idx, (inputs, targets) in enumerate(loader):
-        inputs, targets = inputs.to(device), targets.to(device)
-        optimizer.zero_grad()
-        x = inputs
-        outputs = model(x)
-        
-        loss = criterion(outputs, targets)
-        loss.backward()
-        optimizer.step()
+    if centers is None: 
+        train_loss = 0
+        correct = 0
+        total = 0
+        for batch_idx, (inputs, targets) in enumerate(loader):
+            inputs, targets = inputs.to(device), targets.to(device)
+            optimizer.zero_grad()
+            x = inputs
+            outputs = model(x)
+            
+            loss = criterion(outputs, targets)
+            loss.backward()
+            optimizer.step()
 
-        train_loss += loss.item()
-        _, predicted = outputs.max(1)
-        total += targets.size(0)
-        correct += predicted.eq(targets).sum().item()
+            train_loss += loss.item()
+            _, predicted = outputs.max(1)
+            total += targets.size(0)
+            correct += predicted.eq(targets).sum().item()
+    else: 
+        train_loss = 0
+        cent_loss = 0. 
+        correct = 0
+        total = 0
+        for batch_idx, (inputs, targets) in enumerate(loader):
+            inputs, targets = inputs.to(device), targets.to(device)
+            optimizer.zero_grad()
+            optim4cent.zero_grad()
+            x = inputs
+            _, feats, outputs = model(x, return_feats=True)
+            closs = centers(feats, targets)
+            loss = criterion(outputs, targets) + cent_weight*closs
+            loss.backward()
+            optimizer.step()
+            optim4cent.step()
+            train_loss += loss.item()
+            cent_loss+= closs.item()
+            _, predicted = outputs.max(1)
+            total += targets.size(0)
+            correct += predicted.eq(targets).sum().item()
 
     return {
         'model': model, 
         'loss': train_loss/(batch_idx+1), 
-        'acc': correct/total
+        'acc': correct/total,
+        'cent_loss': None if centers is None else cent_loss/(batch_idx+1),  
     }
 
 import numpy as np 
@@ -135,7 +158,7 @@ def train_phase1(args, device, adv_glue_loader=None):
         phase1_model.freeze_layer_given_name(['fc'])
     
     print('phase1_model', phase1_model)
-
+    
     criterion = get_loss(args.phase1_loss)
     if args.phase1_optim == 'ADAM': 
         optimizer = torch.optim.Adam(phase1_model.parameters(), lr=args.phase1_lr, eps=args.phase1_optim_eps, amsgrad=args.phase1_amsgrad)
@@ -144,6 +167,14 @@ def train_phase1(args, device, adv_glue_loader=None):
                                     momentum=0.9)
     else: 
         print(f'Optim {args.phase1_optim} not implemented for phase1')
+
+    #### CENT ######
+    from loss_utils import CenterLossNormal
+    rad = 1.
+    centers = CenterLossNormal(args.num_classes, args.ode_dim, init_value=phase1_model.fc.fc0.weight.detach().clone()* rad)
+    optim4cent = torch.optim.SGD(centers.parameters(), lr = 0.5)
+    cent_weight = 0.00001
+    ################
 
     save_path = os.path.join(args.output_dir, args.phase1_save_path)
     os.makedirs(save_path, exist_ok=True)
@@ -163,7 +194,10 @@ def train_phase1(args, device, adv_glue_loader=None):
             loader=trainloader, 
             device=device, 
             optimizer=optimizer,
-            criterion=criterion
+            criterion=criterion,
+            centers=centers,
+            optim4cent=optim4cent,
+            cent_weight=cent_weight
         )
         te_results = test_ce_one_epoch(
             epoch=epoch, 
