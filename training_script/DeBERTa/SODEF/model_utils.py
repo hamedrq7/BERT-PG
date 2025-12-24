@@ -100,6 +100,7 @@ class Phase1Model(nn.Module):
         raw_feats_all = torch.cat(raw_feats_all, dim=0)  
         bridge_feats_all  = torch.cat(bridge_feats_all, dim=0)   
         labels_all       = torch.cat(labels_all, dim=0)        
+        preds_all       = torch.cat(preds_all, dim=0)        
 
         return raw_feats_all, bridge_feats_all, labels_all, preds_all
         
