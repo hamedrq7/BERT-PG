@@ -1059,3 +1059,159 @@ def raddddddi_rand(model, phase, loader, device):
         out_dir=f"./rand_robust_dual_relative_{phase}",
     )
     print(summary)
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+
+def compute_embeddings(train_X, test_X, adv_X=None, method="pca", random_state=0):
+    embeddings = {}
+
+    if method == "pca":
+        pca = PCA(n_components=2)
+        embeddings["train"] = pca.fit_transform(train_X)
+        embeddings["test"]  = pca.transform(test_X)
+        if adv_X is not None:
+            embeddings["adv"] = pca.transform(adv_X)
+
+    elif method == "tsne":
+        embeddings["train"] = TSNE(
+            n_components=2,
+            perplexity=30,
+            init="pca",
+            learning_rate="auto",
+            random_state=random_state
+        ).fit_transform(train_X)
+
+        embeddings["test"] = TSNE(
+            n_components=2,
+            perplexity=30,
+            init="pca",
+            learning_rate="auto",
+            random_state=random_state
+        ).fit_transform(test_X)
+
+        if adv_X is not None:
+            embeddings["adv"] = TSNE(
+                n_components=2,
+                perplexity=30,
+                init="pca",
+                learning_rate="auto",
+                random_state=random_state
+            ).fit_transform(adv_X)
+
+    else:
+        raise ValueError("method must be 'pca' or 'tsne'")
+
+    return embeddings
+
+def get_shared_limits(embeddings):
+    all_Z = np.vstack(list(embeddings.values()))
+    x_min, x_max = all_Z[:, 0].min(), all_Z[:, 0].max()
+    y_min, y_max = all_Z[:, 1].min(), all_Z[:, 1].max()
+    return (x_min, x_max), (y_min, y_max)
+
+def plot_panel(ax, Z, labels, preds, title):
+    correct = labels == preds
+    classes = np.unique(labels)
+
+    for c in classes:
+        idx = labels == c
+
+        # correct predictions → black edge
+        ax.scatter(
+            Z[idx & correct, 0],
+            Z[idx & correct, 1],
+            alpha=0.7,
+            edgecolors="black",
+            linewidths=0.5,
+            label=f"class {c}"
+        )
+
+        # misclassified → no edge
+        ax.scatter(
+            Z[idx & ~correct, 0],
+            Z[idx & ~correct, 1],
+            alpha=0.7
+        )
+
+    ax.set_title(title)
+
+def plot_embeddings(
+    train_data, test_data, adv_data=None,
+    method="pca", feature_key="feats",
+    log_to_wandb=False, wandb_name=None
+):
+    embeddings = compute_embeddings(
+        train_data[feature_key],
+        test_data[feature_key],
+        adv_data[feature_key] if adv_data is not None else None,
+        method=method
+    )
+
+    xlim, ylim = get_shared_limits(embeddings)
+
+    panels = ["train", "test"] + (["adv"] if adv_data is not None else [])
+    n = len(panels)
+
+    fig, axes = plt.subplots(1, n, figsize=(6 * n, 5), sharex=True, sharey=True)
+    if n == 1:
+        axes = [axes]
+
+    for ax, split in zip(axes, panels):
+        data = train_data if split == "train" else test_data if split == "test" else adv_data
+
+        plot_panel(
+            ax,
+            embeddings[split],
+            data["labels"],
+            data["preds"],
+            title=f"{method.upper()} – {split.upper()}"
+        )
+
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
+
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center",
+               ncol=len(np.unique(train_data["labels"])))
+
+    plt.tight_layout(rect=[0, 0, 1, 0.93])
+
+    # ---- wandb logging ----
+    if log_to_wandb:
+        import wandb
+        assert wandb_name is not None, "wandb_name must be provided"
+        wandb.log({wandb_name: wandb.Image(fig)})
+
+    plt.show()
+    plt.close(fig)
+
+def tsne_plot_phase1(args, model, device, advglue_loader=None):
+    trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
+    
+    def get_feats(model, device, loader): 
+        from model_utils import Phase1Model
+        if isinstance(model, Phase1Model):    
+            # assuming model is phase1: 
+            raw_feats_all, bridge_feats_all, labels_all, preds_all = model.collect_feats(loader, device)
+        else:
+            print('Not implemented for model')
+
+        return {
+            'inputs': raw_feats_all, 
+            'feats': bridge_feats_all, 
+            'labels': labels_all, 
+            'preds': preds_all 
+        }
+    
+    data_train = get_feats(model, device, trainloader)
+    data_test = get_feats(model, device, testloader)
+    data_adv = None if advglue_loader is None else get_feats(model, device, advglue_loader)
+
+    plot_embeddings(data_train, data_test, data_adv, method="pca", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_F PCA')
+    plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_F TSNE')
+    plot_embeddings(data_train, data_test, data_adv, method="pca", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F PCA')
+    plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F TSNE')

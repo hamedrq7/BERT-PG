@@ -63,11 +63,48 @@ class Phase1Model(nn.Module):
             else:
                 print(f"[FROZEN] {name}")
 
-    def forward(self, x): 
-        x = self.orthogonal_bridge_layer(x)
-        x = self.fc(x)
-        return x
+    def forward(self, x, return_feats=False): 
+        feats = self.orthogonal_bridge_layer(x)
+        out = self.fc(feats)
+        if return_feats:
+            return x, feats, out
+        else: 
+            return out
 
+    
+    def collect_feats(self, loader, device): 
+        self.eval()
+
+        raw_feats_all = []
+        bridge_feats_all = []
+        labels_all = []
+        preds_all = []
+
+        idx = 0
+        with torch.no_grad():
+            for X, y in tqdm(loader):
+                X = X.to(device)
+                y = y.to(device)
+
+                raw_f, bridge_f, outputs = self.forward(X, return_feats = True)
+                
+                pred = outputs.argmax(1)
+
+                raw_feats_all.append(raw_f.detach().cpu())
+                bridge_feats_all.append(bridge_f.detach().cpu())
+                preds_all.append(pred.detach().cpu())
+                labels_all.append(y.cpu())
+
+                idx += 1 
+                if idx > 5:
+                    break 
+
+        raw_feats_all = torch.cat(raw_feats_all, dim=0)  
+        bridge_feats_all  = torch.cat(bridge_feats_all, dim=0)   
+        labels_all       = torch.cat(labels_all, dim=0)        
+
+        return raw_feats_all, bridge_feats_all, labels_all, preds_all
+        
 def get_a_phase1_model(feature_dim, ode_dim, num_classes):
     return Phase1Model(feature_dim, ode_dim, num_classes) 
 
