@@ -1119,8 +1119,6 @@ def plot_panel(ax, Z, labels, preds, title):
     
     for c in classes:
         idx = labels == c
-        print(Z[idx & correct, 0].shape)
-        print(Z[idx & ~correct, 0].shape)
         # correct predictions → black edge
         ax.scatter(
             Z[idx & correct, 0],
@@ -1151,7 +1149,6 @@ def plot_embeddings(
         adv_data[feature_key] if adv_data is not None else None,
         method=method
     )
-    print(embeddings['train'].shape, embeddings['adv'].shape, embeddings['test'].shape)
     xlim, ylim = get_shared_limits(embeddings)
 
     panels = ["train", "test"] + (["adv"] if adv_data is not None else [])
@@ -1172,8 +1169,8 @@ def plot_embeddings(
             title=f"{method.upper()} – {split.upper()}"
         )
 
-        # ax.set_xlim(xlim)
-        # ax.set_ylim(ylim)
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
 
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="upper center",
