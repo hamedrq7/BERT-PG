@@ -135,7 +135,7 @@ python run_sodef.py  \
     --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
     --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
     --seed 100 \
-    --phase1_epoch 10 \
+    --phase1_epoch 20 \
     --phase1_lr 0.001 \
     --phase1_optim_eps 1e-8 \
     --skip_phase2 \
