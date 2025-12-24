@@ -40,7 +40,7 @@ def get_args():
     
     parser.add_argument("--skip_phase1", action="store_true", help="Skips phase1, make sure to pass mode path for other phases")
     parser.add_argument("--skip_phase2", action="store_true", help="Skips phase2, make sure to pass mode path for phase3")
-    # parser.add_argument("--skip_phase3", action="store_true", help="Skips phase1, make sure to pass mode path for other phases")
+    parser.add_argument("--skip_phase3", action="store_true", help="Skips phase3, make sure to pass mode path for other phases")
     
     parser.add_argument("--eigval_analysis", action="store_true", help="do eigval analysis on ode block")
     parser.add_argument("--denoising_analysis", action="store_true", help="do denoising analysis on ode block")
@@ -64,6 +64,8 @@ def get_args():
     parser.add_argument("--phase1_batch_size", type=int, default=128)
     parser.add_argument("--no_phase1_freeze_backbone", action="store_false", dest="phase1_freeze_backbone",
         help="Disable phase1_freeze_backbone (default: enabled)")
+    parser.add_argument("--no_phase1_freeze_fc", action="store_false", dest="phase1_freeze_fc",
+        help="Disable phase1_freeze_fc (default: enabled)")
     
     # OPTIM PARAMS
     parser.add_argument("--phase1_optim", type=str, default="ADAM")

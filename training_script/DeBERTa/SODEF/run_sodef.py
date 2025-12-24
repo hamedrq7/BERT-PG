@@ -82,15 +82,16 @@ def main():
         test_phase2(phase2_model, args, device, advglue_feature_loader)
 
     print('Starting phase3...')
-    from train_utils import train_phase3, load_phase3
-    phase3_model = load_phase3(args, device, False)  if args.phase3_model_path is not None else train_phase3(phase2_model, args, device, adv_glue_loader=advglue_feature_loader) 
-    # base + phase3/phase3_best_acc_ckpt.pth
+    phase3_model = None
+    if not args.skip_phase3: 
+        from train_utils import train_phase3, load_phase3
+        phase3_model = load_phase3(args, device, False)  if args.phase3_model_path is not None else train_phase3(phase2_model, args, device, adv_glue_loader=advglue_feature_loader) 
+        # base + phase3/phase3_best_acc_ckpt.pth
 
-
-    from train_utils import test_adv_glue
-    res = test_adv_glue(args, device, phase3_model, advglue_feature_loader)
-    if args.wandb: 
-        wandb.log({'AdvGLUE': res['acc']})
+        from train_utils import test_adv_glue
+        res = test_adv_glue(args, device, phase3_model, advglue_feature_loader)
+        if args.wandb: 
+            wandb.log({'AdvGLUE': res['acc']})
     
     if args.eigval_analysis: 
         from analysis_utils import eigval_analysis

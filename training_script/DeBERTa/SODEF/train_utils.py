@@ -25,6 +25,8 @@ from loss_utils import df_dz_regularizer, f_regularizer, batched_df_dz_regulariz
 from model_utils import SingleOutputWrapper
 from model_utils import ODEBlock, Phase3Model, get_a_phase1_model, get_a_phase2_model, get_a_phase3_model
 import wandb
+from sklearn.metrics import f1_score
+
 
 def train_ce_one_epoch(epoch, model, loader, device, optimizer, criterion):
     model.train()
@@ -101,12 +103,13 @@ def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save
                 'epoch': epoch,
             }
             torch.save(state, save_folder+f'/{save_name}_best_acc_ckpt.pth')
-            
+
     return {
         'model': model,
         'loss': avg_loss, 
         'acc': acc,
         'best_acc': best_acc,
+        'f1': f1_score(all_labels, all_preds),
         'preds': None if not return_preds else all_preds,
         'labels': None if not return_preds else all_labels,
         'feats_before_ode': None if not return_feats else torch.cat(all_feats_before_ode, dim=0), 
@@ -128,7 +131,8 @@ def train_phase1(args, device, adv_glue_loader=None):
     trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
     phase1_model = Phase1Model(args.bert_feature_dim, args.ode_dim, args.num_classes).to(device)
     phase1_model.set_all_req_grads()
-    phase1_model.freeze_layer_given_name(['fc'])
+    if args.phase1_freeze_fc:
+        phase1_model.freeze_layer_given_name(['fc'])
     
     print('phase1_model', phase1_model)
 
@@ -187,7 +191,9 @@ def train_phase1(args, device, adv_glue_loader=None):
         wandb_logging = {
             "phase1_step": epoch,
             "phase1/train_acc": tr_results['acc'],
+            "phase1/train_ce_loss": tr_results['loss'],
             "phase1/test_acc": te_results['acc'],
+            "phase1/test_f1": te_results['f1'],
             "phase1/test_confmat":  wandb.plot.confusion_matrix(
                 y_true=te_results['labels'],
                 preds=te_results['preds'],
@@ -199,6 +205,7 @@ def train_phase1(args, device, adv_glue_loader=None):
         if adv_glue_loader is not None:
             adv_glue_res = test_ce_one_epoch(epoch, phase1_model, adv_glue_loader, device, criterion, best_acc=110, do_save=False, save_folder='', save_name='', return_preds=True)
             wandb_logging['phase1/adv_glue_acc'] = adv_glue_res['acc']
+            wandb_logging['phase1/adv_glue_f1'] = adv_glue_res['f1']
             wandb_logging['phase1/adv_glue_confmat'] = wandb.plot.confusion_matrix(
                 y_true=adv_glue_res['labels'],
                 preds=adv_glue_res['preds'],
@@ -377,8 +384,10 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
         wandb_logging_stats.append({
             "phase2_epoch": epoch,
             "phase2/val/train_acc": tr_res['acc'],
+            "phase2/val/train_f1": tr_res['f1'],
             "phase2/val/train_real_max": tr_eigvals['real_max'],
             "phase2/val/test_acc": te_res['acc'],
+            "phase2/val/test_f1": te_res['f1'],
             "phase2/val/test_real_max": te_eigvals['real_max'],
             "phase2/val/test_regu1": te_reg_stats['regu1'],
             "phase2/val/test_regu2": te_reg_stats['regu2'],
@@ -409,6 +418,7 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
             wandb_logging_stats.append({
                 "phase2_epoch": epoch,
                 'phase2/val/advglue_acc': adv_glue_res['acc'],
+                'phase2/val/advglue_f1': adv_glue_res['f1'],
                 'phase2/val/advglue_real_max': adv_glue_eigvals['real_max'],
                 'phase2/val/advglue_regu1': adv_glue_reg_stats['regu1'],
                 'phase2/val/advglue_regu2': adv_glue_reg_stats['regu2'],
@@ -639,7 +649,10 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
         wandb_logging_stats.append({
             "phase3_step": epoch,
             "phase3/train_acc": tr_results['acc'],
+            "phase3/train_ce_loss": tr_results['loss'],
+            "phase3/train_f1": tr_results['f1'],
             "phase3/test_acc": te_results['acc'],
+            "phase3/test_f1": te_results['f1'],
         })
 
         wandb_logging_stats.append({
@@ -655,6 +668,7 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
             wandb_logging_stats.append({
                 "phase3_step": epoch,
                 "phase3/adv_glue_acc": adv_glue_res['acc']
+                "phase3/adv_glue_f1": adv_glue_res['f1']
             })
             wandb_logging_stats.append({
                 "phase3_step": epoch,
