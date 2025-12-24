@@ -1272,6 +1272,7 @@ def AFS(feats, tars, num_classes):
     return AFS, s_w, s_b
 
 def tsne_plot_phase1(args, model, device, advglue_loader=None):
+    wandb.define_metric("phase1_analysis/*", step_metric="phase1_analysis_step")
     trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
     
     def get_feats(model, device, loader, K = 10000): 
@@ -1308,21 +1309,29 @@ def tsne_plot_phase1(args, model, device, advglue_loader=None):
     adv_AFS, adv_s_w, adv_s_b = AFS(data_train['feats'], data_train['labels'], args.num_classes)
     
     if args.wandb:    
-        wandb.summary["train_sw"] = cov_tr['sw']
-        wandb.summary["train_sb"] = cov_tr['sb']
-        wandb.summary["train_AFS"] = tr_AFS
-        wandb.summary["train_Asw"] = tr_s_w
-        wandb.summary["train_Asb"] = tr_s_b
-
-        wandb.summary["test_sw"] = cov_te['sw']
-        wandb.summary["test_sb"] = cov_te['sb']
-        wandb.summary["test_AFS"] = te_AFS
-        wandb.summary["test_Asw"] = te_s_w
-        wandb.summary["test_Asb"] = te_s_b
-
+        wandb_logs = {
+            "phase1_analysis_step": 0,
+            "phase1_analysis/train_sw": cov_tr['sw'],
+            "phase1_analysis/train_sb": cov_tr['sb'],
+            "phase1_analysis/train_AFS": tr_AFS,
+            "phase1_analysis/train_Asw": tr_s_w,
+            "phase1_analysis/train_Asb": tr_s_b,
+            "phase1_analysis/test_sw": cov_te['sw'],
+            "phase1_analysis/test_sb": cov_te['sb'],
+            "phase1_analysis/test_AFS": te_AFS,
+            "phase1_analysis/test_Asw": te_s_w,
+            "phase1_analysis/test_Asb": te_s_b,
+            }
+        
         if cov_adv is not None:
-            wandb.summary["adv_sw"] = cov_adv['sw']
-            wandb.summary["adv_sb"] = cov_adv['sb']
-            wandb.summary["adv_AFS"] = adv_AFS
-            wandb.summary["adv_Asw"] = adv_s_w
-            wandb.summary["adv_Asb"] = adv_s_b
+            wandb_logs.update(
+                {
+                "phase1_analysis/adv_sw": cov_adv['sw'], 
+                "phase1_analysis/adv_sb": cov_adv['sb'], 
+                "phase1_analysis/adv_AFS": adv_AFS, 
+                "phase1_analysis/adv_Asw": adv_s_w, 
+                "phase1_analysis/adv_Asb": adv_s_b, 
+                })
+        
+        wandb.log(wandb_logs)
+            
