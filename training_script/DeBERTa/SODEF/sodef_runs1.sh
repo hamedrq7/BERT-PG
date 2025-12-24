@@ -117,7 +117,13 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
 # base A "10.0 1.0 0.1"
 # base B "10.0 10.0 0.2"
 reg_sets=(
-  "10.0 1.0 0.1"
+  "1.0 1.0 1.0"
+  "0.1 1.0 1.0"
+  "1.0 0.1 1.0"
+  "1.0 1.0 0.1"
+  "0.1 0.1 1.0"
+  "0.1 1.0 0.1"
+  "1.0 0.1 0.1"
 )
 
 
@@ -159,7 +165,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="off"
-lossC_set=(0.0 0.1 1.0 10.0) 
+lossC_set=(0.0) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
 for reg_set in "${reg_sets[@]}"; do
