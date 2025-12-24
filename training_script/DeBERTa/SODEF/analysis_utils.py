@@ -1171,8 +1171,8 @@ def plot_embeddings(
             title=f"{method.upper()} – {split.upper()}"
         )
 
-        ax.set_xlim(xlim)
-        ax.set_ylim(ylim)
+        # ax.set_xlim(xlim)
+        # ax.set_ylim(ylim)
 
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="upper center",
@@ -1201,10 +1201,10 @@ def tsne_plot_phase1(args, model, device, advglue_loader=None):
             print('Not implemented for model')
 
         return {
-            'inputs': raw_feats_all, 
-            'feats': bridge_feats_all, 
-            'labels': labels_all, 
-            'preds': preds_all 
+            'inputs': raw_feats_all[:100], 
+            'feats': bridge_feats_all[:100], 
+            'labels': labels_all[:100], 
+            'preds': preds_all[:100] 
         }
     
     data_train = get_feats(model, device, trainloader)
