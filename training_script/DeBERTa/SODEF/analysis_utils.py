@@ -1193,20 +1193,20 @@ def plot_embeddings(
 def tsne_plot_phase1(args, model, device, advglue_loader=None):
     trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
     
-    def get_feats(model, device, loader): 
+    def get_feats(model, device, loader, K = 10000): 
         from model_utils import Phase1Model
         if isinstance(model, Phase1Model):    
             # assuming model is phase1: 
             raw_feats_all, bridge_feats_all, labels_all, preds_all = model.collect_feats(loader, device)
-            print('acc', np.equal(labels_all, preds_all).sum()/preds_all.shape[0])
+            # print('acc', np.equal(labels_all, preds_all).sum()/preds_all.shape[0])
         else:
             print('Not implemented for model')
-
+        
         return {
-            'inputs': raw_feats_all[:100], 
-            'feats': bridge_feats_all[:100], 
-            'labels': labels_all[:100], 
-            'preds': preds_all[:100] 
+            'inputs': raw_feats_all[:K], 
+            'feats': bridge_feats_all[:K], 
+            'labels': labels_all[:K], 
+            'preds': preds_all[:K] 
         }
     
     data_train = get_feats(model, device, trainloader)
