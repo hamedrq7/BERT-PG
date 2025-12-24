@@ -28,7 +28,6 @@ python run_sodef.py  \
     --exp_name ${EXPS_NAME} \
     --output_dir ../DeBERTaSODEF-FreezeFC_lossC/${EXPS_NAME} \
     --bert_feature_dim 1024 \
-    --use_topol_ode \
     --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
     --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
     --seed 100 \
@@ -44,7 +43,6 @@ python run_sodef.py  \
     --exp_name ${EXPS_NAME} \
     --output_dir ../DeBERTaSODEF-FreezeFC_lossC/${EXPS_NAME} \
     --bert_feature_dim 1024 \
-    --use_topol_ode \
     --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
     --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
     --seed 100 \
