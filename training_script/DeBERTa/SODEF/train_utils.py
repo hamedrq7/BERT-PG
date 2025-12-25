@@ -690,7 +690,6 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
             "phase3_step": epoch,
             "phase3/train_acc": tr_results['acc'],
             "phase3/train_ce_loss": tr_results['loss'],
-            "phase3/train_f1": tr_results['f1'],
             "phase3/test_acc": te_results['acc'],
             "phase3/test_f1": te_results['f1'],
         })
