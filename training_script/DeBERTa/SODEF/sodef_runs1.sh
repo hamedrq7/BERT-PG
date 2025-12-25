@@ -100,10 +100,11 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
             --seed 100 \
-            --phase2_epoch 40 \
+            --phase2_epoch 1 \
             --bert_feature_dim 1024 \
             --phase3_freeze_ode_block \
             --phase3_epochs 15 \
+            --phase3_integration_time 8 \
             --wandb_project_name $project_name \
             --phase1_model_path $phase1_model_path \
             --cuda_id $CUDA_ID"

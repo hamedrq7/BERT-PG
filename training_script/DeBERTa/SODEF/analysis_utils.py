@@ -99,12 +99,10 @@ def spectrum_for_points(odefunc: nn.Module, feats: torch.Tensor, idx: torch.Tens
     # batched eigendecomposition
     # eigvals_all: [M, 64] (complex)
     eigvals_all = torch.linalg.eigvals(J_all)
-    print(eigvals_all.shape)
 
     # max real part per sample
     # max_real: [M]
     max_real, _ = eigvals_all.real.max(dim=1)
-    print(max_real.shape)
 
     return eigvals_all, max_real
 
@@ -1419,7 +1417,7 @@ def tsne_plot_phase1(args, model, device, phase: str = 'phase1', advglue_loader=
                 f"{phase}_analysis/af_test_Asb": af_te_s_b,
                 }
             
-            if cov_adv is not None:
+            if be_cov_adv is not None:
                 wandb_logs.update(
                     {
                     f"{phase}_analysis/be_adv_sw": be_cov_adv['sw'], 
