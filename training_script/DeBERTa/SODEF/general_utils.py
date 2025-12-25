@@ -17,7 +17,7 @@ def get_args():
     # ---------------------------
 
     # DATALOADER
-    parser.add_argument("--num_workers", type=int, default=2)
+    parser.add_argument("--num_workers", type=int, default=1)
     parser.add_argument("--no_pin_memory", action="store_false", dest="pin_memory",
             help="Disable pin_memory (default: enabled)")   
     parser.add_argument("--no_wandb", action="store_false", dest="wandb",
