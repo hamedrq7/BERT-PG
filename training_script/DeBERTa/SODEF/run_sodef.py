@@ -71,7 +71,7 @@ def main():
         phase1_model = train_phase1(args, device, adv_glue_loader=advglue_feature_loader) if args.phase1_model_path is None else load_phase1(args, device, True)
         # base + phase1/phase1_best_acc_ckpt.pth
         from analysis_utils import tsne_plot_phase1
-        tsne_plot_phase1(args, phase1_model, device, advglue_loader=advglue_feature_loader)
+        # tsne_plot_phase1(args, phase1_model, device, advglue_loader=advglue_feature_loader)
 
     phase2_model = None
     if not args.skip_phase2: 
@@ -85,7 +85,7 @@ def main():
 
         from analysis_utils import tsne_plot_phase1
         tsne_plot_phase1(args, phase2_model, device, 'phase2', advglue_feature_loader)
-        
+
     print('Starting phase3...')
     phase3_model = None
     if not args.skip_phase3: 
