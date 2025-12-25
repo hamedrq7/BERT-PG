@@ -243,7 +243,9 @@ def train_phase1(args, device, adv_glue_loader=None):
     
         adv_glue_res = None
         if adv_glue_loader is not None:
-            adv_glue_res = test_ce_one_epoch(epoch, phase1_model, adv_glue_loader, device, criterion, best_acc=best_adv_acc, do_save=True, save_folder=save_path, save_name='phase1_best_adv_glue', return_preds=True)
+            adv_glue_res = test_ce_one_epoch(epoch, phase1_model, adv_glue_loader, device, criterion, best_acc=best_adv_acc, do_save=True, save_folder=save_path, 
+                save_name='phase1_best_adv_glue', return_preds=True)
+            best_adv_acc = adv_glue_res['best_acc']
             wandb_logging['phase1/adv_glue_acc'] = adv_glue_res['acc']
             wandb_logging['phase1/adv_glue_f1'] = adv_glue_res['f1']
             wandb_logging['phase1/adv_glue_confmat'] = wandb.plot.confusion_matrix(
