@@ -92,11 +92,10 @@
 
 TR_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz"
 TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz"
-# PHASE1_MODEL="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaFirstSODEF/Phase1-Tuning/eps_-optim_SGD-lr_1e-3-eps_/phase1/phase1_best_acc_ckpt.pth"
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz"
 CUDA_ID=1
 project_name="DeBERTa_SODEF_FAST"
-phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEF-FreezeFC_lossC/FREEZE_FC_baseA_lossC=0.0/phase1/phase1_best_acc_ckpt.pth"
+phase1_model_path="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
@@ -183,7 +182,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="on"
-lossC_set=(0.0) # 0.5 1.5 5.0
+lossC_set=(0.0) # 0.05 0.25 1.0
 bs_set=(128) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
