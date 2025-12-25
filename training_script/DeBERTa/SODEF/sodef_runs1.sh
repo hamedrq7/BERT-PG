@@ -95,7 +95,7 @@ TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/tra
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz"
 CUDA_ID=1
 project_name="DeBERTa_SODEF_FAST"
-phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/AdamDefault/phase1/phase1_best_acc_ckpt.pth"
+phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/AdamDefault-saving-best-adv-model/phase1/phase1_best_adv_glue_best_acc_ckpt.pth"
 FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \

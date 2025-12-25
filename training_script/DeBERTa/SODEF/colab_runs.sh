@@ -162,21 +162,6 @@
 #     --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
 #     --wandb_project_name $wandb \
 
-wandb="DebertASODEF-Phase1"
-EXP_NAME="AdamDefault-saving-best-adv-model"
-python run_sodef.py  \
-    --bert_feature_dim 1024 \
-    --train_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz' \
-    --test_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz' \
-    --seed 111 \
-    --phase1_epoch 20 \
-    --skip_phase2 \
-    --skip_phase3 \
-    --exp_name ${EXP_NAME} \
-    --output_dir "../DeBERTaSODEFPhase1/${EXP_NAME}" \
-    --adv_glue_feature_set_dir '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz'\
-    --wandb_project_name $wandb \
-
 
 # Center Loss
 # cl_set=(0.00001 0.0001 0.001 0.01 0.1 1.0)
