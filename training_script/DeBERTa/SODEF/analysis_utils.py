@@ -1431,3 +1431,5 @@ def tsne_plot_phase1(args, model, device, phase: str = 'phase1', advglue_loader=
                     f"{phase}_analysis/be_adv_Asb": be_adv_s_b, 
                     f"{phase}_analysis/af_adv_Asb": af_adv_s_b, 
                     })
+                
+            wandb.log(wandb_logs)
