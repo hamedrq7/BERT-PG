@@ -524,7 +524,6 @@ def main():
             print(len(self.trainer.hamed_pooled_features))
             print((self.trainer.hamed_pooled_features[0].shape))
             print((self.trainer.hamed_pooled_features[-1].shape))
-            exit()
             labels = np.concatenate(self.trainer.hamed_pooled_labels)
             feats = np.concatenate(self.trainer.hamed_pooled_features, axis=0)
             print('saving features and labels at ', state.epoch, ' size ', feats.shape)    
