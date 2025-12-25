@@ -99,7 +99,8 @@ def spectrum_for_points(odefunc: nn.Module, feats: torch.Tensor, idx: torch.Tens
     # batched eigendecomposition
     # eigvals_all: [M, 64] (complex)
     eigvals_all = torch.linalg.eigvals(J_all)
-
+    print(eigvals_all.shape)
+    
     # max real part per sample
     # max_real: [M]
     max_real = eigvals_all.real.max(dim=1)
