@@ -95,14 +95,15 @@ TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/tra
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz"
 CUDA_ID=1
 project_name="DeBERTa_SODEF_FAST"
-phase1_model_path="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/AdamDefault/phase1/phase1_best_acc_ckpt.pth"
 FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
             --seed 100 \
-            --phase2_epoch 20 \
+            --phase2_epoch 40 \
             --bert_feature_dim 1024 \
             --phase3_freeze_ode_block \
+            --phase3_epochs 15 \
             --wandb_project_name $project_name \
             --phase1_model_path $phase1_model_path \
             --cuda_id $CUDA_ID"
@@ -223,11 +224,11 @@ for bs in "${bs_set[@]}"; do
                             fi
 
                             # ---------------- Construct experiment name ----------------
-                            # exp_name="r1=${r1}_r2=${r2}_r3=${r3}_exp=${exp}_expoff_${exp_off}_expf=${exp_f}_timedf_${time_df}_trans_${trans}_transoff_${trans_off}_T=${integ_t}_dafaultAdam=${optim}_noprev=${no_prev}_topol_ode=${topol_ode}"
-                            exp_name="FREEZE_FC_baseA_topol=${topol_ode}_lossC=${lossC}"
+                            exp_name="topol_ode=${topol_ode}_r1=${r1}_r2=${r2}_r3=${r3}_lossC=${lossC}"
+                            # exp_name="FREEZE_FC_baseA_topol=${topol_ode}_lossC=${lossC}"
 
                             # ---------------- Output directory ----------------
-                            output_dir="../DeBERTaSODEF-FreezeFC_lossC/${exp_name}"
+                            output_dir="../DeBERTa_SODEF_FAST/${exp_name}"
 
                             # ---------------- Command to run ----------------
                             CMD="python run_sodef.py \

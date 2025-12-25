@@ -61,6 +61,8 @@ def jacobian_single(odefunc: nn.Module, z1x64: torch.Tensor, t: float = 1.0) -> 
     J = J.view(64, 64)
     return J
 
+from torch.func import jacrev, vmap, jacfwd
+
 def spectrum_for_points(odefunc: nn.Module, feats: torch.Tensor, idx: torch.Tensor, device="cuda"):
     """
     feats: [N,64] float
@@ -69,23 +71,40 @@ def spectrum_for_points(odefunc: nn.Module, feats: torch.Tensor, idx: torch.Tens
         eigvals_all: complex tensor [M, 64]
         max_real:    float tensor [M]
     """
+    # odefunc = odefunc.to(device).eval()
+    # feats = feats.to(device)
+
+    # eigvals_list = []
+    # max_real_list = []
+
+    # for i in idx.tolist():
+    #     z = feats[i:i+1]  # [1,64]
+    #     J = jacobian_single(odefunc, z, t=1.0)  # [64,64]
+    #     eigvals = torch.linalg.eigvals(J)       # [64] complex
+    #     eigvals_list.append(eigvals)
+    #     max_real_list.append(torch.max(eigvals.real))
+
+    # eigvals_all = torch.stack(eigvals_list, dim=0)  # [M,64]
+    # max_real = torch.stack(max_real_list, dim=0)    # [M]
+    # return eigvals_all, max_real
     odefunc = odefunc.to(device).eval()
     feats = feats.to(device)
 
-    eigvals_list = []
-    max_real_list = []
+    # idx: indices of samples, shape [M]
+    z = feats[idx]                 # [M, 64]
 
-    for i in idx.tolist():
-        z = feats[i:i+1]  # [1,64]
-        J = jacobian_single(odefunc, z, t=1.0)  # [64,64]
-        eigvals = torch.linalg.eigvals(J)       # [64] complex
-        eigvals_list.append(eigvals)
-        max_real_list.append(torch.max(eigvals.real))
+    # J_all: [M, 64, 64]
+    J_all = vmap(jacrev(lambda x: odefunc(torch.tensor(1.0, device=x.device, dtype=x.dtype), x)))(z)
 
-    eigvals_all = torch.stack(eigvals_list, dim=0)  # [M,64]
-    max_real = torch.stack(max_real_list, dim=0)    # [M]
+    # batched eigendecomposition
+    # eigvals_all: [M, 64] (complex)
+    eigvals_all = torch.linalg.eigvals(J_all)
+
+    # max real part per sample
+    # max_real: [M]
+    max_real = eigvals_all.real.max(dim=1)
+
     return eigvals_all, max_real
-
 
 def summarize(eigvals_all: torch.Tensor, max_real: torch.Tensor, name: str):
     # eigvals_all: [M,64] complex
@@ -1271,16 +1290,27 @@ def AFS(feats, tars, num_classes):
 
     return AFS, s_w, s_b
 
-def tsne_plot_phase1(args, model, device, advglue_loader=None):
-    wandb.define_metric("phase1_analysis/*", step_metric="phase1_analysis_step")
+def tsne_plot_phase1(args, model, device, phase: str = 'phase1', advglue_loader=None):
+    wandb.define_metric(f"{phase}_analysis/*", step_metric=f"{phase}_analysis_step")
     trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
     
     def get_feats(model, device, loader, K = 10000): 
-        from model_utils import Phase1Model
+        from model_utils import Phase1Model, Phase2Model
         if isinstance(model, Phase1Model):    
             # assuming model is phase1: 
             raw_feats_all, bridge_feats_all, labels_all, preds_all = model.collect_feats(loader, device)
             # print('acc', np.equal(labels_all, preds_all).sum()/preds_all.shape[0])
+        elif isinstance(model, Phase2Model):
+            d: SodefAnalysisInputs = model.collect_feats(loader, device, return_outputs=True)
+            return {
+                'feats': d.before_feats.numpy()[:K],
+                'labels': d.labels.numpy()[:K],
+                'preds': d.pred_before.numpy()[:K],
+            }, {
+                'feats': d.after_feats.numpy()[:K],
+                'labels':  d.labels.numpy()[:K],
+                'preds':  d.pred_after.numpy()[:K],
+            }
         else:
             print('Not implemented for model')
         
@@ -1291,47 +1321,113 @@ def tsne_plot_phase1(args, model, device, advglue_loader=None):
             'preds': preds_all.numpy()[:K] 
         }
     
-    data_train = get_feats(model, device, trainloader)
-    data_test = get_feats(model, device, testloader)
-    data_adv = None if advglue_loader is None else get_feats(model, device, advglue_loader)
+    if isinstance(model, Phase1Model):   
+        data_train = get_feats(model, device, trainloader)
+        data_test = get_feats(model, device, testloader)
+        data_adv = None if advglue_loader is None else get_feats(model, device, advglue_loader)
 
-    plot_embeddings(data_train, data_test, data_adv, method="pca", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_F PCA')
-    plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_F TSNE')
-    # plot_embeddings(data_train, data_test, data_adv, method="pca", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F PCA')
-    # plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F TSNE')
+        plot_embeddings(data_train, data_test, data_adv, method="pca", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_F PCA')
+        plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_F TSNE')
+        # plot_embeddings(data_train, data_test, data_adv, method="pca", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F PCA')
+        # plot_embeddings(data_train, data_test, data_adv, method="tsne", feature_key="inputs", log_to_wandb=args.wandb, wandb_name='Raw_F TSNE')
 
-    cov_tr = covariance_trace_analysis(data_train['feats'], data_train['labels'])
-    cov_te = covariance_trace_analysis(data_test['feats'], data_test['labels'])
-    cov_adv = None if advglue_loader is None else covariance_trace_analysis(data_adv['feats'], data_adv['labels'])
+        cov_tr = covariance_trace_analysis(data_train['feats'], data_train['labels'])
+        cov_te = covariance_trace_analysis(data_test['feats'], data_test['labels'])
+        cov_adv = None if advglue_loader is None else covariance_trace_analysis(data_adv['feats'], data_adv['labels'])
 
-    tr_AFS, tr_s_w, tr_s_b = AFS(data_train['feats'], data_train['labels'], args.num_classes)
-    te_AFS, te_s_w, te_s_b = AFS(data_train['feats'], data_train['labels'], args.num_classes)
-    adv_AFS, adv_s_w, adv_s_b = AFS(data_train['feats'], data_train['labels'], args.num_classes)
-    
-    if args.wandb:    
-        wandb_logs = {
-            "phase1_analysis_step": 0,
-            "phase1_analysis/train_sw": cov_tr['sw'],
-            "phase1_analysis/train_sb": cov_tr['sb'],
-            "phase1_analysis/train_AFS": tr_AFS,
-            "phase1_analysis/train_Asw": tr_s_w,
-            "phase1_analysis/train_Asb": tr_s_b,
-            "phase1_analysis/test_sw": cov_te['sw'],
-            "phase1_analysis/test_sb": cov_te['sb'],
-            "phase1_analysis/test_AFS": te_AFS,
-            "phase1_analysis/test_Asw": te_s_w,
-            "phase1_analysis/test_Asb": te_s_b,
-            }
+        tr_AFS, tr_s_w, tr_s_b = AFS(data_train['feats'], data_train['labels'], args.num_classes)
+        te_AFS, te_s_w, te_s_b = AFS(data_train['feats'], data_train['labels'], args.num_classes)
+        adv_AFS, adv_s_w, adv_s_b = AFS(data_train['feats'], data_train['labels'], args.num_classes)
         
-        if cov_adv is not None:
-            wandb_logs.update(
-                {
-                "phase1_analysis/adv_sw": cov_adv['sw'], 
-                "phase1_analysis/adv_sb": cov_adv['sb'], 
-                "phase1_analysis/adv_AFS": adv_AFS, 
-                "phase1_analysis/adv_Asw": adv_s_w, 
-                "phase1_analysis/adv_Asb": adv_s_b, 
-                })
-        
-        wandb.log(wandb_logs)
+        if args.wandb:    
+            wandb_logs = {
+                f"{phase}_analysis_step": 0,
+                f"{phase}_analysis/train_sw": cov_tr['sw'],
+                f"{phase}_analysis/train_sb": cov_tr['sb'],
+                f"{phase}_analysis/train_AFS": tr_AFS,
+                f"{phase}_analysis/train_Asw": tr_s_w,
+                f"{phase}_analysis/train_Asb": tr_s_b,
+                f"{phase}_analysis/test_sw": cov_te['sw'],
+                f"{phase}_analysis/test_sb": cov_te['sb'],
+                f"{phase}_analysis/test_AFS": te_AFS,
+                f"{phase}_analysis/test_Asw": te_s_w,
+                f"{phase}_analysis/test_Asb": te_s_b,
+                }
             
+            if cov_adv is not None:
+                wandb_logs.update(
+                    {
+                    f"{phase}_analysis/adv_sw": cov_adv['sw'], 
+                    f"{phase}_analysis/adv_sb": cov_adv['sb'], 
+                    f"{phase}_analysis/adv_AFS": adv_AFS, 
+                    f"{phase}_analysis/adv_Asw": adv_s_w, 
+                    f"{phase}_analysis/adv_Asb": adv_s_b, 
+                    })
+            
+            wandb.log(wandb_logs)
+    else: 
+        data_train_before, data_train_after = get_feats(model, device, trainloader)
+        data_test_before, data_test_after = get_feats(model, device, testloader)
+        data_adv_before, data_adv_after = None if advglue_loader is None else get_feats(model, device, advglue_loader)
+
+        plot_embeddings(data_train_before, data_test_before, data_adv_before, method="pca", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_before_F PCA')
+        plot_embeddings(data_train_after, data_test_after, data_adv_after, method="pca", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_after PCA')
+        
+        plot_embeddings(data_train_before, data_test_before, data_adv_before, method="tsne", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_before_F TSNE')
+        plot_embeddings(data_train_after, data_test_after, data_adv_after, method="tsne", feature_key="feats", log_to_wandb=args.wandb, wandb_name='Bridge_after TSNE')
+        
+        be_cov_tr = covariance_trace_analysis(data_train_before['feats'], data_train_before['labels'])
+        af_cov_tr = covariance_trace_analysis(data_train_after['feats'], data_train_after['labels'])
+        be_cov_te = covariance_trace_analysis(data_test_before['feats'], data_test_before['labels'])
+        af_cov_te = covariance_trace_analysis(data_test_after['feats'], data_test_after['labels'])
+        be_cov_adv = None if advglue_loader is None else covariance_trace_analysis(data_adv_before['feats'], data_adv_before['labels'])
+        af_cov_adv = None if advglue_loader is None else covariance_trace_analysis(data_adv_after['feats'], data_adv_after['labels'])
+
+        be_tr_AFS, be_tr_s_w, be_tr_s_b = AFS(data_train_before['feats'], data_train_before['labels'], args.num_classes)
+        af_tr_AFS, af_tr_s_w, af_tr_s_b = AFS(data_train_after['feats'], data_train_after['labels'], args.num_classes)
+        
+        be_te_AFS, be_te_s_w, be_te_s_b = AFS(data_test_before['feats'], data_test_before['labels'], args.num_classes)
+        af_te_AFS, af_te_s_w, af_te_s_b = AFS(data_test_after['feats'], data_test_after['labels'], args.num_classes)
+        
+        be_adv_AFS, be_adv_s_w, be_adv_s_b = AFS(data_adv_before['feats'], data_adv_before['labels'], args.num_classes)
+        af_adv_AFS, af_adv_s_w, af_adv_s_b = AFS(data_adv_after['feats'], data_adv_after['labels'], args.num_classes)
+        
+        if args.wandb:    
+            wandb_logs = {
+                f"{phase}_analysis_step": 0,
+                f"{phase}_analysis/be_train_sw": be_cov_tr['sw'],
+                f"{phase}_analysis/af_train_sw": af_cov_tr['sw'],
+                f"{phase}_analysis/be_train_sb": be_cov_tr['sb'],
+                f"{phase}_analysis/af_train_sb": af_cov_tr['sb'],
+                f"{phase}_analysis/be_train_AFS": be_tr_AFS,
+                f"{phase}_analysis/af_train_AFS": af_tr_AFS,
+                f"{phase}_analysis/be_train_Asw": be_tr_s_w,
+                f"{phase}_analysis/af_train_Asw": af_tr_s_w,
+                f"{phase}_analysis/be_train_Asb": be_tr_s_b,
+                f"{phase}_analysis/af_train_Asb": af_tr_s_b,
+                f"{phase}_analysis/be_test_sw": be_cov_te['sw'],
+                f"{phase}_analysis/af_test_sw": af_cov_te['sw'],
+                f"{phase}_analysis/be_test_sb": be_cov_te['sb'],
+                f"{phase}_analysis/af_test_sb": af_cov_te['sb'],
+                f"{phase}_analysis/be_test_AFS": be_te_AFS,
+                f"{phase}_analysis/af_test_AFS": af_te_AFS,
+                f"{phase}_analysis/be_test_Asw": be_te_s_w,
+                f"{phase}_analysis/af_test_Asw": af_te_s_w,
+                f"{phase}_analysis/be_test_Asb": be_te_s_b,
+                f"{phase}_analysis/af_test_Asb": af_te_s_b,
+                }
+            
+            if cov_adv is not None:
+                wandb_logs.update(
+                    {
+                    f"{phase}_analysis/be_adv_sw": be_cov_adv['sw'], 
+                    f"{phase}_analysis/af_adv_sw": af_cov_adv['sw'], 
+                    f"{phase}_analysis/be_adv_sb": be_cov_adv['sb'], 
+                    f"{phase}_analysis/af_adv_sb": af_cov_adv['sb'], 
+                    f"{phase}_analysis/be_adv_AFS": be_adv_AFS, 
+                    f"{phase}_analysis/af_adv_AFS": af_adv_AFS, 
+                    f"{phase}_analysis/be_adv_Asw": be_adv_s_w, 
+                    f"{phase}_analysis/af_adv_Asw": af_adv_s_w, 
+                    f"{phase}_analysis/be_adv_Asb": be_adv_s_b, 
+                    f"{phase}_analysis/af_adv_Asb": af_adv_s_b, 
+                    })

@@ -19,6 +19,7 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --phase1_epoch 10 --phase1_lr 1e-2 --phase1_optim_eps 1e-3 \
             --bert_feature_dim 1024 \
             --phase3_freeze_ode_block \
+            --phase3_epochs 15 \
             --wandb_project_name $project_name \
             --phase1_model_path $phase1_model_path \
             --cuda_id $CUDA_ID"

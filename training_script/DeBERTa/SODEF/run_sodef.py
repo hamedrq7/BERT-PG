@@ -83,6 +83,9 @@ def main():
         from train_utils import test_phase2
         test_phase2(phase2_model, args, device, advglue_feature_loader)
 
+        from analysis_utils import tsne_plot_phase1
+        tsne_plot_phase1(args, phase2_model, device, 'phase2', advglue_feature_loader)
+        
     print('Starting phase3...')
     phase3_model = None
     if not args.skip_phase3: 

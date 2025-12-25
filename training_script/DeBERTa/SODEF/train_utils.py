@@ -417,8 +417,8 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
             do_save=False, save_folder=None, save_name=None, return_preds=True, return_feats=True)
 
         # Eigvals, keys = max_real_max, real_max
-        tr_eigvals = online_eigval_analysis(phase2_model, feats=tr_res['feats_before_ode'], device=device, num_points=128)
-        te_eigvals = online_eigval_analysis(phase2_model, feats=te_res['feats_before_ode'], device=device, num_points=128)
+        tr_eigvals = online_eigval_analysis(phase2_model, feats=tr_res['feats_before_ode'], device=device, num_points=256)
+        te_eigvals = online_eigval_analysis(phase2_model, feats=te_res['feats_before_ode'], device=device, num_points=256)
 
         wandb_logging_stats = []
         wandb_logging_stats.append({
