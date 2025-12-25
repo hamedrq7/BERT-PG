@@ -256,10 +256,21 @@ def train_phase1(args, device, trainloader, testloader, adv_glue_loader=None):
         if args.wandb:
             wandb.log(wandb_logging)
 
-    return phase1_model # TODO return best model not the last...
+    RETURN_BEST_ADV = True
+    if RETURN_BEST_ADV:
+        load_name = 'phase1_best_adv_glue'
+    else: 
+        load_name = 'phase1'
 
+    return_model = get_a_phase1_model(args.bert_feature_dim, args.ode_dim, args.num_classes)
+    temp = torch.load(f'{save_path}/{load_name}_best_acc_ckpt.pth') 
+    statedic_temp = temp[list(temp.keys())[0]]    
+    return_model.load_state_dict(statedic_temp)
+
+    return return_model.to(device)
+ 
 def load_phase1(args, device, trainloader=None, testloader=None, sanity_check = True): 
-    saved_temp = torch.load(args.phase1_model_path)
+    saved_temp = 
     statedic_temp = saved_temp[list(saved_temp.keys())[0]] # ['model']
 
     phase1_model = get_a_phase1_model(args.bert_feature_dim, args.ode_dim, args.num_classes)
@@ -339,7 +350,8 @@ def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_l
             return 1.0
 
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
-    
+    best_adv_acc = 0.0 
+    best_acc = 0.0 
     phase2_batch_step = 0
     for epoch in trange(args.phase2_epoch): 
         
@@ -406,13 +418,15 @@ def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_l
             best_acc=110, 
             do_save=False, save_folder=None, save_name=None, return_preds=True, return_feats=True)
         te_res = test_ce_one_epoch(
-            epoch=-1, 
+            epoch=epoch, 
             model=phase2_model, 
             loader=testloader, 
             device=device, 
             criterion=nn.CrossEntropyLoss(), 
             best_acc=110, 
-            do_save=False, save_folder=None, save_name=None, return_preds=True, return_feats=True)
+            do_save=True, save_folder=save_path, best_acc=best_acc, save_name='phase2_clean', return_preds=True, return_feats=True)
+
+        best_acc = te_res['best_acc']
 
         # Eigvals, keys = max_real_max, real_max
         tr_eigvals = online_eigval_analysis(phase2_model, feats=tr_res['feats_before_ode'], device=device, num_points=256)
@@ -451,7 +465,17 @@ def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_l
 
         if adv_glue_loader is not None:
             adv_glue_reg_stats = test_phase2_regu(args, phase2_model, odefunc, device, testloader)
-            adv_glue_res = test_ce_one_epoch(-1, phase2_model, adv_glue_loader, device, nn.CrossEntropyLoss(), 110, False, '', '', True, True)
+            adv_glue_res = test_ce_one_epoch(epoch=epoch, 
+                                             model=phase2_model, 
+                                             loader=adv_glue_loader, device=device, 
+                                             criterion=nn.CrossEntropyLoss(), best_acc=best_adv_acc, 
+                                             do_save=True, 
+                                             save_folder=save_path, 
+                                             save_name='phase2_adv', 
+                                             return_feats=True, 
+                                             return_preds=True)
+            best_adv_acc=adv_glue_res['best_acc']
+
             adv_glue_eigvals = online_eigval_analysis(phase2_model, feats=adv_glue_res['feats_before_ode'], device=device, num_points=128)
             wandb_logging_stats.append({
                 "phase2_epoch": epoch,
@@ -480,7 +504,24 @@ def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_l
             save_path+f'/phase2_last_ckpt.pth'
         )
 
-    return phase2_model
+    return_model = get_a_phase2_model(args.bert_feature_dim, args.ode_dim, args.num_classes, args.phase2_integration_time, topol=args.use_topol_ode)
+    
+    # CLEAN THIS PART, add to args 
+    RETURN_BEST_ADV = True 
+    RETURN_BEST_CLEAN= False
+    RETURN_LAST=False
+    if RETURN_BEST_ADV: 
+        load_name = f'{save_path}/phase2_adv_best_acc_ckpt.pth'
+    elif RETURN_BEST_CLEAN: 
+        load_name = f'{save_path}/phase2_clean_best_acc_ckpt.pth'
+    elif RETURN_LAST:
+        load_name = f'{save_path}/phase2_last_ckpt.pth'
+
+    temp = torch.load(f'{save_path}/{load_name}') 
+    statedic_temp = temp[list(temp.keys())[0]]    
+    return_model.load_state_dict(statedic_temp)
+
+    return return_model
 
 def test_phase2_regu(args, model, odefunc, device, loader): 
     regu1_total = 0.0 

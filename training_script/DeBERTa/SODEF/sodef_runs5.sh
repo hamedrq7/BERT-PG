@@ -7,8 +7,8 @@ TR_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/tra
 TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz"
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz"
 CUDA_ID=0
-project_name="DeBERTa_SODEF_FAST"
-phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/AdamDefault-saving-best-adv-model/phase1/phase1_best_adv_glue_best_acc_ckpt.pth"
+project_name="MNLI_DeBERTa_SODEF"
+# phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/AdamDefault-saving-best-adv-model/phase1/phase1_best_adv_glue_best_acc_ckpt.pth"
 FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
@@ -19,7 +19,6 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
             --phase3_epochs 15 \
             --phase3_integration_time 8 \
             --wandb_project_name $project_name \
-            --phase1_model_path $phase1_model_path \
             --cuda_id $CUDA_ID"
 
 # ----------- EXPERIMENT PARAMETER SETS -----------
@@ -28,35 +27,38 @@ FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
 # base A "10.0 1.0 0.1"
 # base B "10.0 10.0 0.2"
 reg_sets=(
-  "1.0 1.0 1.0"
-  "0.1 1.0 1.0"
-  "1.0 0.1 1.0"
-  "1.0 1.0 0.1"
-  "0.1 0.1 1.0"
-  "0.1 1.0 0.1"
-  "1.0 0.1 0.1"
-  "0.01 1.0 1.0"
-  "1.0 0.01 1.0"
-  "1.0 1.0 0.01"
-  "0.01 0.01 1.0"
-  "0.01 1.0 0.01"
-  "1.0 0.01 0.01"
-  "0.01 0.1 1.0"
-  "0.01 1.0 0.1"
-  "0.1 0.01 1.0"
-  "1.0 0.01 0.1"
-  "0.1 1.0 0.01"
-  "1.0 0.1 0.01"
-  "1.0 1.0 0.0"
-  "0.1 1.0 0.0"
-  "1.0 0.1 0.0"
-  "1.0 0.0 1.0"
-  "1.0 0.0 0.1"
-  "0.1 0.0 1.0"
-  "0.0 1.0 1.0"
-  "0.0 0.1 1.0"
-  "0.0 1.0 0.1"
+  "10.0 1.0 0.1"
+  "10.0 10.0 0.2"
 )
+
+# "1.0 1.0 1.0"
+#   "0.1 1.0 1.0"
+#   "1.0 0.1 1.0"
+#   "1.0 1.0 0.1"
+#   "0.1 0.1 1.0"
+#   "0.1 1.0 0.1"
+#   "1.0 0.1 0.1"
+#   "0.01 1.0 1.0"
+#   "1.0 0.01 1.0"
+#   "1.0 1.0 0.01"
+#   "0.01 0.01 1.0"
+#   "0.01 1.0 0.01"
+#   "1.0 0.01 0.01"
+#   "0.01 0.1 1.0"
+#   "0.01 1.0 0.1"
+#   "0.1 0.01 1.0"
+#   "1.0 0.01 0.1"
+#   "0.1 1.0 0.01"
+#   "1.0 0.1 0.01"
+#   "1.0 1.0 0.0"
+#   "0.1 1.0 0.0"
+#   "1.0 0.1 0.0"
+#   "1.0 0.0 1.0"
+#   "1.0 0.0 0.1"
+#   "0.1 0.0 1.0"
+#   "0.0 1.0 1.0"
+#   "0.0 0.1 1.0"
+#   "0.0 1.0 0.1"
 
 # phase2_exponent, 1.0
 # phase2_exponent_off, 0.1 
@@ -96,7 +98,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="on"
-lossC_set=(10.0) # 0.05 0.25 1.0
+lossC_set=(0.0 1.0) # 0.05 0.25 1.0
 bs_set=(128) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
@@ -141,7 +143,7 @@ for bs in "${bs_set[@]}"; do
                             # exp_name="FREEZE_FC_baseA_topol=${topol_ode}_lossC=${lossC}"
 
                             # ---------------- Output directory ----------------
-                            output_dir="../DeBERTa_SODEF_FAST/${exp_name}"
+                            output_dir="../MNLI_DeBERTa_SODEF_/${exp_name}"
 
                             # ---------------- Command to run ----------------
                             CMD="python run_sodef.py \
