@@ -65,10 +65,12 @@ def main():
             shuffle=True, num_workers=args.num_workers,
             pin_memory=args.pin_memory
         )
+    assert args.phase1_batch_size == args.phase2_batch_size and  args.phase1_batch_size == args.phase3_batch_size, 'one global loader'
+    trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
 
     if not args.skip_phase1: 
         from train_utils import train_phase1, load_phase1
-        phase1_model = train_phase1(args, device, adv_glue_loader=advglue_feature_loader) if args.phase1_model_path is None else load_phase1(args, device, True)
+        phase1_model = train_phase1(args, device, trainloader, testloader, adv_glue_loader=advglue_feature_loader) if args.phase1_model_path is None else load_phase1(args, device, trainloader, testloader, True)
         # base + phase1/phase1_best_acc_ckpt.pth
         from analysis_utils import tsne_plot_phase1
         # tsne_plot_phase1(args, phase1_model, device, advglue_loader=advglue_feature_loader)
@@ -76,21 +78,21 @@ def main():
     phase2_model = None
     if not args.skip_phase2: 
         from train_utils import train_phase2, load_phase2
-        phase2_model = train_phase2(phase1_model, args, device, adv_glue_loader=advglue_feature_loader) if args.phase2_model_path is None else load_phase2(args, device, False, advglue_feature_loader)
+        phase2_model = train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_loader=advglue_feature_loader) if args.phase2_model_path is None else load_phase2(args, device, trainloader, testloader, False, advglue_feature_loader)
         # base + phase2/phase2_last_ckpt.pth
     
         print('******* After phase2... ******* ')
         from train_utils import test_phase2
-        test_phase2(phase2_model, args, device, advglue_feature_loader)
+        test_phase2(phase2_model, args, device, trainloader, testloader, advglue_feature_loader)
 
         from analysis_utils import tsne_plot_phase1
-        tsne_plot_phase1(args, phase2_model, device, 'phase2', advglue_feature_loader)
+        tsne_plot_phase1(args, phase2_model, device, trainloader, testloader, 'phase2', advglue_feature_loader)
 
     print('Starting phase3...')
     phase3_model = None
     if not args.skip_phase3: 
         from train_utils import train_phase3, load_phase3
-        phase3_model = load_phase3(args, device, False)  if args.phase3_model_path is not None else train_phase3(phase2_model, args, device, adv_glue_loader=advglue_feature_loader) 
+        phase3_model = load_phase3(args, device, trainloader, testloader, False)  if args.phase3_model_path is not None else train_phase3(phase2_model, args, device, trainloader, testloader, adv_glue_loader=advglue_feature_loader) 
         # base + phase3/phase3_best_acc_ckpt.pth
 
         from train_utils import test_adv_glue
@@ -107,7 +109,6 @@ def main():
         
         for model in models: 
             print('Analysing ', model[0], ' model')
-            trainloader, testloader = get_feature_dataloader(args, args.phase3_batch_size)
             
             eigval_analysis(model[1], trainloader, device,
                             output_path=f'{args.output_dir}/{model[0]}', 
@@ -124,8 +125,6 @@ def main():
     
     if args.denoising_analysis: 
         from analysis_utils import denoising_analysis
-        from train_utils import get_feature_dataloader
-        trainloader, testloader = get_feature_dataloader(args, args.phase3_batch_size)
         denoising_analysis(phase2_model, phase3_model, trainloader, testloader, device, advglue_feature_loader) 
 
         from analysis_utils import raddddddi, raddddddi_rand

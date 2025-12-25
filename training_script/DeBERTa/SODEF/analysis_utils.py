@@ -1290,9 +1290,8 @@ def AFS(feats, tars, num_classes):
 
     return AFS, s_w, s_b
 
-def tsne_plot_phase1(args, model, device, phase: str = 'phase1', advglue_loader=None):
+def tsne_plot_phase1(args, model, device, trainloader, testloader, phase: str = 'phase1', advglue_loader=None):
     wandb.define_metric(f"{phase}_analysis/*", step_metric=f"{phase}_analysis_step")
-    trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
     
     def get_feats(model, device, loader, K = 10000): 
         from model_utils import Phase1Model, Phase2Model

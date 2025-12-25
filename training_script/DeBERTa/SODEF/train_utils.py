@@ -140,7 +140,7 @@ def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save
     }
 
 
-def train_phase1(args, device, adv_glue_loader=None): 
+def train_phase1(args, device, trainloader, testloader, adv_glue_loader=None): 
 
     # if you dont ignore dropout, you need to do a drop out at the very begining of every model
     # at the input data essentially 
@@ -151,7 +151,6 @@ def train_phase1(args, device, adv_glue_loader=None):
     if args.wandb:
         wandb.define_metric("phase1/*", step_metric="phase1_step")
 
-    trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
     phase1_model = Phase1Model(args.bert_feature_dim, args.ode_dim, args.num_classes).to(device)
     phase1_model.set_all_req_grads()
     if args.phase1_freeze_fc:
@@ -259,7 +258,7 @@ def train_phase1(args, device, adv_glue_loader=None):
 
     return phase1_model # TODO return best model not the last...
 
-def load_phase1(args, device, sanity_check = True): 
+def load_phase1(args, device, trainloader=None, testloader=None, sanity_check = True): 
     saved_temp = torch.load(args.phase1_model_path)
     statedic_temp = saved_temp[list(saved_temp.keys())[0]] # ['model']
 
@@ -269,7 +268,6 @@ def load_phase1(args, device, sanity_check = True):
 
     if sanity_check: 
         print('Sanity Check on loaded model phase 1 ... ')
-        trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
         criterion = get_loss(args.phase1_loss)
         tr_res = test_ce_one_epoch(-1, phase1_model, trainloader, device, criterion, 110, False, None, None)
         te_res = test_ce_one_epoch(-1, phase1_model, testloader, device, criterion, 110, False, None, None)
@@ -281,7 +279,7 @@ def load_phase1(args, device, sanity_check = True):
 from model_utils import topol_ODEfunc_mlp
 from analysis_utils import online_eigval_analysis 
 
-def train_phase2(phase1_model, args, device, adv_glue_loader=None): 
+def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_loader=None): 
     # # HYPERPARAMS
     # parser.add_argument("--phase2_weight_diag", type=float, default=10)
     # parser.add_argument("--phase2_weight_off_diag", type=float, default=0.)
@@ -310,8 +308,6 @@ def train_phase2(phase1_model, args, device, adv_glue_loader=None):
 
     save_path = os.path.join(args.output_dir, args.phase2_save_path)
     os.makedirs(save_path, exist_ok=True)
-
-    trainloader, testloader = get_feature_dataloader(args, args.phase2_batch_size)
     
     odefunc = ODEfunc_mlp(args.ode_dim) if not args.use_topol_ode else topol_ODEfunc_mlp(args.ode_dim)
     phase2_model = Phase2Model(
@@ -513,7 +509,7 @@ def test_phase2_regu(args, model, odefunc, device, loader):
         'total_loss': total_loss / itr, 
     }
         
-def load_phase2(args, device, sanity_check = True, advglue_feature_loader = None): 
+def load_phase2(args, device, trainloader, testloader, sanity_check = True, advglue_feature_loader = None): 
     phase2_model = get_a_phase2_model(args.bert_feature_dim, args.ode_dim, args.num_classes, args.phase2_integration_time, topol=args.use_topol_ode)
 
     saved_temp = torch.load(args.phase2_model_path)
@@ -534,7 +530,6 @@ def load_phase2(args, device, sanity_check = True, advglue_feature_loader = None
         
     if sanity_check: 
         print('Sanity Check on loaded model phase 1 ... ')
-        trainloader, testloader = get_feature_dataloader(args, args.phase2_batch_size)
         criterion = nn.CrossEntropyLoss()
         tr_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), trainloader, device, criterion, 110, False, None, None)
         te_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), testloader, device, criterion, 110, False, None, None)
@@ -546,8 +541,7 @@ def load_phase2(args, device, sanity_check = True, advglue_feature_loader = None
 
     return phase2_model
 
-def test_phase2(phase2_model, args, device, advglue_feature_loader = None):
-    trainloader, testloader = get_feature_dataloader(args, args.phase2_batch_size)
+def test_phase2(phase2_model, args, device, trainloader, testloader, advglue_feature_loader = None):
     criterion = nn.CrossEntropyLoss()
     tr_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), trainloader, device, criterion, 110, False, None, None)
     te_res = test_ce_one_epoch(-1, SingleOutputWrapper(phase2_model), testloader, device, criterion, 110, False, None, None)
@@ -589,7 +583,7 @@ def test_phase2(phase2_model, args, device, advglue_feature_loader = None):
 #             })
 
 
-def train_phase3(phase2_model, args, device, adv_glue_loader=None): 
+def train_phase3(phase2_model, args, device, trainloader, testloader, adv_glue_loader=None): 
     
     # parser.add_argument("--phase3_metric", nargs="+", default=["ACC"])
     
@@ -600,8 +594,6 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
 
     save_path = os.path.join(args.output_dir, args.phase3_save_path)
     os.makedirs(save_path, exist_ok=True)
-
-    trainloader, testloader = get_feature_dataloader(args, args.phase3_batch_size)
 
     ODE_layer = ODEBlock(odefunc=phase2_model.ode_block.odefunc, t = args.phase3_integration_time)
     
@@ -726,7 +718,7 @@ def train_phase3(phase2_model, args, device, adv_glue_loader=None):
 
     return phase3_model
 
-def load_phase3(args, device, sanity_check = True): 
+def load_phase3(args, device, trainloader, testloader, sanity_check = True): 
     saved_temp = torch.load(args.phase3_model_path)
     statedic_temp = saved_temp[list(saved_temp.keys())[0]] # ['model']
 
@@ -748,7 +740,6 @@ def load_phase3(args, device, sanity_check = True):
         
     if sanity_check: 
         print('Sanity Check on loaded model phase 3 ... ')
-        trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
         criterion = get_loss(args.phase1_loss)
         tr_res = test_ce_one_epoch(-1, phase3_model, trainloader, device, criterion, 110, False, None, None)
         te_res = test_ce_one_epoch(-1, phase3_model, testloader, device, criterion, 110, False, None, None)
