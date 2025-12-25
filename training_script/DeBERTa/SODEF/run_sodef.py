@@ -18,7 +18,7 @@ CLF_LAYER_DIR = f'{BERT_CKPT_DIR}/bert_clf.pth'
 #     print('Test Acc, Loss', te_res['acc'], te_res['loss'])
 
 from general_utils import get_args
-from data_utils import get_adv_glue_feature_dataset
+from data_utils import get_adv_glue_feature_dataset, get_feature_dataloader
 
 import wandb
 import json
@@ -65,7 +65,9 @@ def main():
             shuffle=True, num_workers=args.num_workers,
             pin_memory=args.pin_memory
         )
+
     assert args.phase1_batch_size == args.phase2_batch_size and  args.phase1_batch_size == args.phase3_batch_size, 'one global loader'
+    from data_utils import get_feature_dataloader
     trainloader, testloader = get_feature_dataloader(args, args.phase1_batch_size)
 
     if not args.skip_phase1: 
