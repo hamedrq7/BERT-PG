@@ -100,10 +100,11 @@ def spectrum_for_points(odefunc: nn.Module, feats: torch.Tensor, idx: torch.Tens
     # eigvals_all: [M, 64] (complex)
     eigvals_all = torch.linalg.eigvals(J_all)
     print(eigvals_all.shape)
-    
+
     # max real part per sample
     # max_real: [M]
-    max_real = eigvals_all.real.max(dim=1)
+    max_real, _ = eigvals_all.real.max(dim=1)
+    print(max_real.shape)
 
     return eigvals_all, max_real
 
