@@ -520,7 +520,9 @@ def main():
         def on_evaluate(self, args, state, control, **kwargs):
             print(len(self.trainer.hamed_pooled_labels))
             print((self.trainer.hamed_pooled_labels[-1].shape))
+            print((self.trainer.hamed_pooled_labels[0].shape))
             print(len(self.trainer.hamed_pooled_features))
+            print((self.trainer.hamed_pooled_features[0].shape))
             print((self.trainer.hamed_pooled_features[-1].shape))
             labels = np.concatenate(self.trainer.hamed_pooled_labels)
             feats = np.concatenate(self.trainer.hamed_pooled_features, axis=0)
