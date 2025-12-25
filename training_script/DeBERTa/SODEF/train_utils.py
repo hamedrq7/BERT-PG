@@ -116,7 +116,7 @@ def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save
     acc = correct/total
 
     # Save checkpoint.
-    if acc > best_acc:
+    if acc >= best_acc:
         best_acc = acc
         if do_save: 
             print(f'Saving at epoch {epoch} with acc {acc} ...')
@@ -184,8 +184,8 @@ def train_phase1(args, device, adv_glue_loader=None):
     save_path = os.path.join(args.output_dir, args.phase1_save_path)
     os.makedirs(save_path, exist_ok=True)
 
-    best_acc = 0  # best test accuracy
-
+    best_acc = 0.0  # best test accuracy
+    best_adv_acc = 0.0
     # args.phase1_metric
     train_loss_history = []
     train_acc_history = []
@@ -243,7 +243,7 @@ def train_phase1(args, device, adv_glue_loader=None):
     
         adv_glue_res = None
         if adv_glue_loader is not None:
-            adv_glue_res = test_ce_one_epoch(epoch, phase1_model, adv_glue_loader, device, criterion, best_acc=110, do_save=False, save_folder='', save_name='', return_preds=True)
+            adv_glue_res = test_ce_one_epoch(epoch, phase1_model, adv_glue_loader, device, criterion, best_acc=best_adv_acc, do_save=True, save_folder=save_path, save_name='phase1_best_adv_glue', return_preds=True)
             wandb_logging['phase1/adv_glue_acc'] = adv_glue_res['acc']
             wandb_logging['phase1/adv_glue_f1'] = adv_glue_res['f1']
             wandb_logging['phase1/adv_glue_confmat'] = wandb.plot.confusion_matrix(
