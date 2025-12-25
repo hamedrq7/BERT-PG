@@ -483,8 +483,8 @@ def main():
 
                 # features_befor_clf = model.module.dropout(model.module.pooler(outputs.hidden_states[-1])) 
                 features_befor_clf = model.dropout(model.pooler(outputs.hidden_states[-1])) 
-                self.hamed_pooled_features.append(features_befor_clf.cpu().detach().numpy().squeeze())
-                self.hamed_pooled_labels.append(inputs['labels'].cpu().detach().numpy().squeeze())
+                self.hamed_pooled_features.append(features_befor_clf.cpu().detach().numpy())
+                self.hamed_pooled_labels.append(inputs['labels'].cpu().detach().numpy())
                 # print((self.hamed_pooled_features[-1].shape))
 
                 # Save past state if it exists
