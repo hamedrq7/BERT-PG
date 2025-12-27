@@ -270,7 +270,7 @@ def train_phase1(args, device, trainloader, testloader, adv_glue_loader=None):
     return return_model.to(device)
  
 def load_phase1(args, device, trainloader=None, testloader=None, sanity_check = True): 
-    saved_temp = 
+    saved_temp = torch.load(args.phase1_model_path)
     statedic_temp = saved_temp[list(saved_temp.keys())[0]] # ['model']
 
     phase1_model = get_a_phase1_model(args.bert_feature_dim, args.ode_dim, args.num_classes)
