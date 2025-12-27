@@ -6,7 +6,7 @@
 TR_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/train_features.npz"
 TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/test-m_features.npz" # test-mm_features.npz
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/adv_glue-m_features.npz" # adv_glue-mm_features.npz
-CUDA_ID=0
+CUDA_ID=1
 project_name="MNLI_DeBERTa_SODEF"
 # phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/MNLI-SODEF/matched/phase1-base/phase1/phase1_best_acc_ckpt.pth"
 phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/MNLI-SODEF/matched/phase1-base/phase1/phase1_best_adv_glue_best_acc_ckpt.pth"
@@ -112,7 +112,7 @@ phase2_param_sets=(
 decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
-topol_ode="on"
+topol_ode="off"
 lossC_set=(0.0) #  
 bs_set=(128) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
