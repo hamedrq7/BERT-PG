@@ -533,10 +533,16 @@ def main():
             feats = np.concatenate(self.trainer.hamed_pooled_features, axis=0)
             print('saving features and labels at ', state.epoch, ' size ', feats.shape)   
             fn = self.filename 
-            if task == 'mnli':
-               fn += '-m'
-            elif task == 'mnli-mm':
-                fn += '-mm' 
+            if not data_args.is_adv_glue: 
+                if task == 'mnli':
+                    fn += '-m'
+                elif task == 'mnli-mm':
+                    fn += '-mm'
+            else: 
+                if data_args.task_name == 'mnli':
+                    fn += '-m'
+                elif data_args.task_name == 'mnli-mm':
+                    fn += '-mm'
             np.savez(f'{self.save_dir}/{fn}_features.npz', feats = feats, labels = labels)
             trainer.hamed_pooled_features = []
             trainer.hamed_pooled_labels = []
