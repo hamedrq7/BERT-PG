@@ -73,6 +73,7 @@ def _test(ds, name, model, device):
     te_res = accu(model, dl, device, nn.CrossEntropyLoss())
     print('Acc, Loss', te_res['acc'], te_res['loss'])
 
+dummy_model = dummy_model.to(device)
 _test(tr, 'train', dummy_model, device)
 _test(te_m, 'test-m', dummy_model, device)
 _test(te_mm, 'test-mm', dummy_model, device)
