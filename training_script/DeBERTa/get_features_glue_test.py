@@ -413,7 +413,8 @@ def main():
     if training_args.do_eval:
         if "validation" not in datasets and "validation_matched" not in datasets:
             raise ValueError("--do_eval requires a validation dataset")
-        eval_dataset = datasets["validation_matched" if data_args.task_name == "mnli" else "validation"]
+        
+        eval_dataset = datasets["validation_matched" if (data_args.task_name == "mnli" and not data_args.is_adv_glue) else "validation"]
         if data_args.max_val_samples is not None:
             eval_dataset = eval_dataset.select(range(data_args.max_val_samples))
 

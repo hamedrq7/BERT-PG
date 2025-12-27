@@ -255,7 +255,7 @@ def main():
     #
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
-    if data_args.task_name is not None:
+    if data_args.task_name is not None and not data_args.is_adv_glue:
         # Downloading and loading a dataset from the hub.
         datasets = load_dataset("glue", data_args.task_name)
     else:
@@ -281,15 +281,15 @@ def main():
 
         if data_args.train_file.endswith(".csv"):
             # Loading a dataset from local csv files
-            datasets = load_dataset("csv", data_files=data_files)
+            datasets = load_dataset("csv", data_files=data_files, field=str(data_args.task_name))
         else:
             # Loading a dataset from local json files
-            datasets = load_dataset("json", data_files=data_files)
+            datasets = load_dataset("json", data_files=data_files, field=str(data_args.task_name))
     # See more about loading any type of standard or custom dataset at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
     # Labels
-    if data_args.task_name is not None:
+    if data_args.task_name is not None and not data_args.is_adv_glue:
         is_regression = data_args.task_name == "stsb"
         if not is_regression:
             label_list = datasets["train"].features["label"].names
@@ -423,14 +423,14 @@ def main():
     if training_args.do_eval:
         if "validation" not in datasets and "validation_matched" not in datasets:
             raise ValueError("--do_eval requires a validation dataset")
-        eval_dataset = datasets["validation_matched" if data_args.task_name == "mnli" else "validation"]
+        eval_dataset = datasets["validation_matched" if (data_args.task_name == "mnli" and not data_args.is_adv_glue) else "validation"]
         if data_args.max_val_samples is not None:
             eval_dataset = eval_dataset.select(range(data_args.max_val_samples))
 
     if training_args.do_predict or data_args.task_name is not None or data_args.test_file is not None:
         if "test" not in datasets and "test_matched" not in datasets:
             raise ValueError("--do_predict requires a test dataset")
-        test_dataset = datasets["test_matched" if data_args.task_name == "mnli" else "test"]
+        test_dataset = datasets["test_matched" if (data_args.task_name == "mnli" and not args.is_adv_glue) else "test"]
         if data_args.max_test_samples is not None:
             test_dataset = test_dataset.select(range(data_args.max_test_samples))
 
