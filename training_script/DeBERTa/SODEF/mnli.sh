@@ -9,7 +9,8 @@ ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/train
 CUDA_ID=1
 project_name="MNLI_DeBERTa_SODEF"
 # phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/AdamDefault-saving-best-adv-model/phase1/phase1_best_adv_glue_best_acc_ckpt.pth"
-FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
+FIXED_ARGS="--num_classes 3 \
+            --train_feature_set_dir $TR_FEATURE_DIR \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
             --seed 111 \
@@ -98,7 +99,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="on"
-lossC_set=(0.0 1.0 2.5) # 0.05 0.25 1.0
+lossC_set=(0.0) #  1.0 2.5
 bs_set=(128) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
