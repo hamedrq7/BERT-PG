@@ -51,7 +51,6 @@ check_min_version("4.5.0")
 task_to_keys = {
     "cola": ("sentence", None),
     "mnli": ("premise", "hypothesis"),
-    "mnli-mm": ("premise", "hypothesis"),
     "mrpc": ("sentence1", "sentence2"),
     "qnli": ("question", "sentence"),
     "qqp": ("question1", "question2"),
@@ -131,6 +130,11 @@ class DataTrainingArguments:
     only_acc: bool = field(
         default=False, metadata={"help": "no feat extraction, only getting acc"}
     )
+
+    missmatched: bool = field(
+        default=False, metadata={"help": "test the missmatched version of mnli"}
+    )
+    
 
     def __post_init__(self):
         if self.task_name is not None:
@@ -282,7 +286,7 @@ def main():
             datasets = load_dataset("csv", data_files=data_files, field=str(data_args.task_name))
         else:
             # Loading a dataset from local json files
-            datasets = load_dataset("json", data_files=data_files, field=str(data_args.task_name))
+            datasets = load_dataset("json", data_files=data_files, field=str(data_args.task_name) if not data_args.missmatched else str(data_args.task_name)+'-mm')
     # See more about loading any type of standard or custom dataset at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
@@ -541,9 +545,11 @@ def main():
                     fn += '-mm'
             else: 
                 if data_args.task_name == 'mnli':
-                    fn += '-m'
-                elif data_args.task_name == 'mnli-mm':
-                    fn += '-mm'
+                    if data_args.missmatched: 
+                        fn += '-mm'
+                    else: 
+                        fn += '-m'
+                
             np.savez(f'{self.save_dir}/{fn}_features.npz', feats = feats, labels = labels)
             trainer.hamed_pooled_features = []
             trainer.hamed_pooled_labels = []
