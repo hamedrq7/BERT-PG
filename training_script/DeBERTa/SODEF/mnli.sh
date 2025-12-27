@@ -155,9 +155,9 @@ for bs in "${bs_set[@]}"; do
                             fi
 
                             # ---------------- Construct experiment name ----------------
-                            exp_name="topol_ode=${topol_ode}_r1=${r1}_r2=${r2}_r3=${r3}_lossC=${lossC}"
+                            # exp_name="topol_ode=${topol_ode}_r1=${r1}_r2=${r2}_r3=${r3}_lossC=${lossC}"
                             # exp_name="FREEZE_FC_baseA_topol=${topol_ode}_lossC=${lossC}"
-
+                            exp_name="phase1-base"
                             # ---------------- Output directory ----------------
                             output_dir="../MNLI-SODEF/matched/${exp_name}"
 
