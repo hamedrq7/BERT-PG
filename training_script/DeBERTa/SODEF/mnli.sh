@@ -14,7 +14,7 @@ FIXED_ARGS="--num_classes 3 \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
             --seed 111 \
-            --phase2_epoch 40 \
+            --phase2_epoch 5 \
             --bert_feature_dim 1024 \
             --phase3_freeze_ode_block \
             --phase3_epochs 15 \

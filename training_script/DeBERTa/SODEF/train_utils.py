@@ -514,11 +514,11 @@ def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_l
     RETURN_BEST_CLEAN= False
     RETURN_LAST=False
     if RETURN_BEST_ADV: 
-        load_name = f'{save_path}/phase2_adv_best_acc_ckpt.pth'
+        load_name = f'phase2_adv_best_acc_ckpt.pth'
     elif RETURN_BEST_CLEAN: 
-        load_name = f'{save_path}/phase2_clean_best_acc_ckpt.pth'
+        load_name = f'phase2_clean_best_acc_ckpt.pth'
     elif RETURN_LAST:
-        load_name = f'{save_path}/phase2_last_ckpt.pth'
+        load_name = f'/phase2_last_ckpt.pth'
 
     temp = torch.load(f'{save_path}/{load_name}') 
     statedic_temp = temp[list(temp.keys())[0]]    
