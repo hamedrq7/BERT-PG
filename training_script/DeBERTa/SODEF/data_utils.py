@@ -24,8 +24,8 @@ class BERT_feature_dataset(Dataset):
 def get_feature_dataloader(args, batch_size): 
 
     if args.feature_set_dir is None: 
-        train_feature_set = get_single_sst2_feature_dataset(args.train_feature_set_dir)
-        test_feature_set = get_single_sst2_feature_dataset(args.test_feature_set_dir)
+        train_feature_set = get_single_sst2_feature_dataset(args.train_feature_set_dir, K = 100)
+        test_feature_set = get_single_sst2_feature_dataset(args.test_feature_set_dir, K = 100)
     else: 
         train_feature_set, test_feature_set = get_sst2_feature_dataset(args.feature_set_dir)
 
@@ -55,11 +55,12 @@ def get_adv_glue_feature_dataset(path: str, TEMP=False):
     
     return val_ds
 
-def get_single_sst2_feature_dataset(path: str): 
+def get_single_sst2_feature_dataset(path: str, K = None): 
     loaded_np = np.load(path)
-    # Keys: train_feats, train_labels, val_feats, val_labels
-    ds = BERT_feature_dataset(loaded_np['feats'], loaded_np['labels'])
-
+    if K is None:
+        ds = BERT_feature_dataset(loaded_np['feats'], loaded_np['labels'])
+    else: 
+        ds = BERT_feature_dataset(loaded_np['feats'][:K], loaded_np['labels'][:K])
     print('DS: ', ds.x.shape, ds.y.shape)
     
     return ds
