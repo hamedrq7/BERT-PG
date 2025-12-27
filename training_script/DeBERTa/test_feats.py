@@ -23,7 +23,7 @@ class DeBertCLF(nn.Module):
         self.classifier = nn.Linear(dim_in, num_classes)
 
     def forward(self, x): 
-        return self.classifier(self.dropout(x))
+        return self.classifier((x))
 
 dummy_model = DeBertCLF(dims[1], dims[0])
 missing_keys, unexpected_keys = dummy_model.load_state_dict(weights, strict=False)
