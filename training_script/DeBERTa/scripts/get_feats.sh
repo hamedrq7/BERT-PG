@@ -62,7 +62,7 @@
 #   # --eval_accumulation_steps 128 \
 #   # --max_val_samples 256 \
 
-TASK_NAME=mnli
+TASK_NAME="mnli-mm" # mnli
 EXP_INDEX=feats
 num_epochs=1
 warmup=10000
