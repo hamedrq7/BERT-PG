@@ -542,6 +542,7 @@ def test_phase2_regu(args, model, odefunc, device, loader):
             regu2_total += regu2.item()
             regu3_total += regu3.item()
             total_loss += loss.item()
+    itr += 1
     return {
         'regu1': regu1_total / itr, 
         'regu2': regu2_total / itr, 
