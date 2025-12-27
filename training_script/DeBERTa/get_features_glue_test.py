@@ -127,6 +127,10 @@ class DataTrainingArguments:
         default=False, metadata={"help": "Flag when using adv_glue"}
     )
 
+    only_acc: bool = field(
+        default=False, metadata={"help": "no feat extraction, only getting acc"}
+    )
+
     def __post_init__(self):
         if self.task_name is not None:
             self.task_name = self.task_name.lower()
@@ -313,7 +317,7 @@ def main():
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
 
-        output_hidden_states = True, 
+        output_hidden_states = False if data_args.only_acc else True, 
         output_attentions = False, 
         return_dict = True,
     )
@@ -539,23 +543,35 @@ def main():
 
     callback = MyCallback()
     
-    # training_args.prediction_loss_only = True
-    # Initialize our Trainer
-    trainer = CustomTrainer(
-        model=model,
-        args=training_args,
-        # train_dataset=train_dataset if training_args.do_train else None,
-        eval_dataset=eval_dataset if training_args.do_eval else None,
-        # compute_metrics=compute_metrics,
-        tokenizer=tokenizer,
-        data_collator=data_collator,
-    )
-    callback.trainer = trainer    # <--- ADD THIS
-    callback.save_dir = training_args.logging_dir
-    callback.filename = 'adv_glue' if data_args.is_adv_glue else 'test'
-    trainer.add_callback(callback)
+    
+    if data_args.only_acc: 
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            train_dataset=train_dataset if training_args.do_train else None,
+            eval_dataset=eval_dataset if training_args.do_eval else None,
+            compute_metrics=compute_metrics,
+            tokenizer=tokenizer,
+            data_collator=data_collator,
+        )
+    else: 
+        # training_args.prediction_loss_only = True
+        # Initialize our Trainer
+        trainer = CustomTrainer(
+            model=model,
+            args=training_args,
+            # train_dataset=train_dataset if training_args.do_train else None,
+            eval_dataset=eval_dataset if training_args.do_eval else None,
+            # compute_metrics=compute_metrics,
+            tokenizer=tokenizer,
+            data_collator=data_collator,
+        )
+        callback.trainer = trainer    # <--- ADD THIS
+        callback.save_dir = training_args.logging_dir
+        callback.filename = 'adv_glue' if data_args.is_adv_glue else 'test'
+        trainer.add_callback(callback)
 
-    print('trainer', trainer)
+        print('trainer', trainer)
 
     # import torch 
     # vocab_size = tokenizer.vocab_size    

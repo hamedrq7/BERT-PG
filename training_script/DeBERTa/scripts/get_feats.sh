@@ -58,7 +58,8 @@ CUDA_VISIBLE_DEVICES=1 torchrun --nproc_per_node=${num_gpus} --master_port=29501
   --logging_dir $EXP_DIR/$EXP_INDEX \
   --save_total_limit 1 \
   --resume_from_checkpoint $EXP_DIR \
-  --eval_accumulation_steps 128 \
+  --only_acc \
+  # --eval_accumulation_steps 128 \
   # --max_val_samples 256 \
 
 # TASK_NAME=mnli
