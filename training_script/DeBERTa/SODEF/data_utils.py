@@ -24,8 +24,8 @@ class BERT_feature_dataset(Dataset):
 def get_feature_dataloader(args, batch_size): 
 
     if args.feature_set_dir is None: 
-        train_feature_set = get_single_sst2_feature_dataset(args.train_feature_set_dir, K = 100)
-        test_feature_set = get_single_sst2_feature_dataset(args.test_feature_set_dir, K = 100)
+        train_feature_set = get_single_sst2_feature_dataset(args.train_feature_set_dir) # , K = 100
+        test_feature_set = get_single_sst2_feature_dataset(args.test_feature_set_dir) # , K = 100
     else: 
         train_feature_set, test_feature_set = get_sst2_feature_dataset(args.feature_set_dir)
 

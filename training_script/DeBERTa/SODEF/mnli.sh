@@ -14,7 +14,7 @@ FIXED_ARGS="--num_classes 3 \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
             --seed 111 \
-            --phase2_epoch 5 \
+            --phase2_epoch 40 \
             --bert_feature_dim 1024 \
             --phase3_freeze_ode_block \
             --phase3_epochs 15 \
@@ -29,8 +29,9 @@ FIXED_ARGS="--num_classes 3 \
 # base B "10.0 10.0 0.2"
 reg_sets=(
   "10.0 1.0 0.1" 
+  "10.0 10.0 0.2"
 )
-# "10.0 10.0 0.2"
+# 
 
 
 
@@ -102,7 +103,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="on"
-lossC_set=(0.0) #  1.0 2.5
+lossC_set=(0.0 1.0 2.5) #  
 bs_set=(128) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
