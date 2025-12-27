@@ -87,3 +87,10 @@ def inf_generator(iterable):
             yield iterator.__next__()
         except StopIteration:
             iterator = iterable.__iter__()
+
+if __name__=="__main__":
+    path_to_test = '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/train_features.npz'
+    get_single_sst2_feature_dataset(path=path_to_test)
+    path_to_test = '/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/test_features.npz'
+    get_single_sst2_feature_dataset(path=path_to_test)
+    
