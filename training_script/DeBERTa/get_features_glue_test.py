@@ -638,9 +638,9 @@ def main():
         tasks = [data_args.task_name]
         eval_datasets = [eval_dataset]
 
-        if data_args.task_name == "mnli":
-            tasks.append("mnli-mm")
-            eval_datasets.append(datasets["validation_mismatched"])
+        # if data_args.task_name == "mnli":
+        #     tasks.append("mnli-mm")
+        #     eval_datasets.append(datasets["validation_mismatched"])
 
         for eval_dataset, task in zip(eval_datasets, tasks):
             curr_tast = task 
