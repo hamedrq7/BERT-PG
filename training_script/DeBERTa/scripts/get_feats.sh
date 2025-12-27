@@ -95,6 +95,7 @@ CUDA_VISIBLE_DEVICES=1 torchrun --nproc_per_node=${num_gpus} --master_port=29501
   --save_total_limit 1 \
   --resume_from_checkpoint $EXP_DIR \
   --eval_accumulation_steps 128 \
+  --missmatched \
  #  --eval_accumulation_steps 4 \
   # --max_val_samples 5 \
 
