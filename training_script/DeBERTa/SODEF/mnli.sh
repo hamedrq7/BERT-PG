@@ -3,9 +3,9 @@
 
 # ----------- CONSTANT ARGUMENTS -----------
 
-TR_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/train_features.npz"
-TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/test_features.npz"
-ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/sst2/feats/advglue_features.npz"
+TR_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/train_features.npz"
+TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/test-m_features.npz" # test-mm_features.npz
+ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/adv_glue-m_features.npz" # adv_glue-mm_features.npz
 CUDA_ID=0
 project_name="MNLI_DeBERTa_SODEF"
 # phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/AdamDefault-saving-best-adv-model/phase1/phase1_best_adv_glue_best_acc_ckpt.pth"
@@ -98,7 +98,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="on"
-lossC_set=(0.0 1.0) # 0.05 0.25 1.0
+lossC_set=(0.0 1.0 2.5) # 0.05 0.25 1.0
 bs_set=(128) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
@@ -143,7 +143,7 @@ for bs in "${bs_set[@]}"; do
                             # exp_name="FREEZE_FC_baseA_topol=${topol_ode}_lossC=${lossC}"
 
                             # ---------------- Output directory ----------------
-                            output_dir="../MNLI_DeBERTa_SODEF_/${exp_name}"
+                            output_dir="../MNLI-SODEF/matched/${exp_name}"
 
                             # ---------------- Command to run ----------------
                             CMD="python run_sodef.py \
