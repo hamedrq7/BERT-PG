@@ -524,7 +524,7 @@ def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_l
     statedic_temp = temp[list(temp.keys())[0]]    
     return_model.load_state_dict(statedic_temp)
 
-    return return_model
+    return return_model.to(device)
 
 def test_phase2_regu(args, model, odefunc, device, loader): 
     regu1_total = 0.0 
