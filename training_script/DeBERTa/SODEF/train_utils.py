@@ -403,7 +403,11 @@ def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_l
             phase2_batch_step += 1
 
         if args.decay_lr:
+            prev_lr = optimizer.param_groups[0]['lr']
             scheduler.step()
+            curr_lr = optimizer.param_groups[0]['lr']
+            if curr_lr != prev_lr:
+                print(f"LR changed: {prev_lr:.6g} → {curr_lr:.6g}")
 
         phase2_model.eval()
 
