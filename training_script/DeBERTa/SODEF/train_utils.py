@@ -132,7 +132,7 @@ def test_ce_one_epoch(epoch, model, loader, device, criterion, best_acc, do_save
         'loss': avg_loss, 
         'acc': acc,
         'best_acc': best_acc,
-        'f1': f1_score(all_labels, all_preds),
+        'f1': 0.0, # f1_score(all_labels, all_preds), # TODO fix this
         'preds': None if not return_preds else all_preds,
         'labels': None if not return_preds else all_labels,
         'feats_before_ode': None if not return_feats else torch.cat(all_feats_before_ode, dim=0), 
