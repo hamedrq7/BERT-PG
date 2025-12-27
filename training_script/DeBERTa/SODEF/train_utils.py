@@ -423,7 +423,6 @@ def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_l
             loader=testloader, 
             device=device, 
             criterion=nn.CrossEntropyLoss(), 
-            best_acc=110, 
             do_save=True, save_folder=save_path, best_acc=best_acc, save_name='phase2_clean', return_preds=True, return_feats=True)
 
         best_acc = te_res['best_acc']
