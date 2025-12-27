@@ -526,8 +526,13 @@ def main():
             print((self.trainer.hamed_pooled_features[-1].shape))
             labels = np.concatenate(self.trainer.hamed_pooled_labels)
             feats = np.concatenate(self.trainer.hamed_pooled_features, axis=0)
-            print('saving features and labels at ', state.epoch, ' size ', feats.shape)    
-            np.savez(f'{self.save_dir}/{self.filename}_features.npz', feats = feats, labels = labels)
+            print('saving features and labels at ', state.epoch, ' size ', feats.shape)   
+            fn = self.filename 
+            if task == 'mnli':
+               fn += '-m'
+            elif task == 'mnli-mm':
+                fn += '-mm' 
+            np.savez(f'{self.save_dir}/{fn}_features.npz', feats = feats, labels = labels)
             trainer.hamed_pooled_features = []
             trainer.hamed_pooled_labels = []
             print('Flushed trainer savings: ', len(trainer.hamed_pooled_features), len(trainer.hamed_pooled_labels))
@@ -615,11 +620,13 @@ def main():
         # Loop to handle MNLI double evaluation (matched, mis-matched)
         tasks = [data_args.task_name]
         eval_datasets = [eval_dataset]
+
         if data_args.task_name == "mnli":
             tasks.append("mnli-mm")
             eval_datasets.append(datasets["validation_mismatched"])
 
         for eval_dataset, task in zip(eval_datasets, tasks):
+            curr_tast = task 
             metrics = trainer.evaluate(eval_dataset=eval_dataset)
 
             max_val_samples = data_args.max_val_samples if data_args.max_val_samples is not None else len(eval_dataset)
