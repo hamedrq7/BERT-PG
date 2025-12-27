@@ -236,7 +236,7 @@ def train_phase1(args, device, trainloader, testloader, adv_glue_loader=None):
             "phase1/test_confmat":  wandb.plot.confusion_matrix(
                 y_true=te_results['labels'],
                 preds=te_results['preds'],
-                class_names=["class_{i}" for i in range(args.num_classes)],
+                class_names=[f"class_{i}" for i in range(args.num_classes)],
             )
         }
     
@@ -250,7 +250,7 @@ def train_phase1(args, device, trainloader, testloader, adv_glue_loader=None):
             wandb_logging['phase1/adv_glue_confmat'] = wandb.plot.confusion_matrix(
                 y_true=adv_glue_res['labels'],
                 preds=adv_glue_res['preds'],
-                class_names=["class_{i}" for i in range(args.num_classes)],
+                class_names=[f"class_{i}" for i in range(args.num_classes)],
             )
             
         if args.wandb:
@@ -454,14 +454,14 @@ def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_l
             "phase2/val/train_confmat": wandb.plot.confusion_matrix(
                 y_true=tr_res['labels'],
                 preds=tr_res['preds'],
-                class_names=["class_{i}" for i in range(args.num_classes)],
+                class_names=[f"class_{i}" for i in range(args.num_classes)],
         )})
         wandb_logging_stats.append({
             "phase2_epoch": epoch,
             "phase2/val/test_confmat": wandb.plot.confusion_matrix(
                 y_true=te_res['labels'],
                 preds=te_res['preds'],
-                class_names=["class_{i}" for i in range(args.num_classes)],
+                class_names=[f"class_{i}" for i in range(args.num_classes)],
         )})
         
         # feats.norm(dim=1)
@@ -495,7 +495,7 @@ def train_phase2(phase1_model, args, device, trainloader, testloader, adv_glue_l
                 "phase2/val/advglue_confmat": wandb.plot.confusion_matrix(
                 y_true=adv_glue_res['labels'],
                 preds=adv_glue_res['preds'],
-                class_names=["class_{i}" for i in range(args.num_classes)],
+                class_names=[f"class_{i}" for i in range(args.num_classes)],
             )})
             
         if args.wandb:
@@ -738,7 +738,7 @@ def train_phase3(phase2_model, args, device, trainloader, testloader, adv_glue_l
             "phase3/test_confmat":  wandb.plot.confusion_matrix(
                 y_true=te_results['labels'],
                 preds=te_results['preds'],
-                class_names=["class_{i}" for i in range(args.num_classes)],
+                class_names=[f"class_{i}" for i in range(args.num_classes)],
         )})
 
         if adv_glue_loader is not None:
@@ -753,7 +753,7 @@ def train_phase3(phase2_model, args, device, trainloader, testloader, adv_glue_l
                 'phase3/adv_glue_confmat': wandb.plot.confusion_matrix(
                 y_true=adv_glue_res['labels'],
                 preds=adv_glue_res['preds'],
-                class_names=["class_{i}" for i in range(args.num_classes)],
+                class_names=[f"class_{i}" for i in range(args.num_classes)],
             )})
             
 

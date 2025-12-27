@@ -6,7 +6,7 @@
 TR_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/train_features.npz"
 TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/test-m_features.npz" # test-mm_features.npz
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/adv_glue-m_features.npz" # adv_glue-mm_features.npz
-CUDA_ID=1
+CUDA_ID=0
 project_name="MNLI_DeBERTa_SODEF"
 # phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/AdamDefault-saving-best-adv-model/phase1/phase1_best_adv_glue_best_acc_ckpt.pth"
 FIXED_ARGS="--num_classes 3 \
@@ -14,12 +14,15 @@ FIXED_ARGS="--num_classes 3 \
             --test_feature_set_dir $TE_FEATURE_DIR \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
             --seed 111 \
+            --phase1_epoch 15 \
             --phase2_epoch 40 \
             --bert_feature_dim 1024 \
             --phase3_freeze_ode_block \
             --phase3_epochs 15 \
             --phase3_integration_time 8 \
             --wandb_project_name $project_name \
+            --skip_phase2 \
+            --skip_phase3 \
             --cuda_id $CUDA_ID"
 
 # ----------- EXPERIMENT PARAMETER SETS -----------
@@ -28,8 +31,16 @@ FIXED_ARGS="--num_classes 3 \
 # base A "10.0 1.0 0.1"
 # base B "10.0 10.0 0.2"
 reg_sets=(
-  "10.0 1.0 0.1" 
-  "10.0 10.0 0.2"
+  "1.0 1.0 1.0"
+#   "1.0 0.1 1.0"
+#   "1.0 1.0 0.1"
+#   "1.0 0.1 0.1"
+#   "1.0 1.0 0.01"
+#   "1.0 0.01 0.01"
+#   "1.0 0.01 0.1"
+#   "1.0 0.1 0.01"
+#   "1.0 1.0 0.0"
+#   "1.0 0.1 0.0"
 )
 # 
 
@@ -103,7 +114,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="on"
-lossC_set=(0.0 1.0 2.5) #  
+lossC_set=(0.0) #  
 bs_set=(128) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
@@ -132,7 +143,7 @@ for bs in "${bs_set[@]}"; do
                             fi
 
                             if [[ "$optim" == "on" ]]; then
-                                optim_args="--phase2_lr 0.001 --phase2_eps 1e-08 --no_phase2_amsgrad"
+                                optim_args="--phase2_lr 0.0005 --phase2_eps 1e-08 --no_phase2_amsgrad" # --phase2_lr 0.001
                             fi
 
                             if [[ "$optim" == "sgd" ]]; then
