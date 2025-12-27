@@ -39,8 +39,11 @@ class Phase1Model(nn.Module):
     def __init__(self, feature_dim, ode_dim, num_classes): 
         super(Phase1Model, self).__init__()
         self.orthogonal_bridge_layer = MLP_OUT_ORTH_X_X(feature_dim, ode_dim) 
-        max_row_mat = get_max_row_dist_for_2_classes(ode_dim)
-        check_max_row_dist_matrix(max_row_mat.cpu().numpy().T, 2)
+        if num_classes == 2: 
+            max_row_mat = get_max_row_dist_for_2_classes(ode_dim)
+        elif num_classes == 3:
+            max_row_mat = get_max_row_dist_for_3_classes(ode_dim)
+        check_max_row_dist_matrix(max_row_mat.cpu().numpy().T, num_classes)
         self.fc = MLP_OUT_BALL_given_mat(max_row_mat, dim=ode_dim, num_classes=num_classes)
     
     def set_all_req_grads(self, value=True):
@@ -144,6 +147,29 @@ def check_max_row_dist_matrix(V, num_classes = 10):
     else:
         print("\n✘ Off-diagonal similarities are NOT equal.")
 
+import torch
+import math
+
+def get_max_row_dist_for_3_classes(dim: int = 64, device: str = "cpu", dtype=torch.float32):
+    assert dim >= 2, "Need at least 2D to embed 3 simplex vertices (they lie in a 2D plane)."
+
+    # Sample two random orthonormal vectors u1, u2 in R^dim
+    u1 = torch.randn(dim, device=device, dtype=dtype)
+    u1 = u1 / (u1.norm() + 1e-12)
+
+    u2 = torch.randn(dim, device=device, dtype=dtype)
+    # Gram-Schmidt: make u2 orthogonal to u1
+    u2 = u2 - torch.dot(u2, u1) * u1
+    u2 = u2 / (u2.norm() + 1e-12)
+
+    # Equilateral triangle in span{u1,u2}
+    v1 = u1
+    v2 = (-0.5) * u1 + (math.sqrt(3) / 2.0) * u2
+    v3 = (-0.5) * u1 - (math.sqrt(3) / 2.0) * u2
+
+    # Stack as (feature_dim, 3) then return as (3, feature_dim)
+    W = torch.stack([v1, v2, v3], dim=1)  # [dim, 3]
+    return W.T  # [3, dim]
 
 def get_max_row_dist_for_2_classes(dim = 64, device="cpu"):
     # random unit vector in R^64
