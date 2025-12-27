@@ -6,7 +6,7 @@
 TR_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/train_features.npz"
 TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/test-m_features.npz" # test-mm_features.npz
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/adv_glue-m_features.npz" # adv_glue-mm_features.npz
-CUDA_ID=0
+CUDA_ID=1
 project_name="MNLI_DeBERTa_SODEF"
 # phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/DeBERTaSODEFPhase1/AdamDefault-saving-best-adv-model/phase1/phase1_best_adv_glue_best_acc_ckpt.pth"
 FIXED_ARGS="--train_feature_set_dir $TR_FEATURE_DIR \
