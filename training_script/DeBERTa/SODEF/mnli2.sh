@@ -16,7 +16,7 @@ FIXED_ARGS="--num_classes 3 \
             --adv_glue_feature_set_dir $ADV_GULE_DOR \
             --phase1_model_path $phase1_model_path \
             --seed 111 \
-            --phase2_epoch 20 \
+            --phase2_epoch 40 \
             --bert_feature_dim 1024 \
             --phase3_freeze_ode_block \
             --phase3_epochs 15 \
@@ -32,16 +32,13 @@ FIXED_ARGS="--num_classes 3 \
 reg_sets=(
   "1.0 1.0 1.0"
   "1.0 0.1 1.0"
-  "1.0 1.0 0.1"
-  "1.0 0.1 0.1"
-  "1.0 1.0 0.01"
-  "1.0 0.01 0.01"
-  "1.0 0.01 0.1"
-  "1.0 0.1 0.01"
-  "1.0 1.0 0.0"
-  "1.0 0.1 0.0"
 )
-# 
+#   "1.0 1.0 0.1"
+#   "1.0 0.1 0.1"
+#   "1.0 1.0 0.01"
+#   "1.0 0.01 0.01"
+#   "1.0 0.01 0.1"
+#   "1.0 0.1 0.01"
 
 
 
@@ -112,9 +109,9 @@ phase2_param_sets=(
 decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
-topol_ode="off"
+topol_ode="onn"
 lossC_set=(0.0) #  
-bs_set=(128) 
+bs_set=(64) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
 for bs in "${bs_set[@]}"; do
@@ -154,7 +151,8 @@ for bs in "${bs_set[@]}"; do
                             fi
 
                             # ---------------- Construct experiment name ----------------
-                            exp_name="topol_ode=${topol_ode}_r1=${r1}_r2=${r2}_r3=${r3}_lossC=${lossC}"
+                            # exp_name="topol_ode=${topol_ode}_r1=${r1}_r2=${r2}_r3=${r3}_lossC=${lossC}"
+                            exp_name="topol++_r1=${r1}_r2=${r2}_r3=${r3}_lossC=${lossC}"
                             # exp_name="FREEZE_FC_baseA_topol=${topol_ode}_lossC=${lossC}"
                             # exp_name="phase1-base"
                             # ---------------- Output directory ----------------

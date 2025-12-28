@@ -408,8 +408,8 @@ class topol_ODEfunc_mlp(nn.Module):
         self.act1 = self.act
         self.fc2 = ConcatFC(256, dim)
         self.act2 = self.act
-        # self.fc3 = ConcatFC(256, dim)
-        # self.act3 = self.act
+        self.fc3 = ConcatFC(256, dim)
+        self.act3 = self.act
         self.nfe = 0
 
     def forward(self, t, x):
@@ -418,8 +418,8 @@ class topol_ODEfunc_mlp(nn.Module):
         out = self.act1(out)
         out = self.f_coeffi*self.fc2(t, out)
         out = self.act2(out)
-        # out = self.f_coeffi*self.fc3(t, out)
-        # out = self.act3(out)
+        out = self.f_coeffi*self.fc3(t, out)
+        out = self.act3(out)
         
         return out
     
