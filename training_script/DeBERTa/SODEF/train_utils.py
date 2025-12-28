@@ -269,7 +269,7 @@ def train_phase1(args, device, trainloader, testloader, adv_glue_loader=None):
 
     return return_model.to(device)
  
-def load_phase1(args, device, trainloader=None, testloader=None, sanity_check = True): 
+def load_phase1(args, device, trainloader=None, testloader=None, sanity_check = True, adv_glue_loader = None): 
     saved_temp = torch.load(args.phase1_model_path)
     statedic_temp = saved_temp[list(saved_temp.keys())[0]] # ['model']
 
@@ -284,7 +284,10 @@ def load_phase1(args, device, trainloader=None, testloader=None, sanity_check = 
         te_res = test_ce_one_epoch(-1, phase1_model, testloader, device, criterion, 110, False, None, None)
         print('Train Acc, Loss', tr_res['acc'], tr_res['loss'])
         print('Test Acc, Loss', te_res['acc'], te_res['loss'])
-
+        if not adv_glue_loader is None: 
+            adv_res = test_ce_one_epoch(-1, phase1_model, adv_glue_loader, device, criterion, 110, False, None, None)
+            print('AdvGLUE Acc, Loss', adv_res['acc'], adv_res['loss'])
+                
     return phase1_model
 
 from model_utils import topol_ODEfunc_mlp

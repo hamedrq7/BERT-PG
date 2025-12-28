@@ -72,7 +72,7 @@ def main():
 
     if not args.skip_phase1: 
         from train_utils import train_phase1, load_phase1
-        phase1_model = train_phase1(args, device, trainloader, testloader, adv_glue_loader=advglue_feature_loader) if args.phase1_model_path is None else load_phase1(args, device, trainloader, testloader, True)
+        phase1_model = train_phase1(args, device, trainloader, testloader, adv_glue_loader=advglue_feature_loader) if args.phase1_model_path is None else load_phase1(args, device, trainloader, testloader, True, advglue_feature_loader)
         # base + phase1/phase1_best_acc_ckpt.pth
         from analysis_utils import tsne_plot_phase1
         # tsne_plot_phase1(args, phase1_model, device, advglue_loader=advglue_feature_loader)
