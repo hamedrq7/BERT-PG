@@ -406,7 +406,8 @@ class topol_ODEfunc_mlp(nn.Module):
         self.f_coeffi = -1
         self.fc1 = ConcatFC(dim, 256)
         self.act1 = self.act
-        self.fc2 = ConcatFC(256, dim)
+        self.fc2 = ConcatFC(256, 256)
+        # self.fc2 = ConcatFC(256, dim)
         self.act2 = self.act
         self.fc3 = ConcatFC(256, dim)
         self.act3 = self.act
