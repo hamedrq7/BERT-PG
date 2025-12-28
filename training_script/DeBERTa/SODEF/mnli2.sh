@@ -173,6 +173,8 @@ for bs in "${bs_set[@]}"; do
                                 --phase2_integration_time $integ_t \
                                 --phase2_ce_weight $lossC \
                                 --phase2_batch_size $bs \
+                                --phase1_batch_size $bs \
+                                --phase3_batch_size $bs \
                                 --phase2_numm $bs \
                                 $decay_arg \
                                 $optim_args \
