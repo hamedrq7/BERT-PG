@@ -6,7 +6,7 @@
 TR_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/train_features.npz"
 TE_FEATURE_DIR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/test-m_features.npz" # test-mm_features.npz
 ADV_GULE_DOR="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/models/DeBERTs/large/mnli/feats/adv_glue-m_features.npz" # adv_glue-mm_features.npz
-CUDA_ID=1
+CUDA_ID=0
 project_name="MNLI_DeBERTa_SODEF"
 # phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/MNLI-SODEF/matched/phase1-base/phase1/phase1_best_acc_ckpt.pth"
 phase1_model_path="/mnt/data/hossein/Hossein_workspace/nips_cetra/hamed/BERT-PG/training_script/DeBERTa/MNLI-SODEF/matched/phase1-base/phase1/phase1_best_adv_glue_best_acc_ckpt.pth"
@@ -79,7 +79,7 @@ reg_sets=(
 # phase2_trans, 1.0
 # phase2_trans_off_diag, 1.0 
 # phase2_integration_time, 5.0
-  # "1.0 0.1 50.0 1.0 1.0 1.0 5.0" 
+  # "1.0 0.1 50.0 1.0 1.0 1.0 5.0"  ## Base
 phase2_param_sets=(
   "5.0 0.1 50.0 1.0 1.0 1.0 5.0" 
   "1.0 1.0 50.0 1.0 1.0 1.0 5.0" 
@@ -152,7 +152,8 @@ for bs in "${bs_set[@]}"; do
 
                             # ---------------- Construct experiment name ----------------
                             # exp_name="topol_ode=${topol_ode}_r1=${r1}_r2=${r2}_r3=${r3}_lossC=${lossC}"
-                            exp_name="topol++_r1=${r1}_r2=${r2}_r3=${r3}_lossC=${lossC}"
+                            # exp_name="topol++_r1=${r1}_r2=${r2}_r3=${r3}_lossC=${lossC}"
+                            exp_name="topol++_r1=${r1}_r2=${r2}_r3=${r3}_lossC=${lossC}_expParamset_exp_${exp}_expfoff_${exp_off}_expF_${exp_f}"
                             # exp_name="FREEZE_FC_baseA_topol=${topol_ode}_lossC=${lossC}"
                             # exp_name="phase1-base"
                             # ---------------- Output directory ----------------
