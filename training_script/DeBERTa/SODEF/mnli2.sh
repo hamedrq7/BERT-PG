@@ -110,7 +110,7 @@ decay_options=("on")      # "on" or "off"
 default_adam=("on")       # "on" or "sgd"
 no_prevs=("off")          # "on" or "off"
 topol_ode="onn"
-lossC_set=(0.0) #  
+lossC_set=(0.0 0.1 0.05) #  
 bs_set=(64) 
 # ----------- LOOP OVER ALL EXPERIMENTS -----------
 
